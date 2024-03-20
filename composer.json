@@ -6,15 +6,18 @@
   "authors": [
     {
       "name": "Andrey Bogachevskiy",
-      "email": "a.bogachevskiy@efko.ru"
+      "homepage": "https://github.com/bogachevskes",
+      "role": "Owner"
     },
     {
       "name": "Dmitriy Suvorov",
-      "email": "d.suvorov@efko.ru"
+      "homepage": "https://github.com/suvor03",
+      "role": "Developer"
     },
     {
       "name": "Evgeniy Shevelev",
-      "email": "e.shevelev@efko.ru"
+      "homepage": "https://github.com/ShevelevEvgeniy",
+      "role": "Developer"
     }
   ],
   "minimum-stability": "stable",
