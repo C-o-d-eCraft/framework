@@ -1,0 +1,34 @@
+{
+  "name": "c-o-d-e-craft/framework",
+  "description": "Компонентный фреймворк, предоставляющий возможность быстрой реализации веб-приложений",
+  "license": "MIT",
+  "version": "0.1.0",
+  "authors": [
+    {
+      "name": "Andrey Bogachevskiy",
+      "email": "a.bogachevskiy@efko.ru"
+    },
+    {
+      "name": "Dmitriy Suvorov",
+      "email": "d.suvorov@efko.ru"
+    },
+    {
+      "name": "Evgeniy Shevelev",
+      "email": "e.shevelev@efko.ru"
+    }
+  ],
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {
+      "Craft\\": "src"
+    }
+  },
+  "require": {
+    "php": "^8.2",
+    "ext-pdo": "*"
+  },
+  "require-dev": {
+    "symfony/var-dumper": "^7.0",
+    "codeception/codeception": "^5.1.2"
+  }
+}
