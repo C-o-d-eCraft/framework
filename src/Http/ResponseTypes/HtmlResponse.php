@@ -1,7 +1,7 @@
 <?php
 
-namespace Framework\Http\ResponseTypes;
+namespace Craft\Http\ResponseTypes;
 
-use Framework\Http\Message\Response;
+use Craft\Http\Message\Response;
 
 class HtmlResponse extends Response { }

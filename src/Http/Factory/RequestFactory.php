@@ -1,10 +1,10 @@
 <?php
 
-namespace Framework\Http\Factory;
+namespace Craft\Http\Factory;
 
-use Framework\Contracts\RequestInterface;
-use Framework\Http\Message\Request;
-use Framework\Http\Message\Stream;
+use Craft\Contracts\RequestInterface;
+use Craft\Http\Message\Request;
+use Craft\Http\Message\Stream;
 
 class RequestFactory
 {

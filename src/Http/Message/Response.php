@@ -1,9 +1,9 @@
 <?php
 
-namespace Framework\Http\Message;
+namespace Craft\Http\Message;
 
-use Framework\Contracts\ResponseInterface;
-use Framework\Contracts\StreamInterface;
+use Craft\Contracts\ResponseInterface;
+use Craft\Contracts\StreamInterface;
 
 class Response extends Message implements ResponseInterface
 {

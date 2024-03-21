@@ -1,9 +1,10 @@
 <?php
-namespace Framework\Http\Message;
 
-use Framework\Contracts\RequestInterface;
-use Framework\Contracts\StreamInterface;
-use Framework\Contracts\UriInterface;
+namespace Craft\Http\Message;
+
+use Craft\Contracts\RequestInterface;
+use Craft\Contracts\StreamInterface;
+use Craft\Contracts\UriInterface;
 
 class Request extends Message implements RequestInterface
 {

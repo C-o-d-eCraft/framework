@@ -1,6 +1,6 @@
 <?php
 
-namespace Framework\Contracts;
+namespace Craft\Contracts;
 
 interface OutputInterface
 {

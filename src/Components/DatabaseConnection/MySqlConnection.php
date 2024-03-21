@@ -1,8 +1,8 @@
 <?php
 
-namespace Framework\Components\DatabaseConnection;
+namespace Craft\Components\DatabaseConnection;
 
-use Framework\Contracts\DataBaseConnectionInterface;
+use Craft\Contracts\DataBaseConnectionInterface;
 use PDO;
 
 readonly class MySqlConnection implements DataBaseConnectionInterface

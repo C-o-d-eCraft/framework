@@ -1,9 +1,9 @@
 <?php
 
-namespace Framework\Http\Factory;
+namespace Craft\Http\Factory;
 
-use Framework\Contracts\UriInterface;
-use Framework\Http\Message\Uri;
+use Craft\Contracts\UriInterface;
+use Craft\Http\Message\Uri;
 
 class UriFactory
 {

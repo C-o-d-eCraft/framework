@@ -1,16 +1,16 @@
 <?php
 
-namespace Framework\Http;
+namespace Craft\Http;
 
-use Framework\Contracts\HttpKernelInterface;
-use Framework\Contracts\RequestInterface;
-use Framework\Contracts\ResponseInterface;
-use Framework\Contracts\RouterInterface;
-use Framework\Http\Exceptions\HttpException;
-use Framework\Http\Message\Stream;
-use Framework\Http\ResponseTypes\HtmlResponse;
-use Framework\Http\ResponseTypes\JsonResponse;
-use Framework\Http\ResponseTypes\TextResponse;
+use Craft\Contracts\HttpKernelInterface;
+use Craft\Contracts\RequestInterface;
+use Craft\Contracts\ResponseInterface;
+use Craft\Contracts\RouterInterface;
+use Craft\Http\Exceptions\HttpException;
+use Craft\Http\Message\Stream;
+use Craft\Http\ResponseTypes\HtmlResponse;
+use Craft\Http\ResponseTypes\JsonResponse;
+use Craft\Http\ResponseTypes\TextResponse;
 use Throwable;
 
 class HttpKernel implements HttpKernelInterface

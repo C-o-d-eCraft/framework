@@ -1,6 +1,6 @@
 <?php
 
-namespace Framework\Console;
+namespace Craft\Console;
 
 class InputArguments
 {

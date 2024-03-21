@@ -1,6 +1,6 @@
 <?php
 
-namespace Framework\Contracts;
+namespace Craft\Contracts;
 
 /**
  * Value object representing a URI.
@@ -329,5 +329,10 @@ interface UriInterface
      * @return array
      */
     public function getQueryParams(): array;
-    public function addQueryParams(array $param);
+
+    /**
+     * @param array $param
+     * @return void
+     */
+    public function addQueryParams(array $param): void;
 }

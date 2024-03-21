@@ -1,15 +1,15 @@
 <?php
 
-namespace Framework\Http\Route;
+namespace Craft\Http\Route;
 
-use app\Http\Middlewares\MiddlewareInterface;
-use Framework\Components\DIContainer\DIContainer;
-use Framework\Contracts\RequestInterface;
-use Framework\Contracts\ResponseInterface;
-use Framework\Contracts\RouterInterface;
-use Framework\Contracts\RoutesCollectionInterface;
-use Framework\Http\Exceptions\BadRequestHttpException;
-use Framework\Http\Exceptions\NotFoundHttpException;
+use Craft\Contracts\MiddlewareInterface;
+use Craft\Components\DIContainer\DIContainer;
+use Craft\Contracts\RequestInterface;
+use Craft\Contracts\ResponseInterface;
+use Craft\Contracts\RouterInterface;
+use Craft\Contracts\RoutesCollectionInterface;
+use Craft\Http\Exceptions\BadRequestHttpException;
+use Craft\Http\Exceptions\NotFoundHttpException;
 use ReflectionException;
 
 readonly class Router implements RouterInterface

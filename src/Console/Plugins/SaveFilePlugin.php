@@ -1,16 +1,16 @@
 <?php
 
-namespace Framework\Console\Plugins;
+namespace Craft\Console\Plugins;
 
-use app\DTO\Message;
-use app\Observers\ObserverInterface;
-use Framework\Components\DIContainer\DIContainer;
-use Framework\Components\Event;
-use Framework\Components\EventDispatcher\EventDispatcher;
-use Framework\Contracts\EventDispatcherInterface;
-use Framework\Contracts\InputInterface;
-use Framework\Contracts\OutputInterface;
-use Framework\Contracts\PluginInterface;
+use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Contracts\ObserverInterface;
+use Craft\Components\DIContainer\DIContainer;
+use Craft\Components\EventDispatcher\Event;
+use Craft\Components\EventDispatcher\EventDispatcher;
+use Craft\Contracts\EventDispatcherInterface;
+use Craft\Contracts\InputInterface;
+use Craft\Contracts\OutputInterface;
+use Craft\Contracts\PluginInterface;
 use ReflectionException;
 
 class SaveFilePlugin implements PluginInterface, ObserverInterface
@@ -76,12 +76,12 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
     }
 
     /**
-     * @param Message|null $message
+     * @param EventMessage|null $message
      * @return void
      */
-    public function update(Message|null $message = null): void
+    public function update(EventMessage|null $message = null): void
     {
-        $filePath = PROJECT_ROOT . 'runtime/console-output';
+        $filePath = __DIR__ . 'runtime/console-output';
 
         if (is_dir($filePath) === false) {
             mkdir($filePath);

@@ -1,6 +1,6 @@
 <?php
 
-namespace Framework\Components\ErrorHandler;
+namespace Craft\Components\ErrorHandler;
 
 use JetBrains\PhpStorm\NoReturn;
 use Throwable;
