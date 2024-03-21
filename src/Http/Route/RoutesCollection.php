@@ -1,9 +1,9 @@
 <?php
 
-namespace Framework\Http\Route;
+namespace Craft\Http\Route;
 
-use app\Http\Middlewares\MiddlewareInterface;
-use Framework\Contracts\RoutesCollectionInterface;
+use Craft\Contracts\MiddlewareInterface;
+use Craft\Contracts\RoutesCollectionInterface;
 
 class RoutesCollection implements RoutesCollectionInterface
 {

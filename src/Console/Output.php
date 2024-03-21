@@ -1,8 +1,8 @@
 <?php
 
-namespace Framework\Console;
+namespace Craft\Console;
 
-use Framework\Contracts\OutputInterface;
+use Craft\Contracts\OutputInterface;
 
 class Output implements OutputInterface
 {

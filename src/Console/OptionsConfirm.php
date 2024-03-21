@@ -1,11 +1,11 @@
 <?php
 
-namespace Framework\Console;
+namespace Craft\Console;
 
-use app\DTO\Message;
-use app\Observers\ObserverInterface;
-use Framework\Components\Event;
-use Framework\Components\EventDispatcher\EventDispatcher;
+use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Contracts\ObserverInterface;
+use Craft\Components\EventDispatcher\Event;
+use Craft\Components\EventDispatcher\EventDispatcher;
 
 readonly class OptionsConfirm implements ObserverInterface
 {
@@ -15,10 +15,10 @@ readonly class OptionsConfirm implements ObserverInterface
     public function __construct(private EventDispatcher $eventDispatcher) { }
 
     /**
-     * @param Message|null $message
+     * @param EventMessage|null $message
      * @return void
      */
-    public function update(?Message $message = null): void
+    public function update(?EventMessage $message = null): void
     {
         [
             'commandMap' => $commandMap,
@@ -38,7 +38,7 @@ readonly class OptionsConfirm implements ObserverInterface
             $pluginName = $plugin::getPluginName();
 
             if (in_array($pluginName, $options, true) === true) {
-                $this->eventDispatcher->trigger(Event::OPTION_CONFIRMED, new Message(['optionsConfirmed' => $plugin]));
+                $this->eventDispatcher->trigger(Event::OPTION_CONFIRMED, new EventMessage(['optionsConfirmed' => $plugin]));
             }
         }
     }

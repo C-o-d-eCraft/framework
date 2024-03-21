@@ -1,10 +1,9 @@
 <?php
 
-namespace Framework\Components\EventDispatcher;
+namespace Craft\Components\EventDispatcher;
 
-use Framework\Contracts\EventDispatcherInterface;
-use app\DTO\Message;
-use app\Observers\ObserverInterface;
+use Craft\Contracts\EventDispatcherInterface;
+use Craft\Contracts\ObserverInterface;
 
 class EventDispatcher implements EventDispatcherInterface
 {
@@ -47,10 +46,10 @@ class EventDispatcher implements EventDispatcherInterface
 
     /**
      * @param string $event
-     * @param Message|null $message
+     * @param EventMessage|null $message
      * @return void
      */
-    public function trigger(string $event, Message $message = null): void
+    public function trigger(string $event, EventMessage $message = null): void
     {
         if (isset($this->observers[$event]) === false) {
             return;

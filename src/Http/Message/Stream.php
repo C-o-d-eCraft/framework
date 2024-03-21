@@ -1,8 +1,8 @@
 <?php
 
-namespace Framework\Http\Message;
+namespace Craft\Http\Message;
 
-use Framework\Contracts\StreamInterface;
+use Craft\Contracts\StreamInterface;
 use InvalidArgumentException;
 use RuntimeException;
 

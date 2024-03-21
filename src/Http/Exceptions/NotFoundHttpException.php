@@ -1,6 +1,6 @@
 <?php
 
-namespace Framework\Http\Exceptions;
+namespace Craft\Http\Exceptions;
 
 class NotFoundHttpException extends HttpException
 {

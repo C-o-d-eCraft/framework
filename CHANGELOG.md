@@ -5,6 +5,14 @@
 Формат основан на [стандарте формата CHANGELOG](https://keepachangelog.com/en/1.0.0/),
 и придерживается [правил версионирования](https://semver.org/spec/v2.0.0.html).
 
+- Реализовано:
+  - Добавил unit-тесты
+  - Добавил ObserverInterface
+  - Добавил MiddlewareInterface
+  - Добавил EventMessageInterface
+- Изменено:
+  - Изменил namespaces
+
 ## [ [0.1.1](https://github.com/C-o-d-eCraft/framework/releases/tag/0.1.1) ] - 21.03.2024
 - Изменено:
   - Изменил composer.json 

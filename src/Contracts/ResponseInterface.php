@@ -1,6 +1,6 @@
 <?php
 
-namespace Framework\Contracts;
+namespace Craft\Contracts;
 
 /**
  * Representation of an outgoing, server-side response.
@@ -11,7 +11,7 @@ namespace Framework\Contracts;
  * - Protocol version
  * - Status code and reason phrase
  * - Headers
- * - Message body
+ * - EventMessage body
  *
  * Responses are considered immutable; all methods that might change state MUST
  * be implemented such that they retain the internal state of the current

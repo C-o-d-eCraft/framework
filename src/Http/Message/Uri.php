@@ -1,8 +1,8 @@
 <?php
 
-namespace Framework\Http\Message;
+namespace Craft\Http\Message;
 
-use Framework\Contracts\UriInterface;
+use Craft\Contracts\UriInterface;
 
 class Uri implements UriInterface
 {

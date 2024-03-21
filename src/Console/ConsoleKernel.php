@@ -1,16 +1,16 @@
 <?php
 
-namespace Framework\Console;
+namespace Craft\Console;
 
-use app\DTO\Message;
-use app\Observers\ObserverInterface;
-use Framework\Components\DIContainer\DIContainer;
-use Framework\Components\Event;
-use Framework\Components\EventDispatcher\EventDispatcher;
-use Framework\Contracts\CommandInterface;
-use Framework\Contracts\ConsoleKernelInterface;
-use Framework\Contracts\InputInterface;
-use Framework\Contracts\OutputInterface;
+use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Contracts\ObserverInterface;
+use Craft\Components\DIContainer\DIContainer;
+use Craft\Components\EventDispatcher\Event;
+use Craft\Components\EventDispatcher\EventDispatcher;
+use Craft\Contracts\CommandInterface;
+use Craft\Contracts\ConsoleKernelInterface;
+use Craft\Contracts\InputInterface;
+use Craft\Contracts\OutputInterface;
 use JetBrains\PhpStorm\NoReturn;
 use LogicException;
 use ReflectionException;
@@ -101,7 +101,7 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
 
             $commandArguments = $this->parseCommandArguments($commandClass::getCommandName());
 
-            $this->eventDispatcher->trigger(Event::BEFORE_RUN, new Message(['commandArguments' => $commandArguments]));
+            $this->eventDispatcher->trigger(Event::BEFORE_RUN, new EventMessage(['commandArguments' => $commandArguments]));
 
             $this->comparisonArguments($commandArguments);
 
@@ -198,7 +198,7 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
             return;
         }
 
-        $this->eventDispatcher->trigger(Event::OPTIONS_CONFIRM, new Message([
+        $this->eventDispatcher->trigger(Event::OPTIONS_CONFIRM, new EventMessage([
             'options' => $options,
             'commandMap' => $this->commandMap,
             'plugins' => $this->plugins,
@@ -206,10 +206,10 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
     }
 
     /**
-     * @param Message|null $message
+     * @param EventMessage|null $message
      * @return void
      */
-    public function update(?Message $message = null): void
+    public function update(?EventMessage $message = null): void
     {
         $optionsConfirmed = $message->getContent()['optionsConfirmed'];
 

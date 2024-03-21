@@ -1,9 +1,8 @@
 <?php
 
-namespace Framework\Contracts;
+namespace Craft\Contracts;
 
-use app\DTO\Message;
-use app\Observers\ObserverInterface;
+use Craft\Components\EventDispatcher\EventMessage;
 
 interface EventDispatcherInterface
 {
@@ -28,8 +27,8 @@ interface EventDispatcherInterface
      * Запускает событие и уведомляет соответствующего наблюдателя с переданным сообщением
      *
      * @param string $event
-     * @param Message|null $message Сообщение, передаваемое наблюдателю
+     * @param EventMessage|null $message Сообщение, передаваемое наблюдателю
      * @return void
      */
-    public function trigger(string $event, Message|null $message): void;
+    public function trigger(string $event, EventMessage|null $message): void;
 }

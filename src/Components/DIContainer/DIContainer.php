@@ -1,8 +1,8 @@
 <?php
 
-namespace Framework\Components\DIContainer;
+namespace Craft\Components\DIContainer;
 
-use Framework\Contracts\ContainerInterface;
+use Craft\Contracts\ContainerInterface;
 use Exception;
 use InvalidArgumentException;
 use ReflectionClass;
@@ -67,7 +67,7 @@ class DIContainer implements ContainerInterface
      * @throws InvalidArgumentException Если класс не существует
      * @throws ReflectionException Если экземпляр класса не может быть создан
      */
-    private function build(string $dependencyName): object
+    public function build(string $dependencyName): object
     {
         $className = $this->config[$dependencyName] ?? $dependencyName;
 
