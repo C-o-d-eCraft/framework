@@ -1,6 +1,6 @@
 <?php
 
-namespace Framework\Http\Route;
+namespace Craft\Http\Route;
 
 class Route
 {

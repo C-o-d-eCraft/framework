@@ -1,9 +1,9 @@
 <?php
 
-namespace Framework\Http\Message;
+namespace Craft\Http\Message;
 
-use Framework\Contracts\MessageInterface;
-use Framework\Contracts\StreamInterface;
+use Craft\Contracts\MessageInterface;
+use Craft\Contracts\StreamInterface;
 
 abstract class Message implements MessageInterface
 {

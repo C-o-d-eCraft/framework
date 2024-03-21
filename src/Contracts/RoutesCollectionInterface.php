@@ -1,8 +1,6 @@
 <?php
 
-namespace Framework\Contracts;
-
-use app\Http\Middlewares\MiddlewareInterface;
+namespace Craft\Contracts;
 
 interface RoutesCollectionInterface
 {

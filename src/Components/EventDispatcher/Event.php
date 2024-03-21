@@ -1,6 +1,6 @@
 <?php
 
-namespace Framework\Components;
+namespace Craft\Components\EventDispatcher;
 
 class Event
 {

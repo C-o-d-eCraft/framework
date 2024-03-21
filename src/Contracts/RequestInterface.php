@@ -1,6 +1,6 @@
 <?php
 
-namespace Framework\Contracts;
+namespace Craft\Contracts;
 
 /**
  * Representation of an outgoing, client-side request.
@@ -12,7 +12,7 @@ namespace Framework\Contracts;
  * - HTTP method
  * - URI
  * - Headers
- * - Message body
+ * - EventMessage body
  *
  * During construction, implementations MUST attempt to set the Host header from
  * a provided URI if no Host header is provided.

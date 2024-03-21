@@ -1,16 +1,16 @@
 <?php
 
-namespace Framework\Console\Plugins;
+namespace Craft\Console\Plugins;
 
-use app\DTO\Message;
-use app\Observers\ObserverInterface;
-use Framework\Components\DIContainer\DIContainer;
-use Framework\Components\Event;
-use Framework\Components\EventDispatcher\EventDispatcher;
-use Framework\Contracts\EventDispatcherInterface;
-use Framework\Contracts\InputInterface;
-use Framework\Contracts\OutputInterface;
-use Framework\Contracts\PluginInterface;
+use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Contracts\ObserverInterface;
+use Craft\Components\DIContainer\DIContainer;
+use Craft\Components\EventDispatcher\Event;
+use Craft\Components\EventDispatcher\EventDispatcher;
+use Craft\Contracts\EventDispatcherInterface;
+use Craft\Contracts\InputInterface;
+use Craft\Contracts\OutputInterface;
+use Craft\Contracts\PluginInterface;
 use ReflectionException;
 
 class InteractivePlugin implements PluginInterface, ObserverInterface
@@ -68,10 +68,10 @@ class InteractivePlugin implements PluginInterface, ObserverInterface
     }
 
     /**
-     * @param Message|null $message
+     * @param EventMessage|null $message
      * @return void
      */
-    public function update(?Message $message = null): void
+    public function update(?EventMessage $message = null): void
     {
         $commandArguments = $message->getContent()['commandArguments'];
 

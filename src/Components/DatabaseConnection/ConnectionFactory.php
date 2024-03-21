@@ -1,9 +1,9 @@
 <?php
 
-namespace Framework\Components\DatabaseConnection;
+namespace Craft\Components\DatabaseConnection;
 
-use Framework\Contracts\ConnectionFactoryInterface;
-use Framework\Contracts\DataBaseConnectionInterface;
+use Craft\Contracts\ConnectionFactoryInterface;
+use Craft\Contracts\DataBaseConnectionInterface;
 
 class ConnectionFactory implements ConnectionFactoryInterface
 {

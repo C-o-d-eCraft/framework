@@ -1,6 +1,6 @@
 <?php
 
-namespace Framework\Http\View;
+namespace Craft\Http\View;
 
 use InvalidArgumentException;
 

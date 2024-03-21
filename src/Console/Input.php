@@ -1,8 +1,8 @@
 <?php
 
-namespace Framework\Console;
+namespace Craft\Console;
 
-use Framework\Contracts\InputInterface;
+use Craft\Contracts\InputInterface;
 
 class Input implements InputInterface
 {
