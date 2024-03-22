@@ -8,6 +8,8 @@
 ## [ [0.1.3](https://github.com/C-o-d-eCraft/framework/releases/tag/0.1.3) ] - 22.03.2024
 - Реализовано:
   - Добавил HandleInterface
+- Изменено:
+  - Изменил парсинг маршрутов в RoutesCollection
 
 ## [ [0.1.2](https://github.com/C-o-d-eCraft/framework/releases/tag/0.1.2) ] - 22.03.2024
 - Реализовано:

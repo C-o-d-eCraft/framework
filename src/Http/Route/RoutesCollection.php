@@ -114,7 +114,7 @@ class RoutesCollection implements RoutesCollectionInterface
         $params = [];
 
         $routePath = explode('?{', $route)[0];
-        $routeParams = explode('?{', $route)[1];
+        $routeParams = explode('?{', $route)[1] ?? '';
 
         $cleanParams = explode('}{', rtrim($routeParams, '}'));
 
