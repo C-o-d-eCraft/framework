@@ -10,6 +10,7 @@
   - Добавил ObserverInterface
   - Добавил MiddlewareInterface
   - Добавил EventMessageInterface
+  - Добавил HandleInterface
 - Изменено:
   - Изменил namespaces
 
