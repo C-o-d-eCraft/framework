@@ -5,12 +5,16 @@
 Формат основан на [стандарте формата CHANGELOG](https://keepachangelog.com/en/1.0.0/),
 и придерживается [правил версионирования](https://semver.org/spec/v2.0.0.html).
 
+## [ [0.1.3](https://github.com/C-o-d-eCraft/framework/releases/tag/0.1.3) ] - 22.03.2024
+- Реализовано:
+  - Добавил HandleInterface
+
+## [ [0.1.2](https://github.com/C-o-d-eCraft/framework/releases/tag/0.1.2) ] - 22.03.2024
 - Реализовано:
   - Добавил unit-тесты
   - Добавил ObserverInterface
   - Добавил MiddlewareInterface
   - Добавил EventMessageInterface
-  - Добавил HandleInterface
 - Изменено:
   - Изменил namespaces
 
