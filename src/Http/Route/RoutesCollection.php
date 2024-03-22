@@ -126,8 +126,12 @@ class RoutesCollection implements RoutesCollectionInterface
         $this->routes[] = new Route($method, $routePath, $controllerAction, $params, $middleware);
     }
 
-    private function parseParams(string $argument): array
+    private function parseParams(string $argument): array|null
     {
+        if ($argument === '') {
+            return null;
+        }
+
         $param['required'] = true;
 
         if (str_contains($argument, '?')) {

@@ -17,35 +17,36 @@ readonly class Router implements RouterInterface
     /**
      * @param DIContainer $container
      * @param RoutesCollectionInterface $routesCollection
-     * @param MiddlewareInterface $loggingMiddleware
+     * @param MiddlewareInterface $globalMiddleware
+     * @param RequestInterface $request
      */
     public function __construct(
         private DIContainer               $container,
         private RoutesCollectionInterface $routesCollection,
-        private MiddlewareInterface       $loggingMiddleware,
+        private MiddlewareInterface       $globalMiddleware,
+        private RequestInterface          $request
     ) { }
 
     /**
-     * @param RequestInterface $request
      * @return ResponseInterface
+     * @throws BadRequestHttpException
      * @throws NotFoundHttpException
      * @throws ReflectionException
-     * @throws BadRequestHttpException
      */
-    public function dispatch(RequestInterface $request): ResponseInterface
+    public function dispatch(): ResponseInterface
     {
-        $method = $request->getMethod();
-        $path = $request->getUri()->getPath();
-        $this->routesCollection->addGlobalMiddleware($this->loggingMiddleware);
+        $method = $this->request->getMethod();
+        $path = $this->request->getUri()->getPath();
+        $this->routesCollection->addGlobalMiddleware($this->globalMiddleware);
 
         $globalMiddleware = $this->routesCollection->getGlobalMiddlewares();
 
         foreach ($globalMiddleware as $middleware) {
-            $middleware->process($request);
+            $middleware->process($this->request);
         }
 
         foreach ($this->routesCollection->getRoutes() as $route) {
-            $this->validateParams($route->params, $request);
+            $this->validateParams($route->params);
         }
 
         foreach ($this->routesCollection->getRoutes() as $route) {
@@ -54,7 +55,7 @@ readonly class Router implements RouterInterface
 
                 $controller = $this->container->make($controllerNameSpace);
 
-                return $controller->{$action}($request);
+                return $controller->{$action}($this->request);
             }
         }
 
@@ -64,18 +65,24 @@ readonly class Router implements RouterInterface
     /**
      * @throws BadRequestHttpException
      */
-    private function validateParams($params, RequestInterface $request): void
+    private function validateParams($params): void
     {
+        if (empty($params[0]) === true && empty($this->request->getUri()->getQueryParams()) === true) {
+            return;
+        }
+
         foreach ($params as $param) {
-            if ($param['required'] && (isset($request->getUri()->getQueryParams()[$param['name']])) === false) {
+            $paramName = $this->request->getUri()->getQueryParams()[$param['name']];
+
+            if ($param['required'] && (isset($paramName)) === false) {
                 throw new BadRequestHttpException("Обязательный параметр {$param['name']} отсутствует");
             }
 
-            if ((isset($request->getUri()->getQueryParams()[$param['name']])) === false) {
-                $request->getUri()->addQueryParams([$param['name'] => $param['defaultValue']]);
+            if ((isset($paramName)) === false) {
+                $this->request->getUri()->addQueryParams([$param['name'] => $param['defaultValue']]);
             }
 
-            if ($param['type'] === 'numeric' && (is_numeric($request->getUri()->getQueryParams()[$param['name']])) === false) {
+            if ($param['type'] === 'numeric' && (is_numeric($paramName)) === false) {
                 throw new BadRequestHttpException("Параметр {$param['name']} должен быть числом");
             }
         }
