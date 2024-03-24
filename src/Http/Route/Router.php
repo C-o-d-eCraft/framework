@@ -17,13 +17,13 @@ readonly class Router implements RouterInterface
     /**
      * @param DIContainer $container
      * @param RoutesCollectionInterface $routesCollection
-     * @param MiddlewareInterface $globalMiddleware
+     * @param MiddlewareInterface $middleware
      * @param RequestInterface $request
      */
     public function __construct(
         private DIContainer               $container,
         private RoutesCollectionInterface $routesCollection,
-        private MiddlewareInterface       $globalMiddleware,
+        private MiddlewareInterface       $middleware,
         private RequestInterface          $request
     ) { }
 
@@ -37,7 +37,7 @@ readonly class Router implements RouterInterface
     {
         $method = $this->request->getMethod();
         $path = $this->request->getUri()->getPath();
-        $this->routesCollection->addGlobalMiddleware($this->globalMiddleware);
+        $this->routesCollection->addGlobalMiddleware($this->middleware);
 
         $globalMiddleware = $this->routesCollection->getGlobalMiddlewares();
 
@@ -46,11 +46,10 @@ readonly class Router implements RouterInterface
         }
 
         foreach ($this->routesCollection->getRoutes() as $route) {
-            $this->validateParams($route->params);
-        }
-
-        foreach ($this->routesCollection->getRoutes() as $route) {
             if ($route->route === $path && $route->method === $method) {
+
+                $this->validateParams($route->params);
+
                 [$controllerNameSpace, $action] = explode('::', $route->controllerAction);
 
                 $controller = $this->container->make($controllerNameSpace);
@@ -63,6 +62,8 @@ readonly class Router implements RouterInterface
     }
 
     /**
+     * @param $params
+     * @return void
      * @throws BadRequestHttpException
      */
     private function validateParams($params): void
@@ -78,11 +79,11 @@ readonly class Router implements RouterInterface
                 throw new BadRequestHttpException("Обязательный параметр {$param['name']} отсутствует");
             }
 
-            if ((isset($paramName)) === false) {
+            if ((isset($paramName )) === false) {
                 $this->request->getUri()->addQueryParams([$param['name'] => $param['defaultValue']]);
             }
 
-            if ($param['type'] === 'numeric' && (is_numeric($paramName)) === false) {
+            if ($param['type'] === 'numeric' && (is_numeric($paramName )) === false) {
                 throw new BadRequestHttpException("Параметр {$param['name']} должен быть числом");
             }
         }

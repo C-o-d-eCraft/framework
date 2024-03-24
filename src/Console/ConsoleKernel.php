@@ -36,7 +36,7 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
         private InputInterface           $input,
         private OutputInterface          $output,
         private readonly EventDispatcher $eventDispatcher,
-        private readonly array           $plugins = []
+        private readonly array           $plugins
     )
     { }
 
