@@ -237,4 +237,12 @@ class Request extends Message implements RequestInterface
         $request->body = $body;
         return $request;
     }
+
+    /**
+     * @return array
+     */
+    public function getQueryParams(): array
+    {
+        return (array) json_decode($this->body->getContents());
+    }
 }
