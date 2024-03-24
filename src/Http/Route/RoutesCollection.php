@@ -126,6 +126,10 @@ class RoutesCollection implements RoutesCollectionInterface
         $this->routes[] = new Route($method, $routePath, $controllerAction, $params, $middleware);
     }
 
+    /**
+     * @param string $argument
+     * @return array|null
+     */
     private function parseParams(string $argument): array|null
     {
         if ($argument === '') {
@@ -133,6 +137,8 @@ class RoutesCollection implements RoutesCollectionInterface
         }
 
         $param['required'] = true;
+        $param['name'] = $argument;
+        $param['type'] = 'string';
 
         if (str_contains($argument, '?')) {
             $param['required'] = false;

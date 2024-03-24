@@ -5,6 +5,12 @@
 Формат основан на [стандарте формата CHANGELOG](https://keepachangelog.com/en/1.0.0/),
 и придерживается [правил версионирования](https://semver.org/spec/v2.0.0.html).
 
+## [ [0.1.6](https://github.com/C-o-d-eCraft/framework/releases/tag/0.1.6) ] - 24.03.2024
+- Изменено:
+  - Изменил Router
+  - Изменил RoutesCollection
+  - Изменил ConsoleKernel
+
 ## [ [0.1.5](https://github.com/C-o-d-eCraft/framework/releases/tag/0.1.5) ] - 24.03.2024
 - Реализовано:
   - Реализовал вспомогательный метод в JsonResponse 
