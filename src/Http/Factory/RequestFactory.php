@@ -17,7 +17,7 @@ class RequestFactory
         $headers = self::getHeadersFromGlobals();
 
         $protocolVersion = isset($_SERVER['SERVER_PROTOCOL']) ? str_replace('HTTP/', '', $_SERVER['SERVER_PROTOCOL']) : '';
-        $body = new Stream(fopen('php://stdin', 'r'));
+        $body = new Stream(fopen('php://input', 'r'));
 
         return new Request($method, UriFactory::createUri(), $headers, $body, $protocolVersion ?: 'HTTP/1.1');
     }
