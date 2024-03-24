@@ -68,14 +68,14 @@ readonly class Router implements RouterInterface
      */
     private function validateParams($params): void
     {
-        if (empty($params[0]) === true && empty($this->request->getUri()->getQueryParams()) === true) {
+        if (empty($params[0]) && empty($this->request->getUri()->getQueryParams())) {
             return;
         }
 
         foreach ($params as $param) {
             $paramName = $this->request->getUri()->getQueryParams()[$param['name']];
 
-            if ($param['required'] && (isset($paramName)) === false) {
+            if ($param['required'] && (empty($paramName))) {
                 throw new BadRequestHttpException("Обязательный параметр {$param['name']} отсутствует");
             }
 
