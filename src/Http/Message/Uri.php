@@ -74,7 +74,7 @@ class Uri implements UriInterface
         $this->query = $query;
         $this->queryParams = $queryParams;
         $this->fragment = $fragment;
-        $this->port = $port;
+        $this->port = (int) $port;
     }
 
     /**
