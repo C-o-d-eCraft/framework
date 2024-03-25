@@ -34,7 +34,7 @@ readonly class MySqlConnection implements DataBaseConnectionInterface
     {
         $statement = $this->pdo->prepare($query);
         $statement->execute($bindings);
-        return $statement->rowCount();
+        return $statement->fetch();
     }
 
     /**
