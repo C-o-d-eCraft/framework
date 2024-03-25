@@ -17,27 +17,27 @@ readonly class Router implements RouterInterface
     /**
      * @param DIContainer $container
      * @param RoutesCollectionInterface $routesCollection
-     * @param MiddlewareInterface $middleware
+     * @param MiddlewareInterface $processMiddleware
      * @param RequestInterface $request
      */
     public function __construct(
         private DIContainer               $container,
         private RoutesCollectionInterface $routesCollection,
-        private MiddlewareInterface       $middleware,
-        private RequestInterface          $request
+        private MiddlewareInterface       $processMiddleware,
+        private RequestInterface          $request 
     ) { }
 
     /**
+     * @param RequestInterface $request
      * @return ResponseInterface
-     * @throws BadRequestHttpException
      * @throws NotFoundHttpException
      * @throws ReflectionException
+     * @throws BadRequestHttpException
      */
     public function dispatch(): ResponseInterface
     {
         $method = $this->request->getMethod();
         $path = $this->request->getUri()->getPath();
-        $this->routesCollection->addGlobalMiddleware($this->middleware);
 
         $globalMiddleware = $this->routesCollection->getGlobalMiddlewares();
 
@@ -47,6 +47,8 @@ readonly class Router implements RouterInterface
 
         foreach ($this->routesCollection->getRoutes() as $route) {
             if ($route->route === $path && $route->method === $method) {
+
+                $this->processMiddlewares($route->middlewares);
 
                 $this->validateParams($route->params);
 
@@ -62,23 +64,39 @@ readonly class Router implements RouterInterface
     }
 
     /**
-     * @param $params
+     * @param array $middlewares
      * @return void
+     * @throws ReflectionException
+     */
+    private function processMiddlewares(array $middlewares): void
+    {
+        if (empty($middlewares) === true) {
+            return;
+        }
+
+        foreach ($middlewares as $middleware) {
+            $middlewareInstance = $this->container->make($middleware);
+
+            $middlewareInstance->process($this->request);
+        }
+    }
+
+    /**
      * @throws BadRequestHttpException
      */
     private function validateParams($params): void
     {
-        if (empty($params[0]) && empty($this->request->getUri()->getQueryParams())) {
+        if (empty($params[0]) === true && empty($this->request->getUri()->getQueryParams()) === true) {
             return;
         }
 
         foreach ($params as $param) {
             $paramName = $this->request->getUri()->getQueryParams()[$param['name']];
 
-            if ($param['required'] && (empty($paramName))) {
+            if ($param['required'] && (empty($paramName)) === true) {
                 throw new BadRequestHttpException("Обязательный параметр {$param['name']} отсутствует");
             }
-
+            
             if ((isset($paramName )) === false) {
                 $this->request->getUri()->addQueryParams([$param['name'] => $param['defaultValue']]);
             }

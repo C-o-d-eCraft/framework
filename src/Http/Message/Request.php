@@ -249,7 +249,7 @@ class Request extends Message implements RequestInterface
     /**
      * @return array
      */
-    public function getBodyContents(): array
+    public function getBodyContents()
     {
         return (array) json_decode($this->body->getContents());
     }
