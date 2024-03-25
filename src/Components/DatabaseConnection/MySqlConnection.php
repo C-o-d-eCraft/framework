@@ -28,9 +28,9 @@ readonly class MySqlConnection implements DataBaseConnectionInterface
     /**
      * @param string $query
      * @param array $bindings
-     * @return int
+     * @return array
      */
-    public function exec(string $query, array $bindings = []): int
+    public function exec(string $query, array $bindings = []): array
     {
         $statement = $this->pdo->prepare($query);
         $statement->execute($bindings);
