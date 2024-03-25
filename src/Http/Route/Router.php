@@ -86,7 +86,7 @@ readonly class Router implements RouterInterface
      */
     private function validateParams($params): void
     {
-        if (empty($params[0]) === true && empty($this->request->getUri()->getQueryParams()) === true) {
+        if (empty($params[0]) === true || empty($this->request->getUri()->getQueryParams()) === true) {
             return;
         }
 
