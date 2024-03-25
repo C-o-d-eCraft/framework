@@ -9,9 +9,9 @@ interface DataBaseConnectionInterface
      *
      * @param string $query
      * @param array $bindings
-     * @return int
+     * @return array
      */
-    public function exec(string $query, array $bindings = []): int;
+    public function exec(string $query, array $bindings = []): array;
 
     /**
      * выполняет запрос SELECT и возвращает массив результатов.
