@@ -6,14 +6,22 @@ use InvalidArgumentException;
 
 readonly class View
 {
-    public function __construct(private string $basePath) { }
+    /**
+     * @var string 
+     */
+    private string $pageNotFound;
+    
+    public function __construct(private string $basePath) 
+    { 
+        $this->pageNotFound = $this->basePath . DIRECTORY_SEPARATOR . 'NotFound.php';
+    }
 
     /**
      * @param string $view
      * @param array $params
-     * @return false|string
+     * @return string
      */
-    public function render(string $view, array $params = []): false|string
+    public function render(string $view, array $params = []): string
     {
         $viewFilePath = $this->basePath . DIRECTORY_SEPARATOR . $view;
 
@@ -27,6 +35,6 @@ readonly class View
 
         include $viewFilePath;
 
-        return ob_get_clean();
+        return ob_get_clean() ?? $this->pageNotFound;
     }
 }
