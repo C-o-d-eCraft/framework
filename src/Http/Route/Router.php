@@ -2,6 +2,7 @@
 
 namespace Craft\Http\Route;
 
+use Craft\Contracts\LoggerInterface;
 use Craft\Contracts\MiddlewareInterface;
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Contracts\RequestInterface;
@@ -17,22 +18,21 @@ readonly class Router implements RouterInterface
     /**
      * @param DIContainer $container
      * @param RoutesCollectionInterface $routesCollection
-     * @param MiddlewareInterface $processMiddleware
+     * @param MiddlewareInterface $middleware
      * @param RequestInterface $request
      */
     public function __construct(
         private DIContainer               $container,
         private RoutesCollectionInterface $routesCollection,
-        private MiddlewareInterface       $processMiddleware,
-        private RequestInterface          $request 
+        private MiddlewareInterface       $middleware,
+        private RequestInterface          $request
     ) { }
 
     /**
-     * @param RequestInterface $request
      * @return ResponseInterface
+     * @throws BadRequestHttpException
      * @throws NotFoundHttpException
      * @throws ReflectionException
-     * @throws BadRequestHttpException
      */
     public function dispatch(): ResponseInterface
     {
@@ -56,11 +56,39 @@ readonly class Router implements RouterInterface
 
                 $controller = $this->container->make($controllerNameSpace);
 
-                return $controller->{$action}($this->request);
+                return $controller->{$action}($this->request, $this->container->make(LoggerInterface::class));
             }
         }
 
         throw new NotFoundHttpException("Страница не найдена для $method запроса по пути $path");
+    }
+
+    /**
+     * @param $params
+     * @return void
+     * @throws BadRequestHttpException
+     */
+    private function validateParams($params): void
+    {
+        if (empty($params[0]) && empty($this->request->getUri()->getQueryParams())) {
+            return;
+        }
+
+        foreach ($params as $param) {
+            $paramName = $this->request->getUri()->getQueryParams()[$param['name']];
+
+            if ($param['required'] && (empty($paramName))) {
+                throw new BadRequestHttpException("Обязательный параметр {$param['name']} отсутствует");
+            }
+
+            if ((isset($paramName )) === false) {
+                $this->request->getUri()->addQueryParams([$param['name'] => $param['defaultValue']]);
+            }
+
+            if ($param['type'] === 'numeric' && (is_numeric($paramName )) === false) {
+                throw new BadRequestHttpException("Параметр {$param['name']} должен быть числом");
+            }
+        }
     }
 
     /**
@@ -78,32 +106,6 @@ readonly class Router implements RouterInterface
             $middlewareInstance = $this->container->make($middleware);
 
             $middlewareInstance->process($this->request);
-        }
-    }
-
-    /**
-     * @throws BadRequestHttpException
-     */
-    private function validateParams($params): void
-    {
-        if (empty($params[0]) === true || empty($this->request->getUri()->getQueryParams()) === true) {
-            return;
-        }
-
-        foreach ($params as $param) {
-            $paramName = $this->request->getUri()->getQueryParams()[$param['name']];
-
-            if ($param['required'] && (empty($paramName)) === true) {
-                throw new BadRequestHttpException("Обязательный параметр {$param['name']} отсутствует");
-            }
-            
-            if ((isset($paramName )) === false) {
-                $this->request->getUri()->addQueryParams([$param['name'] => $param['defaultValue']]);
-            }
-
-            if ($param['type'] === 'numeric' && (is_numeric($paramName )) === false) {
-                throw new BadRequestHttpException("Параметр {$param['name']} должен быть числом");
-            }
         }
     }
 }

@@ -5,7 +5,7 @@ namespace Craft\Http\ResponseTypes;
 use Craft\Http\Message\Response;
 use Craft\Http\Message\Stream;
 
-class JsonResponse extends Response 
+class JsonResponse extends Response
 {
     /**
      * @param array $result
