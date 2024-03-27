@@ -5,6 +5,10 @@
 Формат основан на [стандарте формата CHANGELOG](https://keepachangelog.com/en/1.0.0/),
 и придерживается [правил версионирования](https://semver.org/spec/v2.0.0.html).
 
+## [ [0.2.2](https://github.com/C-o-d-eCraft/framework/releases/tag/0.2.2) ] - 27.03.2024
+- Изменено:
+  - Изменил ядро для работы со статус кодами
+
 ## [ [0.2.1](https://github.com/C-o-d-eCraft/framework/releases/tag/0.2.1) ] - 27.03.2024
 - Исправлено:
   - Исправил критические ошибки
