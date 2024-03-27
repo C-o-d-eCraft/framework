@@ -37,64 +37,50 @@ class HttpKernel implements HttpKernelInterface
         try {
             $this->response = $this->router->dispatch($this->request);
 
-            if ($this->response instanceof JsonResponse) {
-                $this->response->withHeader('Content-Type','application/json');
+            $contentType = match (true) {
+                $this->response instanceof JsonResponse => 'application/json',
+                $this->response instanceof TextResponse => 'text/plain',
+                $this->response instanceof HtmlResponse => 'text/html',
+                default => null,
+            };
+
+            if ($contentType !== null) {
+                $this->response->withHeader('Content-Type', $contentType);
             }
 
-            if ($this->response instanceof TextResponse) {
-                $this->response->withHeader('Content-Type','text/plain');
-            }
-
-            if ($this->response instanceof HtmlResponse) {
-                $this->response->withHeader('Content-Type','text/html');
+            $method = $this->request->getMethod();
+            if (in_array($method, ['GET', 'PUT', 'PATCH'])) {
+                $this->response->withStatus(200);
+            } elseif ($method === 'POST') {
+                $this->response->withStatus(201);
+            } elseif ($method === 'DELETE') {
+                $this->response->withStatus(204);
             }
         } catch (\AssertionError $e) {
-            $this->response->withStatus(401);
-
-            $xDebugTag = $this->logger->getXDebugTag();
-
-            $this->response->setBody(new Stream(json_encode([
-                'message' => 'Авторизация не выполнена',
-                'x-debug-tag' => $xDebugTag,
-            ])));
-
-            $this->logger->writeLog($e, 'Ошибка авторизации', $this->logger->handleContext, getallheaders(), $xDebugTag);
+            $this->handleException($e, 401, 'Ошибка авторизации');
         } catch (\InvalidArgumentException $e) {
-            $this->response->withStatus(400);
-
-            $xDebugTag = $this->logger->getXDebugTag();
-
-            $this->response->setBody(new Stream(json_encode([
-                'message' => $e->getMessage(),
-                'x-debug-tag' => $xDebugTag,
-            ])));
-
-            $this->logger->writeLog($e,'Ошибка ввода', $this->logger->handleContext, $xDebugTag);
-        }
-        catch (\LogicException $e) {
-            $this->response->withStatus(404);
-
-            $xDebugTag = $this->logger->getXDebugTag();
-
-            $this->response->setBody(new Stream(json_encode([
-                'message' => $e->getMessage(),
-                'x-debug-tag' => $xDebugTag,
-            ])));
-
-            $this->logger->writeLog($e, 'Логическая ошибка', $this->logger->handleContext, $xDebugTag);
+            $this->handleException($e, 400, 'Ошибка ввода');
+        } catch (\LogicException $e) {
+            $this->handleException($e, 404, 'Логическая ошибка');
         } catch (\Throwable $e) {
-            $this->response->withStatus(500);
-
-            $xDebugTag = $this->logger->getXDebugTag();
-
-            $this->response->setBody(new Stream(json_encode([
-                'message' => 'Ошибка сервера при обработке запроса',
-                'x-debug-tag' => $xDebugTag,
-            ])));
-
-            $this->logger->writeLog($e, 'Ошибка сервера', $this->logger->handleContext, $xDebugTag);
+            $this->handleException($e, 500, 'Ошибка сервера при обработке запроса');
         }
 
         return $this->response;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function handleException(\Throwable $exception, int $statusCode, string $errorMessage): void
+    {
+        $this->response->withStatus($statusCode);
+        $xDebugTag = $this->logger->getXDebugTag();
+        $errorData = [
+            'message' => $errorMessage,
+            'x-debug-tag' => $xDebugTag,
+        ];
+        $this->response->setBody(new Stream(json_encode($errorData)));
+        $this->logger->writeLog($exception, $errorMessage, $this->logger->handleContext, $xDebugTag);
     }
 }
