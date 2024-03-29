@@ -3,14 +3,17 @@
 namespace Craft\Http;
 
 use Craft\Contracts\HttpKernelInterface;
+use Craft\Contracts\LoggerInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ResponseInterface;
 use Craft\Contracts\RouterInterface;
+use Craft\Http\Exceptions\HttpException;
 use Craft\Http\Message\Stream;
 use Craft\Http\ResponseTypes\HtmlResponse;
 use Craft\Http\ResponseTypes\JsonResponse;
 use Craft\Http\ResponseTypes\TextResponse;
 use Craft\Components\Logger\Logger;
+use Throwable;
 
 class HttpKernel implements HttpKernelInterface
 {
@@ -18,19 +21,17 @@ class HttpKernel implements HttpKernelInterface
      * @param RequestInterface $request
      * @param ResponseInterface $response
      * @param RouterInterface $router
-     * @param Logger $logger
      */
     public function __construct(
         private readonly RequestInterface $request,
         private ResponseInterface         $response,
         private readonly RouterInterface  $router,
-        private readonly Logger           $logger,
+        private readonly LoggerInterface  $logger, 
     ) { }
 
     /**
      * @param RequestInterface $request
      * @return ResponseInterface
-     * @throws \Exception
      */
     public function handle(RequestInterface $request): ResponseInterface
     {
@@ -51,9 +52,13 @@ class HttpKernel implements HttpKernelInterface
             $method = $this->request->getMethod();
             if (in_array($method, ['GET', 'PUT', 'PATCH'])) {
                 $this->response->withStatus(200);
-            } elseif ($method === 'POST') {
+            } 
+            
+            if ($method === 'POST') {
                 $this->response->withStatus(201);
-            } elseif ($method === 'DELETE') {
+            } 
+            
+            if ($method === 'DELETE') {
                 $this->response->withStatus(204);
             }
         } catch (\AssertionError $e) {
@@ -62,25 +67,25 @@ class HttpKernel implements HttpKernelInterface
             $this->handleException($e, 400, 'Ошибка ввода');
         } catch (\LogicException $e) {
             $this->handleException($e, 404, 'Логическая ошибка');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->handleException($e, 500, 'Ошибка сервера при обработке запроса');
         }
 
         return $this->response;
     }
 
-    /**
-     * @throws \Exception
-     */
-    private function handleException(\Throwable $exception, int $statusCode, string $errorMessage): void
+    private function handleException(Throwable $exception, int $statusCode, string $errorMessage): void
     {
         $this->response->withStatus($statusCode);
         $xDebugTag = $this->logger->getXDebugTag();
+
         $errorData = [
             'message' => $errorMessage,
             'x-debug-tag' => $xDebugTag,
         ];
-        $this->response->setBody(new Stream(json_encode($errorData)));
-        $this->logger->writeLog($exception, $errorMessage, $this->logger->handleContext, $xDebugTag);
+
+        $this->logger->writeLog($exception, $errorMessage);
+
+        $this->response->setBody(new Stream($exception->getMessage()));
     }
 }

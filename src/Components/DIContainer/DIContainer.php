@@ -131,22 +131,42 @@ class DIContainer implements ContainerInterface
      * @throws InvalidArgumentException Если при вызове метода класса не передано имя метода
      * @throws ReflectionException Если не удается создать экземпляр класса или получить информацию о методе или функции
      */
-    public function call(callable|object $handler, string $method): mixed
+    public function call(callable|object|string $handler, string $method, array $args = []): mixed
     {
         $reflection = is_callable($handler) ? new ReflectionFunction($handler) : new ReflectionMethod($handler, $method);
 
         $parameters = $reflection->getParameters();
 
+        $arguments = $this->resolveArguments($parameters);
+
+        if (empty($arguments) === false) {
+            $args = $arguments;
+        }
+
+        if (is_callable($handler)) {
+            return $handler(...$args);
+        }
+
+        if (is_object($handler)) {
+            return $handler->{$method}(...$args);
+        }
+
+        return $this->make($handler)->{$method}(...$args);
+    }
+
+    /**
+     * @param array $parameters
+     * @return array
+     * @throws ReflectionException
+     */
+    private function resolveArguments(array $parameters): array
+    {
         $arguments = [];
 
         foreach ($parameters as $parameter) {
-            $dependencyName = $parameter->getType()->getName();
+            $dependencyName = $parameter->getType()?->getName();
 
-            if (empty($dependencyName)) {
-                continue;
-            }
-
-            if ($parameter->getType()->isBuiltin()) {
+            if (empty($dependencyName) || $parameter->getType()->isBuiltin() || !isset($this->config[$dependencyName])) {
                 continue;
             }
 
@@ -160,16 +180,9 @@ class DIContainer implements ContainerInterface
             $arguments[] = $this->build($this->config[$dependencyName]);
         }
 
-        if (is_callable($handler)) {
-            return $handler(...$arguments);
-        }
-
-        if (is_object($handler)) {
-            return $handler->{$method}(...$arguments);
-        }
-
-        return $this->build($handler)->{$method}(...$arguments);
+        return $arguments;
     }
+
 
     /**
      * Проверяет наличие контракта в конфигурации.

@@ -27,7 +27,7 @@ interface ContainerInterface
      * @param string $method
      * @return mixed
      */
-    public function call(callable|object $handler, string $method): mixed;
+    public function call(callable|object|string $handler, string $method, array $args = []): mixed;
 
     /**
      * @param string $contract
