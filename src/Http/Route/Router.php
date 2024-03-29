@@ -58,7 +58,7 @@ readonly class Router implements RouterInterface
 
                 $controller = $this->container->make($controllerNameSpace);
 
-                return $controller->{$action}($this->request);
+                return $this->container->call($controller, $action);
             }
         }
 
