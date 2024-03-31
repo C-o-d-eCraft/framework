@@ -3,14 +3,15 @@
 namespace Craft\Http\View;
 
 use Craft\Contracts\ViewInterface;
+use Craft\Http\Exceptions\HttpLogicException;
 use InvalidArgumentException;
 
-readonly class View implements ViewInterface
+class View implements ViewInterface
 {
     /**
      * @var string
      */
-    private ?string $basePath;
+    private ?string $basePath = PROJECT_SOURCE_ROOT . 'view/';
 
     /**
      * @param string $basePath
@@ -19,6 +20,14 @@ readonly class View implements ViewInterface
     public function setBasePath(string $basePath): void
     {
         $this->basePath = $basePath;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBasePath(): string
+    {
+        return $this->basePath;
     }
 
     /**
@@ -31,7 +40,7 @@ readonly class View implements ViewInterface
         $viewFilePath = $this->basePath . DIRECTORY_SEPARATOR . $view . '.php';
 
         if (file_exists($viewFilePath) === false) {
-            throw new InvalidArgumentException("Представление файла '$view' не найдено.");
+            throw new HttpLogicException("Представление файла '$view' не найдено.");
         }
 
         extract($params);
