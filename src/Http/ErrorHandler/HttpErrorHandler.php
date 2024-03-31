@@ -49,7 +49,7 @@ class HttpErrorHandler implements ErrorHandlerInterface
      * @param HttpException $exception
      * @return string
      */
-    public function getHttpErrorView(HttpException $exception, string $statusCode = null, string $reasonPhrase = null): string
+    public function getHttpErrorView(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
     {
         $params = [
             'statusCode' => $statusCode ?? $exception->getCode(),
