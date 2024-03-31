@@ -35,7 +35,7 @@ class HttpErrorHandler implements ErrorHandlerInterface
         $this->view->setBasePath(__DIR__ . '/../View');
 
         if ($exception instanceof HttpException) {
-            $errorView = $this->getHttpErrorView($exception, $statusCode, $reasonPhrase);
+            $errorView = $this->getHttpErrorView($exception);
         }
 
         if ($exception instanceof Throwable) {
@@ -58,13 +58,14 @@ class HttpErrorHandler implements ErrorHandlerInterface
 
         if (getenv('ENV') === 'development') {
             $params = array_merge($params, [
+                'xdebugTag' => $this->logger->getXDebugTag(),
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
                 'stackTrace' => explode(PHP_EOL, $exception->getTraceAsString()),
             ]);
         }
 
-        return $this->view->render('HttpExceptionView', $params);
+        return $this->view->render('ErrorView', $params);
     }
 
 }
