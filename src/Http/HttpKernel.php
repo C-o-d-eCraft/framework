@@ -52,6 +52,8 @@ class HttpKernel implements HttpKernelInterface
     public function handle(RequestInterface $request): ResponseInterface
     {
         try {
+            $this->logger->setContext('Запуск контроллера');
+
             $this->response = $this->router->dispatch($this->request);
 
             if ($this->response instanceof JsonResponse) {
