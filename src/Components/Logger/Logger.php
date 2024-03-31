@@ -60,6 +60,11 @@ class Logger implements LoggerInterface
     {
         $this->context = $context;
     }
+    
+    public function getTraceAsString(): string
+    {
+        
+    }
 
     /**
      * @param string|\Throwable $message

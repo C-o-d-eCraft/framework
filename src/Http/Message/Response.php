@@ -254,6 +254,12 @@ class Response extends Message implements ResponseInterface
             header("$name: $value");
         }
 
+        if (($this->body instanceof StreamInterface) === false) {
+            echo 'StatusCode: ' . $this->getStatusCode();
+            
+            return;
+        }
+
         echo $this->getBody()->getContents();
     }
 }

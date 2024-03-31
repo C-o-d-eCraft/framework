@@ -2,11 +2,24 @@
 
 namespace Craft\Http\View;
 
+use Craft\Contracts\ViewInterface;
 use InvalidArgumentException;
 
-readonly class View
+readonly class View implements ViewInterface
 {
-    public function __construct(private string $basePath) { }
+    /**
+     * @var string
+     */
+    private ?string $basePath;
+
+    /**
+     * @param string $basePath
+     * @return void
+     */
+    public function setBasePath(string $basePath): void
+    {
+        $this->basePath = $basePath;
+    }
 
     /**
      * @param string $view
@@ -15,7 +28,7 @@ readonly class View
      */
     public function render(string $view, array $params = []): false|string
     {
-        $viewFilePath = $this->basePath . DIRECTORY_SEPARATOR . $view;
+        $viewFilePath = $this->basePath . DIRECTORY_SEPARATOR . $view . '.php';
 
         if (file_exists($viewFilePath) === false) {
             throw new InvalidArgumentException("Представление файла '$view' не найдено.");
