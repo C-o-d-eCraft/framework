@@ -46,6 +46,7 @@
 <div class="container">
     <h1>Error <?= $statusCode ?></h1>
     <p><?= $reasonPhrase ?></p>
+    <p><?= $xdebugTag ?></p>
     <div class="details">
         <p><strong>File:</strong> <?= $file ?></p>
         <p><strong>Line:</strong> <?= $line ?></p>
