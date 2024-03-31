@@ -251,6 +251,6 @@ class Request extends Message implements RequestInterface
      */
     public function getBodyContents(): array
     {
-        return (array) json_decode(array_merge($this->body->getContents(), $_POST));
+        return (array) json_decode($this->body->getContents());
     }
 }
