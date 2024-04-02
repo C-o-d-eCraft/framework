@@ -94,4 +94,9 @@ class Output implements OutputInterface
     {
         $this->stdout("\033[34m" . $result . "\033[0m");
     }
+
+    public function error(string $result): void
+    {
+        $this->stdout("\033[31m" . $result . "\033[0m");
+    }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Craft\Http\ErrorHandler;
+namespace Craft\Components\ErrorHandler;
 
 class StatusCodeEnum
 {
