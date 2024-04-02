@@ -112,8 +112,6 @@ class Logger implements LoggerInterface
             'datetime' => $utcDate->format('Y-m-d\TH:i:s.uP'),
             'timestamp' => (new DateTimeImmutable)->format('Y-m-d\TH:i:s.uP'),
             'userId' => null,
-            'ip' => $_SERVER['REMOTE_ADDR'],
-            'real_ip' => $_SERVER['REMOTE_ADDR'],
             'x_debug_tag' => $this->xDebugTag,
             'message' => $message instanceof \Throwable ? $message->getMessage() : $message,
             'exception' => $exception,

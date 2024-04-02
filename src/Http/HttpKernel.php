@@ -10,9 +10,9 @@ use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ResponseInterface;
 use Craft\Contracts\RouterInterface;
 
-use Craft\Http\ErrorHandler\StatusCodeEnum;
-use Craft\Http\ErrorHandler\MessageEnum;
-use Craft\Http\ErrorHandler\HttpErrorHandler;
+use Craft\Components\ErrorHandler\StatusCodeEnum;
+use Craft\Components\ErrorHandler\MessageEnum;
+use Craft\Components\ErrorHandler\HttpErrorHandler;
 
 use Craft\Http\Exceptions\BadRequestHttpException;
 use Craft\Http\Exceptions\ForbiddenHttpException;
@@ -71,7 +71,7 @@ class HttpKernel implements HttpKernelInterface
             $this->response->withStatus($e->getCode());
             $this->response->setReasonPhrase($e->getMessage());
 
-            $this->logger->writeLog($e, MessageEnum::LOGIC_ERROR);
+            $this->logger->writeLog($e, $e->getMessage());
 
             $errorsView = $this->container->call(HttpErrorHandler::class, 'handle', [$e]);
 
