@@ -32,7 +32,9 @@ class HttpErrorHandler implements ErrorHandlerInterface
      */
     public function handle(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
     {
-        $this->view->setBasePath(__DIR__ . '/../View');
+        if ((file_exists(PROJECT_SOURCE_ROOT . 'view/ErrorView.php')) === false) {
+            $this->view->setBasePath(__DIR__ . '/../../Http/View');
+        }
 
         if ($exception instanceof HttpException) {
             $errorView = $this->getHttpErrorView($exception);
