@@ -10,19 +10,60 @@ class Logger implements LoggerInterface
     /**
      * @var string
      */
-    protected string $indexName = 'REFLEG';
+    private ?string $indexName = null;
 
     /**
      * @var string
      */
-    public string $handleContext = 'Расчет стоимости';
+    private ?string $context = null;
+
+    /**
+     * @var string|null 
+     */
+    private ?string $xDebugTag = null;
+    /**
+     * @param string $indexName
+     * @param string $context
+     * @param string $xDebugTag
+     * @return void
+     */
+    public function __construct(string $indexName, string $xDebugTag)
+    {
+        $this->indexName = $indexName;
+        
+        if ($xDebugTag === '') {
+            $xDebugTag = md5('x-debug-tag-' . $this->indexName . '-' . rand(1e9, 9e9) . '-' . gethostname() . time());
+            
+            return;
+        }
+        
+        $this->xDebugTag = $xDebugTag;
+    }
 
     /**
      * @return string
      */
     public function getXDebugTag(): string
     {
-        return md5('x-debug-tag-' . $this->indexName . '-' . rand(1e9, 9e9) . '-' . gethostname() . time());
+        return $this->xDebugTag;
+    }
+
+    /**
+     * @return string
+     */
+    public function getContext(): string
+    {
+        return $this->context;
+    }
+
+    public function setContext(string $context): void
+    {
+        $this->context = $context;
+    }
+    
+    public function getTraceAsString(): string
+    {
+        
     }
 
     /**
@@ -30,23 +71,16 @@ class Logger implements LoggerInterface
      * @param string $category
      * @param string $context
      * @param mixed|null $extras
-     * @param string $xDebugTag
      * @return void
      * @throws \Exception
      */
     public function writeLog(
         string|\Throwable $message,
         string $category,
-        string $context,
         mixed $extras = null,
-        string $xDebugTag = '',
     ): void
     {
         $file = PROJECT_ROOT . '/runtime/app-log-' . date('Y-m-d') . '.log';
-
-        if ($xDebugTag === '') {
-            $xDebugTag = $this->getXDebugTag();
-        }
         
         if (file_exists($file) === false) {
             touch($file);
@@ -56,9 +90,7 @@ class Logger implements LoggerInterface
 
         $exception = [];
 
-        if (
-            $message instanceof \Throwable
-        ) {
+        if ($message instanceof \Throwable) {
             $exception = [
                 'file' => $message->getFile(),
                 'line' => $message->getLine(),
@@ -68,10 +100,11 @@ class Logger implements LoggerInterface
 
             $message = $message->getMessage();
         }
+
         $state = [
             'index' => $this->indexName,
             'category' => $category,
-            'context' => $context,
+            'context' => $this->context,
             'level' => empty($exception) === false ? 1 : 2,
             'level_name' => empty($exception) === false ? 'error' : 'info',
             'action' => '/',
@@ -79,9 +112,7 @@ class Logger implements LoggerInterface
             'datetime' => $utcDate->format('Y-m-d\TH:i:s.uP'),
             'timestamp' => (new DateTimeImmutable)->format('Y-m-d\TH:i:s.uP'),
             'userId' => null,
-            'ip' => $_SERVER['REMOTE_ADDR'],
-            'real_ip' => $_SERVER['REMOTE_ADDR'],
-            'x_debug_tag' => $xDebugTag,
+            'x_debug_tag' => $this->xDebugTag,
             'message' => $message instanceof \Throwable ? $message->getMessage() : $message,
             'exception' => $exception,
             'extras' => empty($extras) === false ? $extras : null,

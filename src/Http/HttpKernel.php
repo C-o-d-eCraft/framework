@@ -2,15 +2,32 @@
 
 namespace Craft\Http;
 
+use Craft\Components\DIContainer\DIContainer;
+use Craft\Contracts\ErrorHandlerInterface;
 use Craft\Contracts\HttpKernelInterface;
+use Craft\Contracts\LoggerInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ResponseInterface;
 use Craft\Contracts\RouterInterface;
+
+use Craft\Components\ErrorHandler\StatusCodeEnum;
+use Craft\Components\ErrorHandler\MessageEnum;
+use Craft\Components\ErrorHandler\HttpErrorHandler;
+
+use Craft\Http\Exceptions\BadRequestHttpException;
+use Craft\Http\Exceptions\ForbiddenHttpException;
+use Craft\Http\Exceptions\HttpException;
+use Craft\Http\Exceptions\NotFoundHttpException;
+
 use Craft\Http\Message\Stream;
+
 use Craft\Http\ResponseTypes\HtmlResponse;
 use Craft\Http\ResponseTypes\JsonResponse;
 use Craft\Http\ResponseTypes\TextResponse;
+
 use Craft\Components\Logger\Logger;
+
+use Throwable;
 
 class HttpKernel implements HttpKernelInterface
 {
@@ -18,69 +35,58 @@ class HttpKernel implements HttpKernelInterface
      * @param RequestInterface $request
      * @param ResponseInterface $response
      * @param RouterInterface $router
-     * @param Logger $logger
      */
     public function __construct(
         private readonly RequestInterface $request,
         private ResponseInterface         $response,
         private readonly RouterInterface  $router,
-        private readonly Logger           $logger,
+        private readonly LoggerInterface  $logger,
+        private ErrorHandlerInterface     $errorHandler,
+        private DIContainer               $container,
     ) { }
 
     /**
      * @param RequestInterface $request
      * @return ResponseInterface
-     * @throws \Exception
      */
     public function handle(RequestInterface $request): ResponseInterface
     {
         try {
+            $this->logger->setContext('Запуск контроллера');
+
             $this->response = $this->router->dispatch($this->request);
 
-            $contentType = match (true) {
-                $this->response instanceof JsonResponse => 'application/json',
-                $this->response instanceof TextResponse => 'text/plain',
-                $this->response instanceof HtmlResponse => 'text/html',
-                default => null,
-            };
-
-            if ($contentType !== null) {
-                $this->response->withHeader('Content-Type', $contentType);
+            if ($this->response instanceof JsonResponse) {
+                $this->response->withHeader('Content-Type','application/json');
             }
 
-            $method = $this->request->getMethod();
-            if (in_array($method, ['GET', 'PUT', 'PATCH'])) {
-                $this->response->withStatus(200);
-            } elseif ($method === 'POST') {
-                $this->response->withStatus(201);
-            } elseif ($method === 'DELETE') {
-                $this->response->withStatus(204);
+            if ($this->response instanceof TextResponse) {
+                $this->response->withHeader('Content-Type','text/plain');
             }
-        } catch (\AssertionError $e) {
-            $this->handleException($e, 401, 'Ошибка авторизации');
-        } catch (\InvalidArgumentException $e) {
-            $this->handleException($e, 400, 'Ошибка ввода');
-        } catch (\LogicException $e) {
-            $this->handleException($e, 404, 'Логическая ошибка');
-        } catch (\Throwable $e) {
-            $this->handleException($e, 500, 'Ошибка сервера при обработке запроса');
+
+            if ($this->response instanceof HtmlResponse) {
+                $this->response->withHeader('Content-Type','text/html');
+            }
+        } catch (HttpException $e) {
+            $this->response->withStatus($e->getCode());
+            $this->response->setReasonPhrase($e->getMessage());
+
+            $this->logger->writeLog($e, $e->getMessage());
+
+            $errorsView = $this->container->call(HttpErrorHandler::class, 'handle', [$e]);
+
+            $this->response->setBody(new Stream($errorsView));
+        } catch (Throwable $e) {
+            $this->response->withStatus(StatusCodeEnum::INTERNAL_SERVER_ERROR);
+            $this->response->setReasonPhrase(MessageEnum::INTERNAL_SERVER_ERROR);
+
+            $this->logger->writeLog($e, MessageEnum::INTERNAL_SERVER_ERROR);
+
+            $errorsView = $this->container->call(HttpErrorHandler::class, 'handle', [$e]);
+
+            $this->response->setBody(new Stream($errorsView));
         }
 
         return $this->response;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    private function handleException(\Throwable $exception, int $statusCode, string $errorMessage): void
-    {
-        $this->response->withStatus($statusCode);
-        $xDebugTag = $this->logger->getXDebugTag();
-        $errorData = [
-            'message' => $errorMessage,
-            'x-debug-tag' => $xDebugTag,
-        ];
-        $this->response->setBody(new Stream(json_encode($errorData)));
-        $this->logger->writeLog($exception, $errorMessage, $this->logger->handleContext, $xDebugTag);
     }
 }

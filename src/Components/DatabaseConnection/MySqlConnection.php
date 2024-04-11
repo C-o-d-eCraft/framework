@@ -35,7 +35,7 @@ readonly class MySqlConnection implements DataBaseConnectionInterface
         $statement = $this->pdo->prepare($query);
         $statement->execute($bindings);
 
-        return $statement->fetch();
+        return $statement->fetchAll();
     }
 
     /**
@@ -126,9 +126,19 @@ readonly class MySqlConnection implements DataBaseConnectionInterface
      * @param array $bindings
      * @return int
      */
-    public function delete(string $tableName, string $condition, array $bindings = []): int
+    public function delete(string $tableName, array $condition, array $bindings = []): int
     {
-        $sql = "DELETE FROM $tableName WHERE $condition";
+        $whereClause = '';
+        $bindings = [];
+
+        foreach ($condition as $column => $value) {
+            $whereClause .= "$column = :$column AND ";
+            $bindings[":$column"] = $value;
+        }
+
+        $whereClause = rtrim($whereClause, ' AND ');
+
+        $sql = "DELETE FROM $tableName WHERE $whereClause";
 
         $statement = $this->pdo->prepare($sql);
         $statement->execute($bindings);

@@ -2,7 +2,11 @@
 
 namespace Craft\Console;
 
+use Craft\Components\ErrorHandler\CliErrorHandler;
+use Craft\Components\ErrorHandler\MessageEnum;
 use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Components\Logger\Logger;
+use Craft\Contracts\LoggerInterface;
 use Craft\Contracts\ObserverInterface;
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\EventDispatcher\Event;
@@ -32,11 +36,14 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
      * @param array $plugins
      */
     public function __construct(
-        private readonly DIContainer     $container,
-        private InputInterface           $input,
-        private OutputInterface          $output,
-        private readonly EventDispatcher $eventDispatcher,
-        private readonly array           $plugins
+        private readonly DIContainer      $container,
+        private InputInterface            $input,
+        private OutputInterface           $output,
+        private readonly EventDispatcher  $eventDispatcher,
+        private readonly LoggerInterface  $logger,
+        private readonly CliErrorHandler  $errorHandler,
+        private readonly array            $plugins,
+
     )
     { }
 
@@ -89,6 +96,8 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
     public function handle(): int
     {
         try {
+            $this->logger->setContext('Запуск команды');
+
             $calledCommandName = $this->input->getCommandNameSpace();
 
             $commandClass = $this->commandMap[$calledCommandName];
@@ -115,7 +124,11 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
 
             return $this->output->getStatusCode();
         } catch (Throwable $e) {
-            $this->output->warning($e->getMessage());
+            $message = $this->errorHandler->handle($e);
+
+            $this->logger->writeLog($e, MessageEnum::INTERNAL_SERVER_ERROR);
+
+            $this->output->error($message);
 
             return 1;
         }

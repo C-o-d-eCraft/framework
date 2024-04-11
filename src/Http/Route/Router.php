@@ -41,8 +41,10 @@ readonly class Router implements RouterInterface
 
         $globalMiddleware = $this->routesCollection->getGlobalMiddlewares();
 
-        foreach ($globalMiddleware as $middleware) {
-            $middleware->process($this->request);
+        if (empty($globalMiddleware) === false) {
+            foreach ($globalMiddleware as $middleware) {
+                $middleware->process($this->request);
+            }
         }
 
         foreach ($this->routesCollection->getRoutes() as $route) {
@@ -56,7 +58,7 @@ readonly class Router implements RouterInterface
 
                 $controller = $this->container->make($controllerNameSpace);
 
-                return $controller->{$action}($this->request, $this->container->make(LoggerInterface::class));
+                return $this->container->call($controllerNameSpace, $action);
             }
         }
 

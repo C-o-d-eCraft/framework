@@ -65,5 +65,5 @@ interface DataBaseConnectionInterface
      * @param array $bindings
      * @return int
      */
-    public function delete(string $tableName, string $condition, array $bindings = []): int;
+    public function delete(string $tableName, array $condition, array $bindings = []): int;
 }
