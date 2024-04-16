@@ -70,4 +70,22 @@ class HttpErrorHandler implements ErrorHandlerInterface
         return $this->view->render('ErrorView', $params);
     }
 
+    public function getHttpErrorBody(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
+    {
+        $params = [
+            'statusCode' => $statusCode ?? $exception->getCode(),
+            'reasonPhrase' => $reasonPhrase ?? $exception->getMessage(),
+        ];
+
+        if (getenv('ENV') === 'development') {
+            $params = array_merge($params, [
+                'xdebugTag' => $this->logger->getXDebugTag(),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'stackTrace' => explode(PHP_EOL, $exception->getTraceAsString()),
+            ]);
+        }
+        
+        return $params;
+    }
 }
