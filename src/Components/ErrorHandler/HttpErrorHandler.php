@@ -5,7 +5,6 @@ namespace Craft\Components\ErrorHandler;
 use Craft\Contracts\LoggerInterface;
 use Craft\Contracts\ViewInterface;
 use Craft\Contracts\ErrorHandlerInterface;
-use Craft\Http\Exceptions\BadRequestHttpException;
 use Craft\Http\Exceptions\ForbiddenHttpException;
 use Craft\Http\Exceptions\NotFoundHttpException;
 use Craft\Http\View\View;
@@ -22,7 +21,7 @@ class HttpErrorHandler implements ErrorHandlerInterface
     public function __construct(
         private ViewInterface $view,
         private LoggerInterface $logger,
-    ) {   }
+    ) { }
 
     /**
      * @param Throwable $exception
