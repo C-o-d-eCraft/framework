@@ -103,6 +103,47 @@ class RoutesCollection implements RoutesCollectionInterface
     }
 
     /**
+     * @param string $prefix
+     * @param callable $callback
+     * @param array $middleware
+     * @return void
+     */
+    public function group(string $prefix, callable $callback, array $middleware = []): void
+    {
+        $previousMiddlewares = $this->groupMiddlewares;
+
+        $this->groupMiddlewares = array_merge($this->groupMiddlewares, $middleware);
+
+        $callback($this);
+
+        $this->groupMiddlewares = $previousMiddlewares;
+    }
+
+    /**
+     * @param string $name
+     * @param string $controller
+     * @param array $middleware
+     * @return void
+     */
+    public function addResource(string $route, string|callable $controllerAction, array $middleware = []): void
+    {
+        $restMethods = ['GET', 'POST', 'PUT', 'DELETE'];
+
+        $controllerClass = is_string($controllerAction) ? explode('::', $controllerAction)[0] : '';
+
+        preg_match('/app\\\\api\\\\(v\d+)\\\\Controllers\\\\(\w+)ResourceController/', $controllerClass, $matches);
+        $apiVersion = strtolower($matches[1] ?? '');
+        $controllerName = lcfirst($matches[2] ?? '');
+
+        foreach ($restMethods as $method) {
+            if (is_callable($controllerAction) || method_exists($controllerAction, 'action' . ucfirst(strtolower($method)))) {
+                $path = "/api/{$apiVersion}/{$controllerName}";
+                $this->routes[] = new Route($method, $path, $controllerAction . '::action' . ucfirst(strtolower($method)), [], $this->groupMiddlewares);
+            }
+        }
+    }
+
+    /**
      * @param string $method
      * @param string $route
      * @param string|callable $controllerAction
