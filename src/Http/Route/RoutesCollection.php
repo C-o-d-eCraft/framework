@@ -94,14 +94,9 @@ class RoutesCollection implements RoutesCollectionInterface
      */
     public function group(string $prefix, callable $callback, array $middleware = []): void
     {
-        $previousMiddlewares = $this->groupMiddlewares;
         $this->groupMiddlewares = array_merge($this->groupMiddlewares, $middleware);
 
         $callback($this);
-
-        $this->groupMiddlewares = $previousMiddlewares;
-
-        $this->groupMiddlewares = array_merge($this->groupMiddlewares, $middleware);
     }
 
     /**
@@ -203,6 +198,7 @@ class RoutesCollection implements RoutesCollectionInterface
     private function mergeMiddleware(): array
     {
         $this->loadGlobalMiddlewaresFromFile();
+
         return array_merge($this->globalMiddlewares, $this->groupMiddlewares);
     }
 }
