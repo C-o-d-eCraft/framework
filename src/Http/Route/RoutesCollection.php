@@ -95,6 +95,7 @@ class RoutesCollection implements RoutesCollectionInterface
     public function group(string $prefix, callable $callback, array $middleware = []): void
     {
         $previousMiddlewares = $this->groupMiddlewares;
+        $this->groupMiddlewares = array_merge($this->groupMiddlewares, $middleware);
 
         $callback($this);
 
