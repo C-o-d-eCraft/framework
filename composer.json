@@ -14,11 +14,6 @@
       "homepage": "https://github.com/suvor03",
       "role": "Developer"
     },
-    {
-      "name": "Evgeniy Shevelev",
-      "homepage": "https://github.com/ShevelevEvgeniy",
-      "role": "Developer"
-    }
   ],
   "minimum-stability": "stable",
   "autoload": {
