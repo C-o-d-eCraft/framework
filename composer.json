@@ -13,7 +13,7 @@
       "name": "Dmitriy Suvorov",
       "homepage": "https://github.com/suvor03",
       "role": "Developer"
-    },
+    }
   ],
   "minimum-stability": "stable",
   "autoload": {
