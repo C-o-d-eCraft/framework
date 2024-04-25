@@ -39,17 +39,9 @@ readonly class Router implements RouterInterface
         $method = $this->request->getMethod();
         $path = $this->request->getUri()->getPath();
 
-        $globalMiddleware = $this->routesCollection->getGlobalMiddlewares();
-
-        if (empty($globalMiddleware) === false) {
-            foreach ($globalMiddleware as $middleware) {
-                $middleware->process($this->request);
-            }
-        }
-
         foreach ($this->routesCollection->getRoutes() as $route) {
             if ($route->route === $path && $route->method === $method) {
-
+                dd($this->routesCollection->getRoutes());
                 $this->processMiddlewares($route->middlewares);
 
                 $this->validateParams($route->params);
