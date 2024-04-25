@@ -2,7 +2,7 @@
   "name": "c-o-d-e-craft/framework",
   "description": "Компонентный фреймворк, предоставляющий возможность быстрой реализации веб-приложений",
   "license": "MIT",
-  "version": "0.2.3",
+  "version": "0.2.5",
   "authors": [
     {
       "name": "Andrey Bogachevskiy",
@@ -14,11 +14,6 @@
       "homepage": "https://github.com/suvor03",
       "role": "Developer"
     },
-    {
-      "name": "Evgeniy Shevelev",
-      "homepage": "https://github.com/ShevelevEvgeniy",
-      "role": "Developer"
-    }
   ],
   "minimum-stability": "stable",
   "autoload": {
