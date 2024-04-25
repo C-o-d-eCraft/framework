@@ -41,7 +41,6 @@ readonly class Router implements RouterInterface
 
         foreach ($this->routesCollection->getRoutes() as $route) {
             if ($route->route === $path && $route->method === $method) {
-                dd($this->routesCollection->getRoutes());
                 $this->processMiddlewares($route->middlewares);
 
                 $this->validateParams($route->params);
