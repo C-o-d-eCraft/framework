@@ -48,15 +48,4 @@ interface RoutesCollectionInterface
      * @return void
      */
     public function patch(string $route, string|callable $controllerAction, array $middleware = []): void;
-
-    /**
-     * @param MiddlewareInterface $middleware
-     * @return void
-     */
-    public function addGlobalMiddleware(MiddlewareInterface $middleware): void;
-
-    /**
-     * @return array
-     */
-    public function getGlobalMiddlewares(): array;
 }

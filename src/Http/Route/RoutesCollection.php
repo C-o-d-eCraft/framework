@@ -4,6 +4,7 @@ namespace Craft\Http\Route;
 
 use Craft\Contracts\MiddlewareInterface;
 use Craft\Contracts\RoutesCollectionInterface;
+use Craft\Http\Exceptions\NotFoundHttpException;
 
 class RoutesCollection implements RoutesCollectionInterface
 {
@@ -86,23 +87,6 @@ class RoutesCollection implements RoutesCollectionInterface
     }
 
     /**
-     * @param MiddlewareInterface $middleware
-     * @return void
-     */
-    public function addGlobalMiddleware(MiddlewareInterface $middleware): void
-    {
-        $this->globalMiddlewares[] = $middleware;
-    }
-
-    /**
-     * @return array
-     */
-    public function getGlobalMiddlewares(): array
-    {
-        return $this->globalMiddlewares;
-    }
-
-    /**
      * @param string $prefix
      * @param callable $callback
      * @param array $middleware
@@ -112,11 +96,11 @@ class RoutesCollection implements RoutesCollectionInterface
     {
         $previousMiddlewares = $this->groupMiddlewares;
 
-        $this->groupMiddlewares = array_merge($this->groupMiddlewares, $middleware);
-
         $callback($this);
 
         $this->groupMiddlewares = $previousMiddlewares;
+
+        $this->groupMiddlewares = array_merge($this->groupMiddlewares, $middleware);
     }
 
     /**
@@ -138,7 +122,7 @@ class RoutesCollection implements RoutesCollectionInterface
         foreach ($restMethods as $method) {
             if (is_callable($controllerAction) || method_exists($controllerAction, 'action' . ucfirst(strtolower($method)))) {
                 $path = "/api/{$apiVersion}/{$controllerName}";
-                $this->routes[] = new Route($method, $path, $controllerAction . '::action' . ucfirst(strtolower($method)), [], $this->groupMiddlewares);
+                $this->routes[] = new Route($method, $path, $controllerAction . '::action' . ucfirst(strtolower($method)), [], $this->mergeMiddleware());
             }
         }
     }
@@ -164,7 +148,11 @@ class RoutesCollection implements RoutesCollectionInterface
             $params[] = $parsedParam;
         }
 
-        $this->routes[] = new Route($method, $routePath, $controllerAction, $params, $middleware);
+        $middlewares = $this->mergeMiddleware();
+
+        $middlewares = array_merge($middlewares, $middleware);
+
+        $this->routes[] = new Route($method, $routePath, $controllerAction, $params, $middlewares);
     }
 
     /**
@@ -196,5 +184,24 @@ class RoutesCollection implements RoutesCollectionInterface
         }
 
         return $param;
+    }
+
+    private function loadGlobalMiddlewaresFromFile(): void
+    {
+        $middlewareNamespace = require PROJECT_ROOT . 'config/global-middlewares.php';
+
+        foreach ($middlewareNamespace as $middlewareClass) {
+            if (class_exists($middlewareClass) === false || in_array($middlewareClass, $this->globalMiddlewares)) {
+                return;
+            }
+
+            $this->globalMiddlewares[] = $middlewareClass;
+        }
+    }
+
+    private function mergeMiddleware(): array
+    {
+        $this->loadGlobalMiddlewaresFromFile();
+        return array_merge($this->globalMiddlewares, $this->groupMiddlewares);
     }
 }
