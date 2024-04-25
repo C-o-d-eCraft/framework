@@ -3,9 +3,9 @@
 namespace Craft\Components\ErrorHandler;
 
 use Craft\Contracts\LoggerInterface;
+use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ViewInterface;
 use Craft\Contracts\ErrorHandlerInterface;
-use Craft\Http\Exceptions\BadRequestHttpException;
 use Craft\Http\Exceptions\ForbiddenHttpException;
 use Craft\Http\Exceptions\NotFoundHttpException;
 use Craft\Http\View\View;
@@ -22,7 +22,8 @@ class HttpErrorHandler implements ErrorHandlerInterface
     public function __construct(
         private ViewInterface $view,
         private LoggerInterface $logger,
-    ) {   }
+        private readonly RequestInterface $request,
+    ) { }
 
     /**
      * @param Throwable $exception
@@ -36,15 +37,14 @@ class HttpErrorHandler implements ErrorHandlerInterface
             $this->view->setBasePath(__DIR__ . '/../../Http/View');
         }
 
-        if ($exception instanceof HttpException) {
-            $errorView = $this->getHttpErrorView($exception);
+        $acceptHeader = $this->request->getHeaders()['ACCEPT'];
+
+        if ($acceptHeader === 'application/json') {
+            return $this->getHttpErrorBody($exception, $statusCode, $reasonPhrase);
         }
 
-        if ($exception instanceof Throwable) {
-            $errorView = $this->getHttpErrorView($exception, $statusCode, $reasonPhrase);
-        }
+        return $this->getHttpErrorView($exception, $statusCode, $reasonPhrase);
 
-        return $errorView;
     }
 
     /**
@@ -86,6 +86,6 @@ class HttpErrorHandler implements ErrorHandlerInterface
             ]);
         }
         
-        return $params;
+        return json_encode($params);
     }
 }

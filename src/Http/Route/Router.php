@@ -9,7 +9,7 @@ use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ResponseInterface;
 use Craft\Contracts\RouterInterface;
 use Craft\Contracts\RoutesCollectionInterface;
-use Craft\Http\Exceptions\BadRequestHttpException;
+use Craft\Http\Exceptions\HttpException;
 use Craft\Http\Exceptions\NotFoundHttpException;
 use ReflectionException;
 
@@ -30,7 +30,7 @@ readonly class Router implements RouterInterface
 
     /**
      * @return ResponseInterface
-     * @throws BadRequestHttpException
+     * @throws HttpException
      * @throws NotFoundHttpException
      * @throws ReflectionException
      */
@@ -39,17 +39,8 @@ readonly class Router implements RouterInterface
         $method = $this->request->getMethod();
         $path = $this->request->getUri()->getPath();
 
-        $globalMiddleware = $this->routesCollection->getGlobalMiddlewares();
-
-        if (empty($globalMiddleware) === false) {
-            foreach ($globalMiddleware as $middleware) {
-                $middleware->process($this->request);
-            }
-        }
-
         foreach ($this->routesCollection->getRoutes() as $route) {
             if ($route->route === $path && $route->method === $method) {
-
                 $this->processMiddlewares($route->middlewares);
 
                 $this->validateParams($route->params);
@@ -68,7 +59,7 @@ readonly class Router implements RouterInterface
     /**
      * @param $params
      * @return void
-     * @throws BadRequestHttpException
+     * @throws HttpException
      */
     private function validateParams($params): void
     {
@@ -80,7 +71,7 @@ readonly class Router implements RouterInterface
             $paramName = $this->request->getUri()->getQueryParams()[$param['name']];
 
             if ($param['required'] && (empty($paramName))) {
-                throw new BadRequestHttpException("Обязательный параметр {$param['name']} отсутствует");
+                throw new HttpException("Обязательный параметр {$param['name']} отсутствует");
             }
 
             if ((isset($paramName )) === false) {
@@ -88,7 +79,7 @@ readonly class Router implements RouterInterface
             }
 
             if ($param['type'] === 'numeric' && (is_numeric($paramName )) === false) {
-                throw new BadRequestHttpException("Параметр {$param['name']} должен быть числом");
+                throw new HttpException("Параметр {$param['name']} должен быть числом");
             }
         }
     }

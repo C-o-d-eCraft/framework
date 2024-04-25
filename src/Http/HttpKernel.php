@@ -14,9 +14,8 @@ use Craft\Components\ErrorHandler\StatusCodeEnum;
 use Craft\Components\ErrorHandler\MessageEnum;
 use Craft\Components\ErrorHandler\HttpErrorHandler;
 
-use Craft\Http\Exceptions\BadRequestHttpException;
-use Craft\Http\Exceptions\ForbiddenHttpException;
 use Craft\Http\Exceptions\HttpException;
+use Craft\Http\Exceptions\ForbiddenHttpException;
 use Craft\Http\Exceptions\NotFoundHttpException;
 
 use Craft\Http\Message\Stream;
