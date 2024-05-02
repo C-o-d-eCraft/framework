@@ -5,6 +5,9 @@
 Формат основан на [стандарте формата CHANGELOG](https://keepachangelog.com/en/1.0.0/),
 и придерживается [правил версионирования](https://semver.org/spec/v2.0.0.html).
 
+- Исправлено:
+  - Исправил ErrorHandler
+
 ## [ [0.2.5](https://github.com/C-o-d-eCraft/framework/releases/tag/0.2.5) ] - 25.04.2024
 - Реализовано:
   - Добавил проверку заголовков запроса в ErrorHandler 
