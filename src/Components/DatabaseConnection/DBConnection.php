@@ -5,7 +5,7 @@ namespace Craft\Components\DatabaseConnection;
 use Craft\Contracts\DataBaseConnectionInterface;
 use PDO;
 
-class MySqlConnection implements DataBaseConnectionInterface
+class DBConnection implements DataBaseConnectionInterface
 {
     /**
      * @var PDO
