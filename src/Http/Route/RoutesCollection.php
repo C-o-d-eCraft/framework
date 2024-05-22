@@ -8,20 +8,10 @@ use Craft\Http\Exceptions\NotFoundHttpException;
 
 class RoutesCollection implements RoutesCollectionInterface
 {
-    /**
-     * @var array
-     */
     private array $routes = [];
-
-    /**
-     * @var array
-     */
     private array $globalMiddlewares = [];
-
-    /**
-     * @var array
-     */
     private array $groupMiddlewares = [];
+    private array $groupStack = [];
 
     /**
      * @return array
@@ -94,9 +84,13 @@ class RoutesCollection implements RoutesCollectionInterface
      */
     public function group(string $prefix, callable $callback, array $middleware = []): void
     {
-        $this->groupMiddlewares = array_merge($this->groupMiddlewares, $middleware);
+        $this->groupStack[] = $prefix;
 
         $callback($this);
+
+        $this->groupMiddlewares[$prefix] = $middleware;
+
+        array_pop($this->groupStack);
     }
 
     /**
@@ -118,7 +112,7 @@ class RoutesCollection implements RoutesCollectionInterface
         foreach ($restMethods as $method) {
             if (is_callable($controllerAction) || method_exists($controllerAction, 'action' . ucfirst(strtolower($method)))) {
                 $path = "/api/{$apiVersion}/{$controllerName}";
-                $this->routes[] = new Route($method, $path, $controllerAction . '::action' . ucfirst(strtolower($method)), [], $this->mergeMiddleware());
+                $this->routes[] = new Route($method, $path, $controllerAction . '::action' . ucfirst(strtolower($method)), [], $this->mergeMiddleware($middleware));
             }
         }
     }
@@ -144,9 +138,7 @@ class RoutesCollection implements RoutesCollectionInterface
             $params[] = $parsedParam;
         }
 
-        $middlewares = $this->mergeMiddleware();
-
-        $middlewares = array_merge($middlewares, $middleware);
+        $middlewares = $this->mergeMiddleware($middleware);
 
         $this->routes[] = new Route($method, $routePath, $controllerAction, $params, $middlewares);
     }
@@ -182,23 +174,34 @@ class RoutesCollection implements RoutesCollectionInterface
         return $param;
     }
 
-    private function loadGlobalMiddlewaresFromFile(): void
+    public function addGlobalMiddleware(array $middleware): void
     {
-        $middlewareNamespace = require PROJECT_ROOT . 'config/global-middlewares.php';
-
-        foreach ($middlewareNamespace as $middlewareClass) {
-            if (class_exists($middlewareClass) === false || in_array($middlewareClass, $this->globalMiddlewares)) {
-                return;
-            }
-
-            $this->globalMiddlewares[] = $middlewareClass;
-        }
+        $this->globalMiddlewares = array_merge($this->globalMiddlewares, $middleware);
     }
 
-    private function mergeMiddleware(): array
+    private function mergeMiddleware(array $middleware = []): array
     {
-        $this->loadGlobalMiddlewaresFromFile();
+        $mergedMiddlewares = [];
 
-        return array_merge($this->globalMiddlewares, $this->groupMiddlewares);
+        foreach ($this->globalMiddlewares as $globalMiddleware) {
+            $mergedMiddlewares[$globalMiddleware] = $globalMiddleware;
+        }
+
+        foreach ($this->groupMiddlewares as $groupMiddlewares) {
+            foreach ($groupMiddlewares as $groupMiddleware) {
+                $mergedMiddlewares[$groupMiddleware] = $groupMiddleware;
+            }
+        }
+
+        foreach ($middleware as $mw) {
+            $mergedMiddlewares[$mw] = $mw;
+        }
+
+        return array_values($mergedMiddlewares);
+    }
+
+    private function getCurrentGroupPrefix(): string
+    {
+        return implode('/', $this->groupStack);
     }
 }
