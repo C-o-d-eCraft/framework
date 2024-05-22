@@ -3,29 +3,20 @@
 namespace Craft\Http;
 
 use Craft\Components\DIContainer\DIContainer;
+use Craft\Components\ErrorHandler\HttpErrorHandler;
+use Craft\Components\ErrorHandler\MessageEnum;
+use Craft\Components\ErrorHandler\StatusCodeEnum;
 use Craft\Contracts\ErrorHandlerInterface;
 use Craft\Contracts\HttpKernelInterface;
 use Craft\Contracts\LoggerInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ResponseInterface;
 use Craft\Contracts\RouterInterface;
-
-use Craft\Components\ErrorHandler\StatusCodeEnum;
-use Craft\Components\ErrorHandler\MessageEnum;
-use Craft\Components\ErrorHandler\HttpErrorHandler;
-
 use Craft\Http\Exceptions\HttpException;
-use Craft\Http\Exceptions\ForbiddenHttpException;
-use Craft\Http\Exceptions\NotFoundHttpException;
-
 use Craft\Http\Message\Stream;
-
 use Craft\Http\ResponseTypes\HtmlResponse;
 use Craft\Http\ResponseTypes\JsonResponse;
 use Craft\Http\ResponseTypes\TextResponse;
-
-use Craft\Components\Logger\Logger;
-
 use Throwable;
 
 class HttpKernel implements HttpKernelInterface
@@ -51,7 +42,7 @@ class HttpKernel implements HttpKernelInterface
     public function handle(RequestInterface $request): ResponseInterface
     {
         try {
-            $this->logger->setContext('Запуск контроллера');
+            $this->logger->info('Запуск контроллера');
 
             $this->response = $this->router->dispatch($this->request);
 
@@ -70,7 +61,7 @@ class HttpKernel implements HttpKernelInterface
             $this->response->withStatus($e->getCode());
             $this->response->setReasonPhrase($e->getMessage());
 
-            $this->logger->writeLog($e, $e->getMessage());
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
 
             $errorsView = $this->container->call(HttpErrorHandler::class, 'handle', [$e]);
 
@@ -79,7 +70,7 @@ class HttpKernel implements HttpKernelInterface
             $this->response->withStatus(StatusCodeEnum::INTERNAL_SERVER_ERROR);
             $this->response->setReasonPhrase(MessageEnum::INTERNAL_SERVER_ERROR);
 
-            $this->logger->writeLog($e, MessageEnum::INTERNAL_SERVER_ERROR);
+            $this->logger->critical(MessageEnum::INTERNAL_SERVER_ERROR, ['exception' => $e]);
 
             $errorsView = $this->container->call(HttpErrorHandler::class, 'handle', [$e]);
 
