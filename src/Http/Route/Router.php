@@ -2,9 +2,8 @@
 
 namespace Craft\Http\Route;
 
-use Craft\Contracts\LoggerInterface;
-use Craft\Contracts\MiddlewareInterface;
 use Craft\Components\DIContainer\DIContainer;
+use Craft\Contracts\MiddlewareInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ResponseInterface;
 use Craft\Contracts\RouterInterface;
