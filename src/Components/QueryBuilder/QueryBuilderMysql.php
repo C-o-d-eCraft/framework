@@ -1,20 +1,18 @@
 <?php
 
-namespace Craft\Components\DatabaseConnection;
+namespace Craft\Components\QueryBuilder;
 
 use Craft\Contracts\DataBaseConnectionInterface;
-use PDO;
+use Craft\Contracts\QueryBuilderInterface;
+use \PDO;
 
-class MySqlConnection implements DataBaseConnectionInterface
+class QueryBuilderMysql implements QueryBuilderInterface
 {
     /**
      * @var PDO
      */
-    private PDO $pdo;
+    private $pdo;
 
-    /**
-     * @var string|null
-     */
     private ?string $query = null;
 
     /**
@@ -22,42 +20,9 @@ class MySqlConnection implements DataBaseConnectionInterface
      */
     private array $bindings = [];
 
-    /**
-     * @param array $config
-     */
-    public function __construct(array $config)
-    {
-        if (isset($config['dsn'], $config['username'], $config['password'], $config['options']) === false) {
-            throw new \InvalidArgumentException("Неверная конфигурация базы данных");
+        public function __construct(private DataBaseConnectionInterface $db) {
+            $this->pdo = $db->pdo;
         }
-
-        try {
-            $this->pdo = new PDO(
-                $config['dsn'],
-                $config['username'],
-                $config['password'],
-                $config['options']
-            );
-
-            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (\PDOException $e) {
-            throw new \RuntimeException("Не удалось подключиться к базе данных: " . $e->getMessage());
-        }
-    }
-
-    /**
-     * @param string $method
-     * @param array $args
-     * @return $this
-     */
-    public function __call(string $method, array $args): self
-    {
-        if (in_array($method, ['select', 'from', 'innerJoin', 'where', 'limit', 'insert', 'update', 'delete', 'one'])) {
-            $this->{$method}(...$args);
-        }
-
-        return $this;
-    }
 
     /**
      * @param string|array $columns
@@ -210,6 +175,18 @@ class MySqlConnection implements DataBaseConnectionInterface
         $this->reset();
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
+    /**
+     * Для написания любого запроса без вспомогательных методов
+     * @return array|false
+     */
+    public function query(string $query): array|false
+    {
+        $this->query = $query;
+        $statement = $this->pdo->prepare($this->query);
+        $statement->execute($this->bindings);
+        $this->reset();
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     /**
      * @return void
@@ -219,4 +196,5 @@ class MySqlConnection implements DataBaseConnectionInterface
         $this->query = null;
         $this->bindings = [];
     }
+
 }

@@ -2,14 +2,10 @@
 
 namespace Craft\Components\ErrorHandler;
 
+use Craft\Contracts\ErrorHandlerInterface;
 use Craft\Contracts\LoggerInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ViewInterface;
-use Craft\Contracts\ErrorHandlerInterface;
-use Craft\Http\Exceptions\ForbiddenHttpException;
-use Craft\Http\Exceptions\NotFoundHttpException;
-use Craft\Http\View\View;
-use Craft\Http\Exceptions\HttpException;
 use Throwable;
 
 class HttpErrorHandler implements ErrorHandlerInterface 
@@ -33,18 +29,17 @@ class HttpErrorHandler implements ErrorHandlerInterface
      */
     public function handle(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
     {
-        if ((file_exists(PROJECT_SOURCE_ROOT . 'view/ErrorView.php')) === false) {
+        if (file_exists($this->view->getBasePath() . 'ErrorView.php') === false) {
             $this->view->setBasePath(__DIR__ . '/../../Http/View');
         }
 
-        $acceptHeader = $this->request->getHeaders()['ACCEPT'];
+        $requestContentType = $this->request->getHeaders()['CONTENT-TYPE'] ?? null;
 
-        if ($acceptHeader === 'application/json') {
-            return $this->getHttpErrorBody($exception, $statusCode, $reasonPhrase);
+        if ($requestContentType === 'text/html') {
+            return $this->getHttpErrorView($exception, $statusCode, $reasonPhrase);
         }
 
-        return $this->getHttpErrorView($exception, $statusCode, $reasonPhrase);
-
+        return $this->getJsonErrorBody($exception, $statusCode, $reasonPhrase);
     }
 
     /**
@@ -60,17 +55,19 @@ class HttpErrorHandler implements ErrorHandlerInterface
 
         if (getenv('ENV') === 'development') {
             $params = array_merge($params, [
-                'xdebugTag' => $this->logger->getXDebugTag(),
+                'xdebugTag' => defined('X_DEBUG_TAG') ? X_DEBUG_TAG : null,
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
                 'stackTrace' => explode(PHP_EOL, $exception->getTraceAsString()),
             ]);
         }
 
+        $this->logger->error($exception->getMessage(), ['exception' => $exception]);
+
         return $this->view->render('ErrorView', $params);
     }
 
-    public function getHttpErrorBody(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
+    public function getJsonErrorBody(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
     {
         $params = [
             'statusCode' => $statusCode ?? $exception->getCode(),
@@ -79,12 +76,14 @@ class HttpErrorHandler implements ErrorHandlerInterface
 
         if (getenv('ENV') === 'development') {
             $params = array_merge($params, [
-                'xdebugTag' => $this->logger->getXDebugTag(),
+                'xdebugTag' => defined('X_DEBUG_TAG') ? X_DEBUG_TAG : null,
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
                 'stackTrace' => explode(PHP_EOL, $exception->getTraceAsString()),
             ]);
         }
+
+        $this->logger->error($exception->getMessage(), ['exception' => $exception]);
         
         return json_encode($params);
     }

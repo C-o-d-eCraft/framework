@@ -2,18 +2,17 @@
 
 namespace Craft\Console;
 
+use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
 use Craft\Components\ErrorHandler\MessageEnum;
-use Craft\Components\EventDispatcher\EventMessage;
-use Craft\Components\Logger\Logger;
-use Craft\Contracts\LoggerInterface;
-use Craft\Contracts\ObserverInterface;
-use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\EventDispatcher\Event;
 use Craft\Components\EventDispatcher\EventDispatcher;
+use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Contracts\CommandInterface;
 use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\InputInterface;
+use Craft\Contracts\LoggerInterface;
+use Craft\Contracts\ObserverInterface;
 use Craft\Contracts\OutputInterface;
 use JetBrains\PhpStorm\NoReturn;
 use LogicException;
@@ -96,7 +95,7 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
     public function handle(): int
     {
         try {
-            $this->logger->setContext('Запуск команды');
+            $this->logger->info('Запуск команды');
 
             $calledCommandName = $this->input->getCommandNameSpace();
 
@@ -126,7 +125,7 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
         } catch (Throwable $e) {
             $message = $this->errorHandler->handle($e);
 
-            $this->logger->writeLog($e, MessageEnum::INTERNAL_SERVER_ERROR);
+            $this->logger->critical(MessageEnum::INTERNAL_SERVER_ERROR, ['exception' => $e]);
 
             $this->output->error($message);
 
