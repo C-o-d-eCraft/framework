@@ -11,7 +11,6 @@ class RoutesCollection implements RoutesCollectionInterface
     private array $routes = [];
     private array $globalMiddlewares = [];
     private array $groupMiddlewares = [];
-    private array $groupStack = [];
 
     /**
      * @return array
@@ -84,13 +83,11 @@ class RoutesCollection implements RoutesCollectionInterface
      */
     public function group(string $prefix, callable $callback, array $middleware = []): void
     {
-        $this->groupStack[] = $prefix;
+        array_push($this->groupMiddlewares, $middleware);
 
         $callback($this);
 
-        $this->groupMiddlewares[$prefix] = $middleware;
-
-        array_pop($this->groupStack);
+        array_pop($this->groupMiddlewares);
     }
 
     /**
@@ -112,7 +109,7 @@ class RoutesCollection implements RoutesCollectionInterface
         foreach ($restMethods as $method) {
             if (is_callable($controllerAction) || method_exists($controllerAction, 'action' . ucfirst(strtolower($method)))) {
                 $path = "/api/{$apiVersion}/{$controllerName}";
-                $this->routes[] = new Route($method, $path, $controllerAction . '::action' . ucfirst(strtolower($method)), [], $this->mergeMiddleware($middleware));
+                $this->routes[] = new Route($method, $path, $controllerAction . '::action' . ucfirst(strtolower($method)), [], $this->mergeMiddlewares());
             }
         }
     }
@@ -138,7 +135,7 @@ class RoutesCollection implements RoutesCollectionInterface
             $params[] = $parsedParam;
         }
 
-        $middlewares = $this->mergeMiddleware($middleware);
+        $middlewares = $this->mergeMiddlewares();
 
         $this->routes[] = new Route($method, $routePath, $controllerAction, $params, $middlewares);
     }
@@ -179,7 +176,7 @@ class RoutesCollection implements RoutesCollectionInterface
         $this->globalMiddlewares = array_merge($this->globalMiddlewares, $middleware);
     }
 
-    private function mergeMiddleware(array $middleware = []): array
+    private function mergeMiddlewares(): array
     {
         $mergedMiddlewares = [];
 
@@ -193,15 +190,6 @@ class RoutesCollection implements RoutesCollectionInterface
             }
         }
 
-        foreach ($middleware as $mw) {
-            $mergedMiddlewares[$mw] = $mw;
-        }
-
         return array_values($mergedMiddlewares);
-    }
-
-    private function getCurrentGroupPrefix(): string
-    {
-        return implode('/', $this->groupStack);
     }
 }
