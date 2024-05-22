@@ -4,16 +4,12 @@ namespace Craft\Contracts;
 
 interface LoggerInterface
 {
-    /**
-     * @param string|\Throwable $message
-     * @param string $category
-     * @param string $context
-     * @param mixed|null $extras
-     * @return void
-     */
-    public function writeLog(
-        string|\Throwable $message,
-        string $category,
-        mixed $extras = null,
-    ): void;
+    public function emergency($message, array $context = []): void;
+    public function alert($message, array $context = []): void;
+    public function critical($message, array $context = []): void;
+    public function error($message, array $context = []): void;
+    public function warning($message, array $context = []): void;
+    public function notice($message, array $context = []): void;
+    public function info($message, array $context = []): void;
+    public function debug($message, array $context = []): void;
 }
