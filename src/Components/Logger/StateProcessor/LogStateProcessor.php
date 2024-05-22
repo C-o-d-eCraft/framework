@@ -3,6 +3,10 @@
 namespace Craft\Components\Logger\StateProcessor;
 
 use Craft\Contracts\LogStateProcessorInterface;
+use DateTime;
+use DateTimeImmutable;
+use DateTimeZone;
+
 
 class LogStateProcessor implements LogStateProcessorInterface
 {
@@ -25,6 +29,14 @@ class LogStateProcessor implements LogStateProcessorInterface
         if (defined('X_DEBUG_TAG') === false) {
             throw new \InvalidArgumentException('Не определена константа логирования инцидентов X_DEBUG_TAG');
         }
+    }
+
+    /**
+     * @return void
+     */
+    private function setUpDefaults(): void
+    {
+        $this->storage->action_type = empty($_SERVER['argv']) ? 'web' : 'cli';
     }
 
     /**
