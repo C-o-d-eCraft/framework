@@ -39,8 +39,6 @@ class CliErrorHandler
                 $params
             )) . PHP_EOL;
 
-        $this->logger->error($exception->getMessage(), ['exception' => $exception]);
-
         return $message;
     }
 }

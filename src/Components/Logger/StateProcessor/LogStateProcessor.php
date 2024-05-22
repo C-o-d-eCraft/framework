@@ -62,7 +62,7 @@ class LogStateProcessor implements LogStateProcessorInterface
      * @return object|LogStorageDTO
      * @throws \Exception
      */
-    public function process(string $level, string $message, ?array $context): object
+    public function process(string $level, string $message, ?array $context, $extras = []): object
     {
         $this->validateSetUp();
 
@@ -92,6 +92,8 @@ class LogStateProcessor implements LogStateProcessorInterface
         $storage->ip = isset($_SERVER['HTTP_X_REAL_IP']) === true ? $_SERVER['HTTP_X_REAL_IP'] : null;
 
         $storage->x_debug_tag = X_DEBUG_TAG;
+
+        $storage->extras = $extras ?? null;
 
         return $storage;
     }
