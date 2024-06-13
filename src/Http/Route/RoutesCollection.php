@@ -135,9 +135,7 @@ class RoutesCollection implements RoutesCollectionInterface
             $params[] = $parsedParam;
         }
 
-        $middlewares = $this->mergeMiddlewares();
-
-        $this->routes[] = new Route($method, $routePath, $controllerAction, $params, $middlewares);
+        $this->routes[] = new Route($method, $routePath, $controllerAction, $params, $this->mergeMiddlewares($middleware));
     }
 
     /**
@@ -176,20 +174,11 @@ class RoutesCollection implements RoutesCollectionInterface
         $this->globalMiddlewares = array_merge($this->globalMiddlewares, $middleware);
     }
 
-    private function mergeMiddlewares(): array
+    private function mergeMiddlewares(array $middlewares = []): array
     {
-        $mergedMiddlewares = [];
+        $allMiddlewares = array_merge($this->globalMiddlewares, ...$this->groupMiddlewares);
+        $allMiddlewares = array_merge($allMiddlewares, $middlewares);
 
-        foreach ($this->globalMiddlewares as $globalMiddleware) {
-            $mergedMiddlewares[$globalMiddleware] = $globalMiddleware;
-        }
-
-        foreach ($this->groupMiddlewares as $groupMiddlewares) {
-            foreach ($groupMiddlewares as $groupMiddleware) {
-                $mergedMiddlewares[$groupMiddleware] = $groupMiddleware;
-            }
-        }
-
-        return array_values($mergedMiddlewares);
+        return array_values(array_unique($allMiddlewares));
     }
 }
