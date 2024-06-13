@@ -3,6 +3,11 @@
 namespace Craft\Components\Logger\StateProcessor;
 
 use Craft\Components\EventDispatcher\EventDispatcher;
+use Craft\Components\Logger\Observers\ObserverAttachContext;
+use Craft\Components\Logger\Observers\ObserverAttachExtras;
+use Craft\Components\Logger\Observers\ObserverDetachContext;
+use Craft\Components\Logger\Observers\ObserverFlushExtras;
+use Craft\Components\Logger\Observers\ObserverFlushContext;
 use Craft\Contracts\LogStateProcessorInterface;
 use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Contracts\ObserverInterface;
@@ -24,7 +29,6 @@ class LogStateProcessor implements LogStateProcessorInterface
         $this->storage->index = $index;
 
         $this->initEventsListeners();
-
         $this->setUpDefaults();
     }
 
@@ -45,43 +49,11 @@ class LogStateProcessor implements LogStateProcessorInterface
 
     private function initEventsListeners()
     {
-        $listeners = [
-            LogContextEvent::ATTACH_CONTEXT->value => function (?EventMessage $event) {
-                if ($event && $event->getMessage()) {
-                    $this->storage->context = array_merge($this->storage->context ?? [], ['additionalContext' => $event->getMessage()]);
-                }
-            },
-            LogContextEvent::DETACH_CONTEXT->value => function (?EventMessage $event) {
-                if ($event && isset($this->storage->context[$event->getMessage()])) {
-                    unset($this->storage->context[$event->getMessage()]);
-                }
-            },
-            LogContextEvent::FLUSH_CONTEXT->value => function () {
-                $this->storage->context = [];
-            },
-            LogContextEvent::ATTACH_EXTRAS->value => function (?EventMessage $event) {
-                if ($event) {
-                    $this->storage->extras = json_encode($event->getMessage(), JSON_UNESCAPED_UNICODE);
-                }
-            },
-            LogContextEvent::FLUSH_EXTRAS->value => function () {
-                $this->storage->extras = null;
-            }
-        ];
-        
-        foreach ($listeners as $event => $listener) {
-            $this->eventDispatcher->attach($event, new class($listener) implements ObserverInterface {
-                private $callback;
-
-                public function __construct($callback) {
-                    $this->callback = $callback;
-                }
-
-                public function update(?EventMessage $message = null): void {
-                    ($this->callback)($message);
-                }
-            });
-        }
+        $this->eventDispatcher->attach(LogContextEvent::ATTACH_CONTEXT, new ObserverAttachContext($this->storage));
+        $this->eventDispatcher->attach(LogContextEvent::DETACH_CONTEXT, new ObserverDetachContext($this->storage));
+        $this->eventDispatcher->attach(LogContextEvent::FLUSH_CONTEXT, new ObserverFlushContext($this->storage));
+        $this->eventDispatcher->attach(LogContextEvent::ATTACH_EXTRAS, new ObserverAttachExtras($this->storage));
+        $this->eventDispatcher->attach(LogContextEvent::FLUSH_EXTRAS, new ObserverFlushExtras($this->storage));
     }
 
     /**

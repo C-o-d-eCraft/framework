@@ -2,6 +2,8 @@
 
 namespace Craft\Components\Logger\StateProcessor;
 
+use Craft\Contracts\DTOInterface;
+
 class LogStorageDTO
 {
     /**
