@@ -62,7 +62,7 @@ class LogStateProcessor implements LogStateProcessorInterface
      * @return object|LogStorageDTO
      * @throws \Exception
      */
-    public function process(string $level, string $message, ?array $context, $extras = []): object
+    public function process(string $level, string $message, array $context = [], array $extras = []): object
     {
         $this->validateSetUp();
 
@@ -82,8 +82,6 @@ class LogStateProcessor implements LogStateProcessorInterface
             $realIpList = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
             $storage->real_ip = array_shift($realIpList);
         }
-
-        $storage->level_name = $level;
 
         $storage->action = $this->defineAction();
 
