@@ -33,59 +33,50 @@ class StdoutLogger implements LoggerInterface
 
     public function emergency($message, array $context = [], $extras = []): void
     {
-        $this->log(LogLevel::EMERGENCY, $message, $context, $extras);
+        $this->log(LogLevel::EMERGENCY->value, $message, $context, $extras);
     }
 
     public function alert($message, array $context = [], $extras = []): void
     {
-        $this->log(LogLevel::ALERT, $message, $context, $extras);
+        $this->log(LogLevel::ALERT->value, $message, $context, $extras);
     }
 
     public function critical($message, array $context = [], $extras = []): void
     {
-        $this->log(LogLevel::CRITICAL, $message, $context, $extras);
+        $this->log(LogLevel::CRITICAL->value, $message, $context, $extras);
     }
 
     public function error($message, array $context = [], $extras = []): void
     {
-        $this->log(LogLevel::ERROR, $message, $context, $extras);
+        $this->log(LogLevel::ERROR->value, $message, $context, $extras);
     }
 
     public function warning($message, array $context = [], $extras = []): void
     {
-        $this->log(LogLevel::WARNING, $message, $context, $extras);
+        $this->log(LogLevel::WARNING->value, $message, $context, $extras);
     }
 
     public function notice($message, array $context = [], $extras = []): void
     {
-        $this->log(LogLevel::NOTICE, $message, $context, $extras);
+        $this->log(LogLevel::NOTICE->value, $message, $context, $extras);
     }
 
     public function info($message, array $context = [], $extras = []): void
     {
-        $this->log(LogLevel::INFO, $message, $context, $extras);
+        $this->log(LogLevel::INFO->value, $message, $context, $extras);
     }
 
     public function debug($message, array $context = [], $extras = []): void
     {
-        $this->log(LogLevel::DEBUG, $message, $context, $extras);
+        $this->log(LogLevel::DEBUG->value, $message, $context, $extras);
     }
 
     public function log($level, $message, array $context = [], $extras = []): void
     {
-        if ($this->isValidLogLevel($level) === false) {
-            throw new \InvalidArgumentException("Несуществующий уровень логгирования: $level");
-        }
-
         $logMessage = $this->formatMessage($level, $message, $context, $extras);
 
         $this->writeLogToFile($logMessage);
         $this->writeLogToStdout($logMessage);
-    }
-
-    private function isValidLogLevel($level): bool
-    {
-        return in_array($level, LogLevel::getLevel());
     }
 
     private function formatMessage($level, $message, $context, $extras): string
