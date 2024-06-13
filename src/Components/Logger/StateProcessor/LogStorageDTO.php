@@ -20,14 +20,9 @@ class LogStorageDTO
     public $context = null;
 
     /**
-     * @var int
-     */
-    public $level;
-
-    /**
      * @var string
      */
-    public $level_name;
+    public $level;
 
     /**
      * @var string

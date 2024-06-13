@@ -31,47 +31,47 @@ class StdoutLogger implements LoggerInterface
         }
     }
 
-    public function emergency($message, array $context = [], $extras = []): void
+    public function emergency(string $message, array $context = [], array $extras = []): void
     {
         $this->log(LogLevel::EMERGENCY->value, $message, $context, $extras);
     }
 
-    public function alert($message, array $context = [], $extras = []): void
+    public function alert(string $message, array $context = [], array $extras = []): void
     {
         $this->log(LogLevel::ALERT->value, $message, $context, $extras);
     }
 
-    public function critical($message, array $context = [], $extras = []): void
+    public function critical(string $message, array $context = [], array $extras = []): void
     {
         $this->log(LogLevel::CRITICAL->value, $message, $context, $extras);
     }
 
-    public function error($message, array $context = [], $extras = []): void
+    public function error(string $message, array $context = [], array $extras = []): void
     {
         $this->log(LogLevel::ERROR->value, $message, $context, $extras);
     }
 
-    public function warning($message, array $context = [], $extras = []): void
+    public function warning(string $message, array $context = [], array $extras = []): void
     {
         $this->log(LogLevel::WARNING->value, $message, $context, $extras);
     }
 
-    public function notice($message, array $context = [], $extras = []): void
+    public function notice(string $message, array $context = [], array $extras = []): void
     {
         $this->log(LogLevel::NOTICE->value, $message, $context, $extras);
     }
 
-    public function info($message, array $context = [], $extras = []): void
+    public function info(string $message, array $context = [], array $extras = []): void
     {
         $this->log(LogLevel::INFO->value, $message, $context, $extras);
     }
 
-    public function debug($message, array $context = [], $extras = []): void
+    public function debug(string $message, array $context = [], array $extras = []): void
     {
         $this->log(LogLevel::DEBUG->value, $message, $context, $extras);
     }
 
-    public function log($level, $message, array $context = [], $extras = []): void
+    public function log(string $level, string $message, array $context = [], array $extras = []): void
     {
         $logMessage = $this->formatMessage($level, $message, $context, $extras);
 
@@ -79,7 +79,7 @@ class StdoutLogger implements LoggerInterface
         $this->writeLogToStdout($logMessage);
     }
 
-    private function formatMessage($level, $message, $context, $extras): string
+    private function formatMessage(string $level, string $message, array $context = [], array $extras = []): string
     {
         $loggingState = $this->logStateProcessor->process($level, $message, $context, $extras);
 
