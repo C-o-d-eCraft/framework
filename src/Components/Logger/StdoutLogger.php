@@ -2,6 +2,7 @@
 
 namespace Craft\Components\Logger;
 
+use Craft\Components\EventDispatcher\EventDispatcher;
 use Craft\Components\Logger\StateProcessor\LogStateProcessor;
 use Craft\Contracts\LoggerInterface;
 
@@ -10,13 +11,13 @@ class StdoutLogger implements LoggerInterface
     private LogStateProcessor $logStateProcessor;
     private string $logFilePath;
 
-    public function __construct()
+    public function __construct(private EventDispatcher $eventDispatcher)
     {
         if (empty(getenv('INDEX_NAME'))) {
             throw new \InvalidArgumentException('Не задано имя приложения. Внесите доработку в конфигурацию приложения');
         }
-
-        $this->logStateProcessor = new LogStateProcessor(getenv('INDEX_NAME'));
+        
+        $this->logStateProcessor = new LogStateProcessor($this->eventDispatcher, getenv('INDEX_NAME'));
 
         $logDir = PROJECT_ROOT . '/runtime/app-logs';
 

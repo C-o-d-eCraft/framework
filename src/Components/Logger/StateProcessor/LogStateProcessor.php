@@ -2,7 +2,10 @@
 
 namespace Craft\Components\Logger\StateProcessor;
 
+use Craft\Components\EventDispatcher\EventDispatcher;
 use Craft\Contracts\LogStateProcessorInterface;
+use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Contracts\ObserverInterface;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -15,11 +18,12 @@ class LogStateProcessor implements LogStateProcessorInterface
     /**
      * @param string $index
      */
-    public function __construct(string $index)
+    public function __construct(private EventDispatcher $eventDispatcher, string $index)
     {
         $this->storage = new LogStorageDTO();
-
         $this->storage->index = $index;
+
+        $this->initEventsListeners();
 
         $this->setUpDefaults();
     }
@@ -37,6 +41,47 @@ class LogStateProcessor implements LogStateProcessorInterface
     private function setUpDefaults(): void
     {
         $this->storage->action_type = empty($_SERVER['argv']) ? 'web' : 'cli';
+    }
+
+    private function initEventsListeners()
+    {
+        $listeners = [
+            LogContextEvent::ATTACH_CONTEXT->value => function (?EventMessage $event) {
+                if ($event && $event->getMessage()) {
+                    $this->storage->context = array_merge($this->storage->context ?? [], ['additionalContext' => $event->getMessage()]);
+                }
+            },
+            LogContextEvent::DETACH_CONTEXT->value => function (?EventMessage $event) {
+                if ($event && isset($this->storage->context[$event->getMessage()])) {
+                    unset($this->storage->context[$event->getMessage()]);
+                }
+            },
+            LogContextEvent::FLUSH_CONTEXT->value => function () {
+                $this->storage->context = [];
+            },
+            LogContextEvent::ATTACH_EXTRAS->value => function (?EventMessage $event) {
+                if ($event) {
+                    $this->storage->extras = json_encode($event->getMessage(), JSON_UNESCAPED_UNICODE);
+                }
+            },
+            LogContextEvent::FLUSH_EXTRAS->value => function () {
+                $this->storage->extras = null;
+            }
+        ];
+        
+        foreach ($listeners as $event => $listener) {
+            $this->eventDispatcher->attach($event, new class($listener) implements ObserverInterface {
+                private $callback;
+
+                public function __construct($callback) {
+                    $this->callback = $callback;
+                }
+
+                public function update(?EventMessage $message = null): void {
+                    ($this->callback)($message);
+                }
+            });
+        }
     }
 
     /**
@@ -68,10 +113,26 @@ class LogStateProcessor implements LogStateProcessorInterface
 
         $storage = clone $this->storage;
 
-        $storage->context = $context ?? null;
+        $storage->context = $storage->context !== null ? implode(':', $storage->context) : null;
+
         $storage->message = $message;
+
         $storage->level = $level;
-        $storage->category = $context['category'] ?? '';
+
+        if (
+            $storage->message instanceof Exception
+            ||
+            (class_exists(\Error::class) && $storage->message instanceof \Error)
+        ) {
+            $storage->exception = [
+                'file' => $storage->message->getFile(),
+                'line' => $storage->message->getLine(),
+                'code' => $storage->message->getCode(),
+                'trace' => explode(PHP_EOL, $storage->message->getTraceAsString()),
+            ];
+
+            $storage->message = $storage->message->getMessage();
+        }
 
         $utcDate = new DateTime('now', new DateTimeZone('UTC'));
 
@@ -82,6 +143,8 @@ class LogStateProcessor implements LogStateProcessorInterface
             $realIpList = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
             $storage->real_ip = array_shift($realIpList);
         }
+
+        $storage->level = $level;
 
         $storage->action = $this->defineAction();
 

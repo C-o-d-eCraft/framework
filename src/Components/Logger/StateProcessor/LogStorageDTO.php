@@ -10,11 +10,6 @@ class LogStorageDTO
     public $index;
 
     /**
-     * @var string
-     */
-    public $category;
-
-    /**
      * @var string|null
      */
     public $context = null;
