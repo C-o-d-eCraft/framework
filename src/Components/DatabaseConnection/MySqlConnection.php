@@ -13,16 +13,6 @@ class MySqlConnection implements DataBaseConnectionInterface
     public  PDO $pdo;
 
     /**
-     * @var string|null
-     */
-    private ?string $query = null;
-
-    /**
-     * @var array
-     */
-    private array $bindings = [];
-
-    /**
      * @param array $config
      */
     public function __construct(array $config)

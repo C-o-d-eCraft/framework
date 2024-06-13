@@ -20,9 +20,10 @@ class QueryBuilderMysql implements QueryBuilderInterface
      */
     private array $bindings = [];
 
-        public function __construct(private DataBaseConnectionInterface $db) {
-            $this->pdo = $db->pdo;
-        }
+    public function __construct(private DataBaseConnectionInterface $db)
+    {
+        $this->pdo = $db->pdo;
+    }
 
     /**
      * @param string|array $columns
@@ -87,43 +88,80 @@ class QueryBuilderMysql implements QueryBuilderInterface
     /**
      * @param string $table
      * @param array $values
-     * @param string|null $condition
-     * @param array $bindings
      * @return int
+     * insert into prices (tonnage_id, month_id, raw_type_id, price)
+     * values ((select t.id from tonnages as t where value = :tonnage),
+     * (select m.id from months as m where name = :month),
+     * (select type.id from raw_types as type where name = :type),
+     * (:price));
      */
-    public function insert(string $table, array $values, string $condition = null, array $bindings = []): int
+    public function insert(string $table, array $values, ?string $condition = null, array $bindings = []): int
     {
-        $columns = implode(', ', array_keys($values));
-        $placeholders = implode(', ', array_fill(0, count($values), '?'));
+        if (is_array($values[0]) === true && count($values[0]) === 3) {
+            foreach ($values as $value) {
+                $columns .= $value[0] . ',';
+                $placeholders .= '(' . $value[1] . '? ),';
+                $prepareParam [] = $value[2];
+            }
+            $columns = substr($columns, 0, -1);
+            $placeholders = substr($placeholders, 0, -1);
+        }
+
+        if (is_array($values[0]) === false) {
+            $columns = implode(', ', array_keys($values));
+            $placeholders = implode(', ', array_fill(0, count($values), '?'));
+
+            $prepareParam = array_values($values);
+        }
 
         $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
-
         $statement = $this->pdo->prepare($sql);
-        $statement->execute(array_values($values));
+        $statement->execute($prepareParam);
 
         return $statement->rowCount();
     }
 
     /**
-     * @param string $table
-     * @param array $values
-     * @param string|null $condition
+     * @param string $table Таблица БД
+     * @param array $values значение для обновлнения в виде ключ => значение
+     * @param array|null $condition опционально, условия где [ключ, любое условие прописанное кодом (сделано для подзапроса) ,значение]
      * @param array $bindings
      * @return int
+     *
+     * update prices
+     * set
+     * price = price:,
+     * created_at = '2024-12-12 12:12:12'
+     *
+     * where tonnage_id = (select id from tonnages where value = value:)
+     * and month_id = (select id from months where name = name:)
+     * and raw_type_id = (select id from raw_types where name = name:);
      */
     public function update(string $table, array $values, ?array $condition = null, array $bindings = []): int
     {
         $setClause = implode(', ', array_map(fn($column) => "$column = ?", array_keys($values)));
-        $sql = "UPDATE $table SET $setClause";
+        $sql = "UPDATE $table SET $setClause WHERE ";
 
-        if (!empty($condition)) {
+        if (is_array($condition[0]) === true && count($condition[0]) === 3) {
+            foreach ($condition as $cond) {
+                $columns .= $cond[0] . ',';
+                $placeholders .= $cond[0] . ' = (' . $cond[1] . '?) AND ';
+                $prepareParam [] = $cond[2];
+            }
+            $placeholders = substr($placeholders, 0, -4);
+            $bindings = array_merge(array_values($values), $prepareParam);
+
+            $sql .= $placeholders;
+        }
+        if (is_array($condition[0]) === false) {
             $whereClause = implode(' AND ', array_map(fn($column) => "$column = ?", array_keys($condition)));
             $sql .= " WHERE $whereClause";
             $bindings = array_merge($bindings, array_values($condition));
         }
 
         $statement = $this->pdo->prepare($sql);
-        $statement->execute(array_merge(array_values($values), $bindings));
+
+        $statement->execute($bindings);
 
         return $statement->rowCount();
     }
@@ -139,19 +177,28 @@ class QueryBuilderMysql implements QueryBuilderInterface
         $whereClause = '';
         $bindings = [];
 
-        foreach ($condition as $column => $value) {
-            $whereClause .= "$column = :$column AND ";
-            $bindings[":$column"] = $value;
+        if (is_array($condition[0]) === true && count($condition[0]) === 3) {
+            foreach ($condition as $cond) {
+                $columns .= $cond[0] . ',';
+                $placeholders .= $cond[0] . ' = (' . $cond[1] . ':' . $cond[0] . ') AND ';
+                $prepareParam [] = $cond[2];
+            }
+            $placeholders = substr($placeholders, 0, -4);
+            $bindings = array_merge(array_values($condition), $prepareParam);
+
+            $sql = "DELETE FROM $table WHERE $placeholders";
+
+            $statement = $this->pdo->prepare($sql);
+
+            foreach ($condition as $cond) {
+                $statement->bindParam(':' . $cond[0], $cond[2]);
+            }
+
+            $statement->execute();
+
+            return $statement->rowCount();
         }
 
-        $whereClause = rtrim($whereClause, ' AND ');
-
-        $sql = "DELETE FROM $table WHERE $whereClause";
-
-        $statement = $this->pdo->prepare($sql);
-        $statement->execute($bindings);
-
-        return $statement->rowCount();
     }
 
     /**
@@ -175,11 +222,12 @@ class QueryBuilderMysql implements QueryBuilderInterface
         $this->reset();
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
+
     /**
      * Для написания любого запроса без вспомогательных методов
      * @return array|false
      */
-    public function query(string $query): array|false
+    public function execRaw(string $query): array|false
     {
         $this->query = $query;
         $statement = $this->pdo->prepare($this->query);

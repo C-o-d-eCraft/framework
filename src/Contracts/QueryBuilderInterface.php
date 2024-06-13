@@ -5,25 +5,30 @@ namespace Craft\Contracts;
 interface QueryBuilderInterface
 {
     /**
-     * @param string $tableName
-     * @param array $columns
-     * @param string|null $condition
-     * @param array $bindings
-     * @return array|false
+     * @param string|array $columns
+     * @return self
      */
-    public function select(string|array $columns): self;
+    public function select(string $table, string|array $columns): self;
 
     /**
      * @param string $table
      * @return self
      */
-    public function from(string $table): self;
+    public function table(string $table): self;
 
     /**
-     * @param string|array $condition
-     * @return self|false
+     * @return string
      */
-    public function where(string|array $condition): self|false;
+    public function getQuery(): string|int;
+
+    /**
+     * @param string $column Атрибут таблицы
+     * @param mixed $value Значение
+     * @param string $operator Оператор, опциональный, по умолчанию =
+     * @param string $connector
+     * @return self
+     */
+    public function where(string $column,mixed $value,string $operator, string $connector): self|false;
 
     /**
      * @param int $limit
@@ -32,22 +37,15 @@ interface QueryBuilderInterface
     public function innerJoin(string $table, string $condition): self;
 
     /**
-     * @param string $table
-     * @param array $values
-     * @param string|null $condition
-     * @param array $bindings
-     * @return int
+     * @param array $data
      */
-    public function insert(string $table, array $values, string $condition = null, array $bindings = []): int;
+    public function insert(string $table, array $data): int;
 
     /**
-     * @param string $table
-     * @param array $values
-     * @param string|null $condition
-     * @param array $bindings
+     * @param array $data
      * @return int
      */
-    public function update(string $table, array $values, ?array $condition = null, array $bindings = []): int;
+    public function update(string $table, array $data): int;
 
     /**
      * @param string $table
@@ -55,20 +53,20 @@ interface QueryBuilderInterface
      * @param array $bindings
      * @return int
      */
-    public function delete(string $table, array $condition, array $bindings = []): int;
+    public function delete(string $table, array $data): int;
+
+    /**
+     * @return mixed
+     */
+    public function one(int $mode): mixed;
 
     /**
      * @return array|false
      */
-    public function one(): array|false;
+    public function all(int $mode): mixed;
 
     /**
      * @return array|false
      */
-    public function all(): array|false;
-
-    /**
-     * @return array|false
-     */
-    public function query(string $query): array|false;
+    public function execRaw(string $query): array|false;
 }

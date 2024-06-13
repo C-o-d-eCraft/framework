@@ -2,6 +2,7 @@
 
 namespace Craft\Http\Validator;
 
+
 use Craft\Contracts\RequestInterface;
 use Craft\Http\Exceptions\HttpException;
 
@@ -16,29 +17,29 @@ class Validator
      * @var array
      * Содержит данные из реквеста, а именно тело
      */
-    protected $_fields = array();
+    protected array $fields = [];
 
     /**
      * @var array
      */
-    protected $_errors = array();
+    protected array $errors = [];
 
     /**
      * @var array
      */
-    protected $_validations = array();
+    protected array $validations = [];
 
     /**
      * @var array
      */
-    protected $_labels = array();
+    protected array $labels = [];
 
     /**
      * Contains all rules that are available to the current valitron instance.
      *
      * @var array
      */
-    protected $_instanceRules = array();
+    protected array $instanceRules = [];
 
     /**
      * Contains all rule messages that are available to the current valitron
@@ -46,28 +47,23 @@ class Validator
      *
      * @var array
      */
-    protected $_instanceRuleMessage = array();
+    protected array $instanceRuleMessage = [];
 
     /**
      * @var array
      */
-    protected static $_rules = array();
+    protected array $rules = [];
 
     /**
      * @var array
      * Хранит текст для ошибок валидации, ключи - правила валидации
      */
-    protected static $_ruleMessages = array();
+    protected array $ruleMessages = [];
 
     /**
      * @var bool
      */
-    protected $stop_on_first_fail = false;
-
-    /**
-     * @var bool
-     */
-    protected $prepend_labels = true;
+    protected bool $prependLabels = true;
 
     /**
      * Setup validation
@@ -77,21 +73,17 @@ class Validator
      */
     public function __construct(private RequestInterface $request)
     {
-        $this->_fields = $this->request->getBodyContents();
+        $this->fields = $this->request->getBodyContents();
 
-        if (ValidationMessage::getMessage() !== null) {
-            static::$_ruleMessages =  ValidationMessage::getMessage();
-        } else {
-            throw new \InvalidArgumentException("Не найден файл с описанием правил '" . ValidationMessage::class . "'");
-        }
+        $this->ruleMessages = ValidationMessage::getMessage();
     }
 
     /**
-     * @param bool $prepend_labels
+     * @param bool $prependLabels
      */
-    public function setPrependLabels($prepend_labels = true)
+    protected function setPrependLabels(bool $prependLabels = true): void
     {
-        $this->prepend_labels = $prepend_labels;
+        $this->prependLabels = $prependLabels;
     }
 
     /**
@@ -103,10 +95,10 @@ class Validator
      * @param  array $params
      * @return bool
      */
-    protected function validateRequired($field, $value, $params = array())
+    protected function validateRequired(string $field, mixed $value,array $params = []): bool
     {
         if (isset($params[0]) && (bool)$params[0]) {
-            $find = $this->getPart($this->_fields, explode('.', $field), true);
+            $find = $this->getPart($this->fields, explode('.', $field), true);
             return $find[1];
         }
 
@@ -126,9 +118,9 @@ class Validator
      * @param  mixed $value
      * @return bool
      */
-    protected function validateAccepted($field, $value)
+    protected function validateAccepted(string $field, mixed $value): bool
     {
-        $acceptable = array('yes', 'on', 1, '1', true);
+        $acceptable = ['yes', 'on', 1, '1', true];
 
         return $this->validateRequired($field, $value) && in_array($value, $acceptable, true);
     }
@@ -140,7 +132,7 @@ class Validator
      * @param  mixed $value
      * @return bool
      */
-    protected function validateArray($field, $value)
+    protected function validateArray(string $field,mixed $value): bool
     {
         return is_array($value);
     }
@@ -152,27 +144,23 @@ class Validator
      * @param  mixed $value
      * @return bool
      */
-    protected function validateNumeric($field, $value)
+    protected function validateNumeric(string $field,mixed $value): bool
     {
         return is_numeric($value);
     }
 
     /**
      * Validate that a field is an integer
+     * Проверяет число ли это
      *
      * @param  string $field
      * @param  mixed $value
      * @param  array $params
      * @return bool
      */
-    protected function validateInteger($field, $value, $params)
+    protected function validateInteger(string $field, mixed $value, array $params): bool
     {
-        if (isset($params[0]) && (bool)$params[0]) {
-            //strict mode
-            return preg_match('/^([0-9]|-[1-9]|-?[1-9][0-9]*)$/i', $value);
-        }
-
-        return filter_var($value, \FILTER_VALIDATE_INT) !== false;
+        return is_integer($value);
     }
 
     /**
@@ -183,7 +171,7 @@ class Validator
      * @param  array  $params
      * @return bool
      */
-    protected function validateLength($field, $value, $params)
+    protected function validateLength(string $field, mixed $value,array $params): bool
     {
         $length = $this->stringLength($value);
         // Length between
@@ -202,7 +190,7 @@ class Validator
      * @param  array   $params
      * @return bool
      */
-    protected function validateLengthBetween($field, $value, $params)
+    protected function validateLengthBetween(string $field, mixed $value, array $params): bool
     {
         $length = $this->stringLength($value);
 
@@ -218,7 +206,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validateLengthMin($field, $value, $params)
+    protected function validateLengthMin(string $field, mixed $value, array $params): bool
     {
         $length = $this->stringLength($value);
 
@@ -234,7 +222,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validateLengthMax($field, $value, $params)
+    protected function validateLengthMax(string $field, mixed $value, array $params): bool
     {
         $length = $this->stringLength($value);
 
@@ -247,7 +235,7 @@ class Validator
      * @param  string $value
      * @return int|false
      */
-    protected function stringLength($value)
+    protected function stringLength(string $value): int | bool
     {
         if (!is_string($value)) {
             return false;
@@ -266,7 +254,7 @@ class Validator
      * @param  array  $params
      * @return bool
      */
-    protected function validateMin($field, $value, $params)
+    protected function validateMin(string $field, mixed $value, array $params): bool
     {
         if (!is_numeric($value)) {
             return false;
@@ -285,7 +273,7 @@ class Validator
      * @param  array  $params
      * @return bool
      */
-    protected function validateMax($field, $value, $params)
+    protected function validateMax(string $field, mixed $value, array $params): bool
     {
         if (!is_numeric($value)) {
             return false;
@@ -304,7 +292,7 @@ class Validator
      * @param  array $params
      * @return bool
      */
-    protected function validateBetween($field, $value, $params)
+    protected function validateBetween(string $field, mixed $value, array $params): bool
     {
         if (!is_numeric($value)) {
             return false;
@@ -315,7 +303,7 @@ class Validator
 
         list($min, $max) = $params[0];
 
-        return $this->validateMin($field, $value, array($min)) && $this->validateMax($field, $value, array($max));
+        return $this->validateMin($field, $value, [$min]) && $this->validateMax($field, $value, [$max]);
     }
 
     /**
@@ -328,7 +316,7 @@ class Validator
      * @param  array  $params
      * @return bool
      */
-    protected function validateIn($field, $value, $params)
+    protected function validateIn(string $field, mixed $value, array $params): bool
     {
         $forceAsAssociative = false;
         if (isset($params[2])) {
@@ -357,7 +345,7 @@ class Validator
      * @param  array  $params
      * @return bool
      */
-    protected function validateNotIn($field, $value, $params)
+    protected function validateNotIn(string $field, mixed $value, array $params): bool
     {
         return !$this->validateIn($field, $value, $params);
     }
@@ -370,7 +358,7 @@ class Validator
      * @param  array  $params
      * @return bool
      */
-    protected function validateContains($field, $value, $params)
+    protected function validateContains(string $field, mixed $value, array $params): bool
     {
         if (!isset($params[0])) {
             return false;
@@ -407,7 +395,7 @@ class Validator
      * @param  array  $value
      * @return bool
      */
-    protected function validateContainsUnique($field, $value)
+    protected function validateContainsUnique(string $field,array $value): bool
     {
         if (!is_array($value)) {
             return false;
@@ -419,17 +407,20 @@ class Validator
     /**
      * Validate that field array has only unique values
      * Передем значение которое необходимо проеврить на уникальность
-     * и массив с которым необходимо сверить на наличе такого элемента
+     * и массив с которым необходимо сверить на наличе такого элемента.
+     * Без жесткой проверки типа данных
      *
      * @param  string $field
      * @param  array  $value
      * @return bool
      */
-    protected function validateUnique($field, $value, $params)
+    protected function validateUnique(string $field, mixed $value, array $params): bool
     {
-        if (in_array($value, $params[0], true) === false) {
+        if (in_array((int) $value, $params[0], true) === false && in_array((string) $value, $params[0], true) === false ) {
             return true;
         }
+
+        return false;
     }
 
     /**
@@ -442,11 +433,13 @@ class Validator
      * @param  array  $value
      * @return bool
      */
-    protected function validateExists($field, $value, $params)
+    protected function validateExists(string $field, mixed $value, array $params): bool
     {
-        if (in_array($value, $params[0], true) === true) {
+
+        if (in_array((int) $value, $params[0], true) === true || in_array((string) $value, $params[0], true) === true) {
             return true;
         }
+        return false;
     }
 
 
@@ -457,7 +450,7 @@ class Validator
      * @param  mixed $value
      * @return bool
      */
-    protected function validateEmail($field, $value)
+    protected function validateEmail(string $field, mixed $value): bool
     {
         return filter_var($value, \FILTER_VALIDATE_EMAIL) !== false;
     }
@@ -470,7 +463,7 @@ class Validator
      * @param  mixed $value
      * @return bool
      */
-    protected function validateDate($field, $value)
+    protected function validateDate(string $field,array $value): bool
     {
         $isDate = false;
         if ($value instanceof \DateTime) {
@@ -490,7 +483,7 @@ class Validator
      * @param  array  $params
      * @return bool
      */
-    protected function validateDateFormat($field, $value, $params)
+    protected function validateDateFormat(string $field, mixed $value, array $params): bool
     {
         $parsed = date_parse_from_format($params[0], $value);
 
@@ -505,7 +498,7 @@ class Validator
      * @param  array  $params
      * @return bool
      */
-    protected function validateDateBefore($field, $value, $params)
+    protected function validateDateBefore(string $field, mixed $value, array $params): bool
     {
         $vtime = ($value instanceof \DateTime) ? $value->getTimestamp() : strtotime($value);
         $ptime = ($params[0] instanceof \DateTime) ? $params[0]->getTimestamp() : strtotime($params[0]);
@@ -521,7 +514,7 @@ class Validator
      * @param  array  $params
      * @return bool
      */
-    protected function validateDateAfter($field, $value, $params)
+    protected function validateDateAfter(string $field, mixed $value, array $params): bool
     {
         $vtime = ($value instanceof \DateTime) ? $value->getTimestamp() : strtotime($value);
         $ptime = ($params[0] instanceof \DateTime) ? $params[0]->getTimestamp() : strtotime($params[0]);
@@ -536,7 +529,7 @@ class Validator
      * @param  mixed $value
      * @return bool
      */
-    protected function validateBoolean($field, $value)
+    protected function validateBoolean(string $field, mixed $value): bool
     {
         return is_bool($value);
     }
@@ -548,7 +541,7 @@ class Validator
      * @param  mixed $value
      * @return bool
      */
-    protected function validateArrayHasKeys($field, $value, $params)
+    protected function validateArrayHasKeys(string $field, mixed $value, array $params): bool
     {
         if (!is_array($value) || !isset($params[0])) {
             return false;
@@ -570,26 +563,26 @@ class Validator
      *
      * @return array
      */
-    public function data()
+    protected function data(): array
     {
-        return $this->_fields;
+        return $this->fields;
     }
 
 
-    protected function getPart($data, $identifiers, $allow_empty = false)
+    protected function getPart($data, $identifiers, $allow_empty = false): array
     {
         // Catches the case where the field is an array of discrete values
         if (is_array($identifiers) && count($identifiers) === 0) {
-            return array($data, false);
+            return [$data, false];
         }
         // Catches the case where the data isn't an array or object
         if (is_scalar($data)) {
-            return array(null, false);
+            return [null, false];
         }
         $identifier = array_shift($identifiers);
         // Glob match
         if ($identifier === '*') {
-            $values = array();
+            $values = [];
             foreach ($data as $row) {
                 list($value, $multiple) = $this->getPart($row, $identifiers, $allow_empty);
                 if ($multiple) {
@@ -598,30 +591,31 @@ class Validator
                     $values[] = $value;
                 }
             }
-            return array($values, true);
+            return [$values, true];
         } // Dead end, abort
         elseif ($identifier === null || ! isset($data[$identifier])) {
             if ($allow_empty){
                 //when empty values are allowed, we only care if the key exists
-                return array(null, array_key_exists($identifier, $data));
+                return [null, array_key_exists($identifier, $data)];
             }
-            return array(null, false);
+            return [null, false];
         } // Match array element
         elseif (count($identifiers) === 0) {
             if ($allow_empty) {
                 //when empty values are allowed, we only care if the key exists
-                return array(null, array_key_exists($identifier, $data));
+                return [null, array_key_exists($identifier, $data)];
             }
-            return array($data[$identifier], $allow_empty);
+            return [$data[$identifier], $allow_empty];
         } // We need to go deeper
         else {
             return $this->getPart($data[$identifier], $identifiers, $allow_empty);
         }
     }
 
-    private function validationMustBeExcecuted($validation, $field, $values, $multiple){
+    private function validationMustBeExcecuted(array $validation, string $field, mixed $values, bool $multiple): bool
+    {
         //always excecute requiredWith(out) rules
-        if (in_array($validation['rule'], array('requiredWith', 'requiredWithout'))){
+        if (in_array($validation['rule'], ['requiredWith', 'requiredWithout'])){
             return true;
         }
 
@@ -631,7 +625,7 @@ class Validator
         }
 
         //ignore empty input, except for required and accepted rule
-        if (! $this->hasRule('required', $field) && ! in_array($validation['rule'], array('required', 'accepted'))){
+        if (! $this->hasRule('required', $field) && ! in_array($validation['rule'], ['required', 'accepted'])){
             if($multiple){
                 return count($values) != 0;
             }
@@ -640,96 +634,25 @@ class Validator
 
         return true;
     }
-    /**
-     * Выполняет валидацию данных находящихся в реквест, на основании правил которые переданы входным параметром,
-     * для описания правил валидации используется отдельный класс ValidationRules,
-     * если валидация не пройдена - на перовом правиле выбрасывается исключение
-     * @return bool
-     */
-    public function validate(array $rules)
-    {
-        $this->rules($rules);
 
-        $set_to_break = false;
-        foreach ($this->_validations as $v) {
-            foreach ($v['fields'] as $field) {
-                list($values, $multiple) = $this->getPart($this->_fields, explode('.', $field), false);
-
-                if (!$this->validationMustBeExcecuted($v, $field, $values, $multiple)) {
-                    continue;
-                }
-
-                // Callback is user-specified or assumed method on class
-                $errors = $this->getRules();
-                if (isset($errors[$v['rule']])) {
-                    $callback = $errors[$v['rule']];
-                } else {
-                    $callback = array($this, 'validate' . ucfirst($v['rule']));
-                }
-
-                if (!$multiple) {
-                    $values = array($values);
-                } else if (!$this->hasRule('required', $field)) {
-                    $values = array_filter($values);
-                }
-
-                $result = true;
-                foreach ($values as $value) {
-                    $result = $result && call_user_func($callback, $field, $value, $v['params'], $this->_fields);
-                }
-
-                if (!$result) {
-                    $this->error($field, $v['message'], $v['params']);
-
-                    if ($this->stop_on_first_fail) {
-                        $set_to_break = true;
-                        break;
-                    }
-                }
-            }
-            if ($set_to_break) {
-                break;
-            }
-        }
-        if (count($this->errors()) !== 0) {
-            $allErrors = '';
-            foreach ($this->errors() as $err) {
-
-                $allErrors .= $err[0] . ', ';
-            }
-            throw new HttpException('Валидация не пройдена: ' . $allErrors);
-        }
-
-        return true;
-    }
 
     /**
-     * Should the validation stop a rule is failed
-     * @param bool $stop
-     */
-    public function stopOnFirstFail($stop = true)
-    {
-        $this->stop_on_first_fail = (bool)$stop;
-    }
-
-    /**
-     * Returns all rule callbacks, the static and instance ones.
      * Возвращает массив правил валидации, все что есть
      * @return array
      */
-    protected function getRules()
+    protected function getRules(): array
     {
-        return array_merge($this->_instanceRules, static::$_rules);
+        return array_merge($this->instanceRules, $this->rules);
     }
 
     /**
-     * Returns all rule message, the static and instance ones.
+     * Returns all rule message.
      *
      * @return array
      */
-    protected function getRuleMessages()
+    protected function getRuleMessages(): array
     {
-        return array_merge($this->_instanceRuleMessage, static::$_ruleMessages);
+        return array_merge($this->instanceRuleMessage, $this->ruleMessages);
     }
 
     /**
@@ -739,9 +662,9 @@ class Validator
      * @param  string  $field The name of the field
      * @return bool
      */
-    protected function hasRule($name, $field)
+    protected function hasRule(string $name, string $field): bool
     {
-        foreach ($this->_validations as $validation) {
+        foreach ($this->validations as $validation) {
             if ($validation['rule'] == $name && in_array($field, $validation['fields'])) {
                 return true;
             }
@@ -750,7 +673,7 @@ class Validator
         return false;
     }
 
-    protected static function assertRuleCallback($callback)
+    protected function assertRuleCallback(callable $callback): void
     {
         if (!is_callable($callback)) {
             throw new \InvalidArgumentException(
@@ -768,12 +691,12 @@ class Validator
      * @param string $message
      * @throws \InvalidArgumentException
      */
-    public function addInstanceRule($name, $callback, $message = null)
+    protected function addInstanceRule(string $name,callable $callback,string $message = null): void
     {
-        static::assertRuleCallback($callback);
+        $this->assertRuleCallback($callback);
 
-        $this->_instanceRules[$name] = $callback;
-        $this->_instanceRuleMessage[$name] = $message;
+        $this->instanceRules[$name] = $callback;
+        $this->instanceRuleMessage[$name] = $message;
     }
 
     /**
@@ -785,23 +708,23 @@ class Validator
      * @param string $message
      * @throws \InvalidArgumentException
      */
-    public static function addRule($name, $callback, $message = null)
+    protected function addRule(string $name, callable $callback, string $message = null): void
     {
         if ($message === null) {
-            $message = static::ERROR_DEFAULT;
+            $message = self::ERROR_DEFAULT;
         }
 
-        static::assertRuleCallback($callback);
+        $this->assertRuleCallback($callback);
 
-        static::$_rules[$name] = $callback;
-        static::$_ruleMessages[$name] = $message;
+        $this->rules[$name] = $callback;
+        $this->ruleMessages[$name] = $message;
     }
 
     /**
      * @param  mixed $fields
      * @return string
      */
-    public function getUniqueRuleName($fields)
+    protected function getUniqueRuleName(string $fields): string
     {
         if (is_array($fields)) {
             $fields = implode("_", $fields);
@@ -824,7 +747,7 @@ class Validator
      * @param string $name
      * @return bool
      */
-    public function hasValidator($name)
+    protected function hasValidator(string $name): bool
     {
         $rules = $this->getRules();
         return method_exists($this, "validate" . ucfirst($name))
@@ -841,7 +764,7 @@ class Validator
      * @return Validator
      * @throws \InvalidArgumentException
      */
-    public function rule($rule, $fields)
+    protected function rule(string|callable $rule, string|array $fields): self
     {
         // Get any other arguments passed to function
         $params = array_slice(func_get_args(), 2);
@@ -878,12 +801,12 @@ class Validator
             $message = '{field} ' . $message;
         }
 
-        $this->_validations[] = array(
+        $this->validations[] = [
             'rule' => $rule,
-            'fields' => (array)$fields,
-            'params' => (array)$params,
+            'fields' => (array) $fields,
+            'params' => (array) $params,
             'message' => $message
-        );
+        ];
 
         return $this;
     }
@@ -894,10 +817,10 @@ class Validator
      * @param  string $value
      * @return Validator
      */
-    public function label($value)
+    protected function label(string $value): self
     {
-        $lastRules = $this->_validations[count($this->_validations) - 1]['fields'];
-        $this->labels(array($lastRules[0] => $value));
+        $lastRules = $this->validations[count($this->validations) - 1]['fields'];
+        $this->labels([$lastRules[0] => $value]);
 
         return $this;
     }
@@ -908,9 +831,9 @@ class Validator
      * @param  array  $labels
      * @return Validator
      */
-    public function labels($labels = array())
+    protected function labels(array $labels = []): self
     {
-        $this->_labels = array_merge($this->_labels, $labels);
+        $this->labels = array_merge($this->labels, $labels);
 
         return $this;
     }
@@ -921,22 +844,22 @@ class Validator
      * @param  array  $params
      * @return array
      */
-    protected function checkAndSetLabel($field, $message, $params)
+    protected function checkAndSetLabel(string $field, string $message, array $params): array|string
     {
-        if (isset($this->_labels[$field])) {
-            $message = str_replace('{field}', $this->_labels[$field], $message);
+        if (isset($this->labels[$field])) {
+            $message = str_replace('{field}', $this->labels[$field], $message);
 
             if (is_array($params)) {
                 $i = 1;
                 foreach ($params as $k => $v) {
                     $tag = '{field' . $i . '}';
-                    $label = isset($params[$k]) && (is_numeric($params[$k]) || is_string($params[$k])) && isset($this->_labels[$params[$k]]) ? $this->_labels[$params[$k]] : $tag;
+                    $label = isset($params[$k]) && (is_numeric($params[$k]) || is_string($params[$k])) && isset($this->labels[$params[$k]]) ? $this->labels[$params[$k]] : $tag;
                     $message = str_replace($tag, $label, $message);
                     $i++;
                 }
             }
         } else {
-            $message = $this->prepend_labels
+            $message = $this->prependLabels
                 ? str_replace('{field}', ucwords(str_replace('_', ' ', $field)), $message)
                 : str_replace('{field} ', '', $message);
         }
@@ -951,16 +874,16 @@ class Validator
      *
      * @param array $rules
      */
-    public function rules($rules)
+    protected function rules(array $rules): void
     {
         foreach ($rules as $ruleType => $params) {
             if (is_array($params)) {
                 foreach ($params as $innerParams) {
                     if (!is_array($innerParams)) {
-                        $innerParams = (array)$innerParams;
+                        $innerParams = (array) $innerParams;
                     }
                     array_unshift($innerParams, $ruleType);
-                    call_user_func_array(array($this, 'rule'), $innerParams);
+                    call_user_func_array([$this, 'rule'], $innerParams);
                 }
             } else {
                 $this->rule($ruleType, $params);
@@ -975,11 +898,11 @@ class Validator
      * @param  array $fields
      * @return Validator
      */
-    public function withData($data, $fields = array())
+    protected function withData(array $data, array $fields = []): self
     {
         $clone = clone $this;
-        $clone->_fields = !empty($fields) ? array_intersect_key($data, array_flip($fields)) : $data;
-        $clone->_errors = array();
+        $clone->fields = !empty($fields) ? array_intersect_key($data, array_flip($fields)) : $data;
+        $clone->errors = [];
         return $clone;
     }
 
@@ -989,14 +912,14 @@ class Validator
      * @param string $field
      * @param array  $rules
      */
-    public function mapFieldRules($field, $rules)
+    protected function mapFieldRules(string $field, array $rules): void
     {
         $me = $this;
 
         array_map(function ($rule) use ($field, $me) {
 
             //rule must be an array
-            $rule = (array)$rule;
+            $rule = (array) $rule;
 
             //First element is the name of the rule
             $ruleName = array_shift($rule);
@@ -1008,11 +931,11 @@ class Validator
                 unset($rule['message']);
             }
             //Add the field and additional parameters to the rule
-            $added = call_user_func_array(array($me, 'rule'), array_merge(array($ruleName, $field), $rule));
+            $added = call_user_func_array([$me, 'rule'], array_merge([$ruleName, $field], $rule));
             if (!empty($message)) {
                 $added->message($message);
             }
-        }, (array)$rules);
+        }, (array) $rules);
     }
 
     /**
@@ -1020,7 +943,7 @@ class Validator
      *
      * @param array $rules
      */
-    public function mapFieldsRules($rules)
+    protected function mapFieldsRules(array $rules): void
     {
         $me = $this;
         array_map(function ($field) use ($rules, $me) {
@@ -1035,24 +958,25 @@ class Validator
      * @param  null|string $field
      * @return array|bool
      */
-    public function errors($field = null)
+    protected function errors(string $field = null): array|bool
     {
         if ($field !== null) {
-            return isset($this->_errors[$field]) ? $this->_errors[$field] : false;
+            return isset($this->errors[$field]) ? $this->errors[$field] : false;
         }
 
-        return $this->_errors;
+        return $this->errors;
     }
-/**
-* @param string $field
-* @param string $message
-* @param array  $params
-*/
-    public function error($field, $message, array $params = array())
+
+    /**
+     * @param string $field
+     * @param string $message
+     * @param array $params
+     */
+    protected function error(string $field, string $message, array $params = []): void
     {
         $message = $this->checkAndSetLabel($field, $message, $params);
 
-        $values = array();
+        $values = [];
         // Printed values need to be in string format
         foreach ($params as $param) {
             if (is_array($param)) {
@@ -1066,21 +990,108 @@ class Validator
                 }
             }
             // Use custom label instead of field name if set
-            if (is_string($params[0]) && isset($this->_labels[$param])) {
-                $param = $this->_labels[$param];
+            if (is_string($params[0]) && isset($this->labels[$param])) {
+                $param = $this->labels[$param];
             }
             $values[] = $param;
         }
 
-        $this->_errors[$field][] = vsprintf($message, $values);
+        $this->errors[$field][] = vsprintf($message, $values);
     }
     /**
      * проверяет ассоциативный массив или нет, через поиск ключа отличного от числа, хотя бы один
      * @param array  $input
      */
-    private function isAssociativeArray($input){
+    private function isAssociativeArray(array $input): bool
+    {
         //array contains at least one key that's not an can not be cast to an integer
         return count(array_filter(array_keys($input), 'is_string')) > 0;
+    }
+
+    /**
+     * Выполняет валидацию данных находящихся в реквест, на основании правил которые переданы входным параметром,
+     * для описания правил валидации используется отдельный класс ValidationRules,
+     * если валидация не пройдена - на перовом правиле выбрасывается исключение.
+     * Для правил в которых необходимо проверить уникальность необходимо передать на вход массив с данными для проверки
+     * @return bool
+     */
+    public function validate($dataFromRepository = []): bool
+    {
+
+        $this->rules($this->getValidationRules($dataFromRepository));
+
+        $set_to_break = false;
+        foreach ($this->validations as $v) {
+            foreach ($v['fields'] as $field) {
+                list($values, $multiple) = $this->getPart($this->fields, explode('.', $field), false);
+
+                if (!$this->validationMustBeExcecuted($v, $field, $values, $multiple)) {
+                    continue;
+                }
+
+                // Callback is user-specified or assumed method on class
+                $errors = $this->getRules();
+                if (isset($errors[$v['rule']])) {
+                    $callback = $errors[$v['rule']];
+                } else {
+                    $callback = [$this, 'validate' . ucfirst($v['rule'])];
+                }
+
+                if (!$multiple) {
+                    $values = [$values];
+                } else if (!$this->hasRule('required', $field)) {
+                    $values = array_filter($values);
+                }
+
+                $result = true;
+                foreach ($values as $value) {
+                    $result = $result && call_user_func($callback, $field, $value, $v['params'], $this->fields);
+                }
+
+                if (!$result) {
+                    $this->error($field, $v['message'], $v['params']);
+
+                }
+            }
+            if ($set_to_break) {
+                break;
+            }
+        }
+        if (count($this->errors()) !== 0) {
+            $allErrors = '';
+            foreach ($this->errors() as $err) {
+
+                $allErrors .= $err[0] . ', ';
+            }
+            throw new HttpException('Валидация не пройдена: ' . $allErrors);
+        }
+
+        return true;
+    }
+
+    /**
+     * На основании стека вызова функции валидации, по нэймспэйсу генерит полное имя класса и пытается его создать
+     * в случае успешной поппытки находит там правила валидации и возвращает массив
+     * очень важно, чтобы правила валидации находились в правильной иерархии паппок, иначе не найдет
+     * спросить у Андрея более лучший способ
+     *
+     * @return array
+     * @throws HttpException array
+     */
+
+    protected function getValidationRules($dataFromRepository): array
+    {
+        $stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[2];
+
+        $classFullName = VALIDATION_RULES_DIR . '\\' . mb_substr($stack['class'],4) . '\\' . ucfirst($stack['function']);
+
+        $classRules =  new $classFullName($dataFromRepository);
+
+        if (empty($classRules) === true) {
+            throw new HttpException('Не получилось создать объект, проверьте корректность нэймспэйса у класса с правилами валидации: ' . $classFullName);
+        }
+
+        return $classRules->rules();
     }
 
 }
