@@ -33,18 +33,17 @@ class HttpErrorHandler implements ErrorHandlerInterface
      */
     public function handle(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
     {
-        if ((file_exists(PROJECT_SOURCE_ROOT . 'view/ErrorView.php')) === false) {
+        if (file_exists($this->view->getBasePath() . 'ErrorView.php') === false) {
             $this->view->setBasePath(__DIR__ . '/../../Http/View');
         }
 
-        $acceptHeader = $this->request->getHeaders()['ACCEPT'];
+        $requestContentType = $this->request->getHeaders()['CONTENT-TYPE'] ?? null;
 
-        if ($acceptHeader === 'application/json') {
-            return $this->getHttpErrorBody($exception, $statusCode, $reasonPhrase);
+        if ($requestContentType === 'text/html') {
+            return $this->getHttpErrorView($exception, $statusCode, $reasonPhrase);
         }
 
-        return $this->getHttpErrorView($exception, $statusCode, $reasonPhrase);
-
+        return $this->getJsonErrorBody($exception, $statusCode, $reasonPhrase);
     }
 
     /**
@@ -70,7 +69,7 @@ class HttpErrorHandler implements ErrorHandlerInterface
         return $this->view->render('ErrorView', $params);
     }
 
-    public function getHttpErrorBody(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
+    public function getJsonErrorBody(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
     {
         $params = [
             'statusCode' => $statusCode ?? $exception->getCode(),
