@@ -2,33 +2,26 @@
 
 namespace Craft\Components\Logger;
 
-use yii\base\Application;
-use yii\base\BootstrapInterface;
-
 class DebugTagGenerator
 {
     /**
      * @param  Application $app
      * @return void
      */
-    public function init($app): void
+    public function init(): void
     {
-        $this->getHeaders();
-
         $this->createFromHeaders();
 
         if (defined('X_DEBUG_TAG') === true) {
             return;
         }
 
-        if (isset($app->name) === false) {
+        if (empty(getenv('INDEX_NAME'))) {
             throw new \InvalidArgumentException('Не задано имя приложения. Внесите доработку в конфигурацию приложения');
         }
 
-        $key = 'x-debug-tag-' . $app->name . '-';
-
-        $key .= isset($app->modules['debug']->logTarget->tag) === true ? $app->modules['debug']->logTarget->tag : uniqid();
-
+        $key = 'x-debug-tag-' . getenv('INDEX_NAME') . '-';
+        $key .= uniqid();
         $key .= '-' . gethostname() . '-' . time();
 
         define('X_DEBUG_TAG', md5($key));
@@ -58,7 +51,7 @@ class DebugTagGenerator
      */
     private function createFromHeaders(): void
     {
-        $headers = getallheaders();
+        $headers = $this->getHeaders();
 
         if (isset($headers['X-Debug-Tag']) === false) {
             return;

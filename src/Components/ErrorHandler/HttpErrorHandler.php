@@ -2,14 +2,10 @@
 
 namespace Craft\Components\ErrorHandler;
 
+use Craft\Contracts\ErrorHandlerInterface;
 use Craft\Contracts\LoggerInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ViewInterface;
-use Craft\Contracts\ErrorHandlerInterface;
-use Craft\Http\Exceptions\ForbiddenHttpException;
-use Craft\Http\Exceptions\NotFoundHttpException;
-use Craft\Http\View\View;
-use Craft\Http\Exceptions\HttpException;
 use Throwable;
 
 class HttpErrorHandler implements ErrorHandlerInterface 
@@ -59,7 +55,7 @@ class HttpErrorHandler implements ErrorHandlerInterface
 
         if (getenv('ENV') === 'development') {
             $params = array_merge($params, [
-                'xdebugTag' => $this->logger->getXDebugTag(),
+                'xdebugTag' => defined('X_DEBUG_TAG') ? X_DEBUG_TAG : null,
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
                 'stackTrace' => explode(PHP_EOL, $exception->getTraceAsString()),
@@ -78,13 +74,13 @@ class HttpErrorHandler implements ErrorHandlerInterface
 
         if (getenv('ENV') === 'development') {
             $params = array_merge($params, [
-                'xdebugTag' => $this->logger->getXDebugTag(),
+                'xdebugTag' => defined('X_DEBUG_TAG') ? X_DEBUG_TAG : null,
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
                 'stackTrace' => explode(PHP_EOL, $exception->getTraceAsString()),
             ]);
         }
-        
+
         return json_encode($params);
     }
 }
