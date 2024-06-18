@@ -2,338 +2,177 @@
 
 namespace Craft\Components\QueryBuilder;
 
-use Craft\Components\DatabaseConnection\MySqlConnection;
-use Craft\Contracts\DataBaseConnectionInterface;
+use Craft\Contracts\QueryInterface;
 
-class Query
+class Query implements QueryInterface
 {
+    private array $select = [];
+    private array $from = [];
+    private array $where = [];
+    private array $join = [];
+    private array $orderBy = [];
+    private ?int $limit = null;
+    private ?int $offset = null;
+
     /**
-     * @var PDO
+     * @param string|array $fields
+     * @return self
      */
-    protected $pdo;
-    protected $table;
-    protected $query;
-    protected $finalQuery;
-    protected $params = [];
-    protected $joins = [];
-    protected $wheres = [];
-    protected $prepareParamsFromQuery = [];
-    protected $prepareQuery = [];
-
-
-    public function __construct(DataBaseConnectionInterface $db)
+    public function select(array|string ...$fields): self
     {
-        $this->pdo = $db->pdo;
+        $this->select = is_array($fields[0]) ? $fields[0] : $fields;
+        return $this;
     }
 
     /**
-     * @param bool $flag признак необходимости выполнения запроса (для подзапросов нужно явно указывать false), для обычных запросов можно не указывать, по дефолту true
-     * @param int $mode можно указать режим выборки полученных данных по умолчанию \PDO::FETCH_ASSOC
-     * @return mixed
+     * @param string|array $tables
+     * @return self
      */
-    public function one($flag = true ,$mode = \PDO::FETCH_ASSOC): mixed
+    public function from(array|string ...$tables): self
     {
-        $i = 0;
-        $joinString = implode(' ', $this->joins);
-        $whereString = implode(' ', array_slice($this->wheres, 0, -1));
-        $this->query .= " {$joinString} WHERE {$whereString}";
-        $this->wheres = [];
+        $this->from = is_array($tables[0]) ? $tables[0] : $tables;
+        return $this;
+    }
 
-        $stmt = $this->pdo->prepare($this->query);
-
-        foreach ($this->prepareParamsFromQuery as $key => $values) {
-            foreach ($values as $param => $value) {
-                    $i += 1;
-                    $stmt->bindValue($i, $value);
+    /**
+     * @param string|array $condition
+     * @return self
+     */
+    public function where(array|string $condition): self
+    {
+        if (is_array($condition) === true) {
+            foreach ($condition as $key => $value) {
+                if ($value instanceof self === true) {
+                    $this->where[] = "$key = (" . $value->build() . ")";
+                }
+                if ($value instanceof self === false) {
+                    $this->where[] = "$key = " . (is_numeric($value) ? $value : "'" . addslashes((string) $value) . "'");
+                }
             }
+        } else {
+            $this->where[] = $condition;
         }
-
-        $this->finalQuery = $this->interpolateQuery($stmt->queryString, $this->params);
-        $this->prepareQuery[] = ['finalQuery' => $this->finalQuery, 'prepareQuery' => $stmt->queryString, 'queryParams' => $this->params];
-
-        if ($flag === true) {
-            $stmt->execute();
-            $this->reset();
-            return $stmt->fetch($mode);
-        }
-
         return $this;
     }
 
     /**
-     * @param bool $flag признак необходимости выполнения запроса (для подзапросов нужно явно указывать false)? для обычных запросов можно не указывать, по дефолту true
-     * @param int $mode можно указать режим выборки полученных данных по умолчанию \PDO::FETCH_ASSOC
-     * @return mixed
+     * @param string $type
+     * @param string $table
+     * @param string $on
+     * @return self
      */
-    public function all($flag = true ,$mode = \PDO::FETCH_ASSOC): mixed
+    public function join(string $type, string $table, string $on): self
     {
-        $i = 0;
-        $joinString = implode(' ', $this->joins);
-        $whereString = implode(' ', array_slice($this->wheres, 0, -1)); // Удаляем последний коннектор
-
-        $where = " WHERE ";
-        if ($joinString === '' && $whereString === '') {
-            $where = "";
-        }
-        $this->query .= $joinString . $where . $whereString;
-        $this->wheres = [];
-
-        $stmt = $this->pdo->prepare($this->query);
-
-        foreach ($this->prepareParamsFromQuery as $key => $values) {
-            foreach ($values as $param => $value) {
-                    $i += 1;
-                    $stmt->bindValue($i, $value);
-            }
-        }
-
-        $this->finalQuery = $this->interpolateQuery($stmt->queryString, $this->params);
-        $this->prepareQuery[] = ['finalQuery' => $this->finalQuery, 'prepareQuery' => $stmt->queryString, 'queryParams' => $this->params];
-
-        if ($flag === true) {
-            $stmt->execute();
-            $this->reset();
-            return $stmt->fetchAll($mode);
-        }
-
-        return $this;
-    }
-
-
-    /**Выполняет запрос и возвращает количество измененных строк
-     *
-     * @param $i для цикла
-     * @return array|false
-     */
-    public function execute(): int
-    {
-        $i = 0;
-        $params = [];
-        $joinString = implode(' ', $this->joins);
-        $whereString = implode(' ', array_slice($this->wheres, 0, -1)); // Удаляем последний коннектор
-
-        $where = " WHERE ";
-        if ($joinString === '' && $whereString === '') {
-            $where = "";
-        }
-        $this->query .= $joinString . $where . $whereString;
-
-        $this->wheres = [];
-
-        $stmt = $this->pdo->prepare($this->query);
-
-        foreach ($this->prepareParamsFromQuery as $key => $values) {
-            foreach ($values as $param => $value) {
-
-                    $i += 1;
-                    $stmt->bindValue($i, $value);
-                    $params[$i] = $value;
-            }
-        }
-
-        $this->finalQuery = $this->interpolateQuery($stmt->queryString,$params);
-        $this->prepareQuery[] = ['finalQuery' => $this->finalQuery, 'prepareQuery' => $stmt->queryString, 'queryParams' => $params];
-
-        $stmt = $this->pdo->prepare($this->finalQuery);
-        $stmt->execute();
-        $this->reset();
-        return $stmt->rowCount();
-    }
-
-    /**
-     * @return void
-     */
-    private function reset(): void
-    {
-        $this->query = null;
-        $this->params = [];
-        $this->wheres = [];
-        $this->joins = [];
-        $this->prepareParamsFromQuery = [];
-        $i = 0;
-    }
-
-
-    public function table(string $table): self
-    {
-        $this->table = $table;
-
+        $this->join[] = strtoupper($type) . " JOIN $table ON $on";
         return $this;
     }
 
     /**
-     * @param string|array $columns
-     * @return $this
+     * @param array $columns
+     * @return self
      */
-    public function select(string $table, string|array $columns = '*'): self
+    public function orderBy(array $columns): self
     {
-        if (is_array($columns) === true) {
-            $columns = implode(', ', $columns);
+        foreach ($columns as $column => $direction) {
+            $this->orderBy[] = "$column " . (strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC');
         }
-        $this->query = "SELECT {$columns} FROM {$table}";
         return $this;
     }
 
     /**
-     * @param string $column таблица
-     * @param mixed $value Значение
-     * @param string $operator Оператор, опциональный, по умолчанию =
-     * @param string $connector
-     * @return self|false
+     * @param int $limit
+     * @return self
      */
-    public function where(string $column, string|Query $value, string $operator = '=', string $connector = 'AND'): self
+    public function limit(int $limit): self
     {
-        if ($value instanceof Query === true) {
-            $value = '(' . $value->finalQuery . ')';
-        }
-        $this->prepareParamsFromQuery[] = [$column => $value];
-        $this->wheres[] = "{$column} {$operator} ?";
-        $this->params[] = $value;
-        $this->wheres[] = $connector;
-
+        $this->limit = $limit;
         return $this;
-    }
-
-    public function insert(string $table, array $data): int
-    {
-        $keys = '';
-        $values = '';
-        foreach ($data as $key => $param) {
-
-            if ($param instanceof Query === true) {
-                $keys .= $key . ',';
-                $values .= "({$param->finalQuery}),";
-                continue;
-            }
-
-            $this->prepareParamsFromQuery[] = [$key => $param];
-
-            $keys .= $key . ',';
-            $values .= strripos($param, '=') ? "($param)" . ', ' : '? , ';
-        }
-
-        $keys = mb_substr($keys, 0, -1);
-        $values = mb_substr($values, 0, -2);
-
-        $this->query = "INSERT INTO {$table} ({$keys}) VALUES ({$values})";
-
-        return $this->execute();
-    }
-
-    public function update(string $table, array $data): self
-    {
-        $keys = '';
-        $values = '';
-        foreach ($data as $key => $param) {
-
-            if ($param instanceof Query === true) {
-                $keys .= $key . ',';
-                $values .= "({$param->finalQuery}),";
-                continue;
-            }
-
-            $this->prepareParamsFromQuery[] = [$key => $param];
-
-            $keys .= $key . ',';
-            $values .= strripos($param, '=') ? "($param)" . ', ' : '? , ';
-        }
-
-        $keys = mb_substr($keys, 0, -1);
-        $values = mb_substr($values, 0, -2);
-
-        $this->query = "UPDATE {$table} SET {$keys} = {$values}";
-
-        return $this;
-    }
-
-    public function delete(string $table, array $data = []): int
-    {
-        $this->query = "DELETE FROM {$table} WHERE ";
-
-        $keys = '';
-        $values = '';
-        foreach ($data as $key => $param) {
-
-            if ($param instanceof Query === true) {
-                $keys = $key . ',';
-                $values = "({$param->finalQuery}) AND ";
-
-                $this->query .= $key . ' = ' . $values;
-                continue;
-            }
-
-            $this->prepareParamsFromQuery[] = [$key => $param];
-
-            $keys .= $key . ',';
-            $values = strripos($param, '=') ? "($param)" . ' AND ' : '? AND ';
-
-            $this->query .= " {$key} = {$values}";
-        }
-
-        $keys = mb_substr($keys, 0, -1);
-        $values = mb_substr($values, 0, -2);
-        $this->query = mb_substr($this->query, 0, -5);
-
-        return $this->execute();
-    }
-
-    public function innerJoin($table, $condition, $type = 'INNER'): self
-    {
-        $this->joins[] = "{$type} JOIN {$table} ON {$condition}";
-        return $this;
-    }
-
-
-    /**
-     * Для написания любого запроса без вспомогательных методов
-     * @return array|false
-     */
-    public function execRaw(string $query): array|false
-    {
-        $this->query = $query;
-        $statement = $this->pdo->prepare($this->query);
-        $statement->execute();
-        $this->reset();
-        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Аналог защиты от SQL инъекций в PDO
-     * @param string $query
-     * @param array $params
-     *
+     * @param int $offset
+     * @return self
+     */
+    public function offset(int $offset): self
+    {
+        $this->offset = $offset;
+        return $this;
+    }
+
+    /**
      * @return string
      */
-    public function interpolateQuery(string $query, array $params)
+    public function build(): string
     {
-        $keys = [];
-        $values = [];
+        $sql = [];
 
-        foreach ($params as $key => $value) {
+        $sql[] = 'SELECT ' . implode(', ', $this->select);
+        $sql[] = 'FROM ' . implode(', ', $this->from);
 
-            if (is_string($key) === true) {
-                $keys[] = '/:' . $key . '/';
-            }
-
-            if (is_string($key) === false)
-            {
-                $keys[] = '/[?]/';
-            }
-
-            if (is_numeric($value) === true) {
-                $values[] = $value;
-            }
-
-            if (is_numeric($value) === false && strpos($value, '=') === false) {
-                $values[] = "'" . $value . "'";
-            }
-
-            if (is_numeric($value) === false && strpos($value, '=') !== false) {
-                $values[] = $value;
-            }
+        if (empty($this->join) === false) {
+            $sql[] = implode(' ', $this->join);
         }
 
-        return preg_replace($keys, $values, $query, 1);
+        if (empty($this->where) === false) {
+            $sql[] = 'WHERE ' . implode(' AND ', $this->where);
+        }
+
+        if (empty($this->orderBy) === false) {
+            $sql[] = 'ORDER BY ' . implode(', ', $this->orderBy);
+        }
+
+        if ($this->limit !== null) {
+            $sql[] = 'LIMIT ' . $this->limit;
+        }
+
+        if ($this->offset !== null) {
+            $sql[] = 'OFFSET ' . $this->offset;
+        }
+
+        return implode(' ', $sql);
     }
 
+    /**
+     * @param PDO $db
+     * @return array|null
+     */
+    public function all(\PDO $db): array
+    {
+        $sql = $this->build();
+        $stmt = $db->query($sql);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * @param PDO $db
+     * @return array
+     */
+    public function one(\PDO $db): ?array
+    {
+        $sql = $this->build();
+        $stmt = $db->query($sql);
+        return $stmt->fetch(\PDO::FETCH_ASSOC) ?: null;
+    }
+
+    /**
+     * @param PDO $db
+     * @return array
+     */
+    public function column(\PDO $db): array
+    {
+        $sql = $this->build();
+        $stmt = $db->query($sql);
+        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @param PDO $db
+     * @return mixed
+     */
+    public function scalar(\PDO $db): mixed
+    {
+        $sql = $this->build();
+        $stmt = $db->query($sql);
+        return $stmt->fetchColumn();
+    }
 }
