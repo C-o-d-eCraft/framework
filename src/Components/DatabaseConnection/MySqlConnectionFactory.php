@@ -4,8 +4,9 @@ namespace Craft\Components\DatabaseConnection;
 
 use Craft\Contracts\ConnectionFactoryInterface;
 use Craft\Contracts\DataBaseConnectionInterface;
+use Craft\Components\QueryBuilder\QueryBuilder;
 
-class MySqlConnectionFactory implements ConnectionFactoryInterface
+class ConnectionFactory implements ConnectionFactoryInterface
 {
     /**
      * @param array $config
@@ -14,7 +15,7 @@ class MySqlConnectionFactory implements ConnectionFactoryInterface
     public function createConnection(array $config): DataBaseConnectionInterface
     {
         return match ($config['driver']) {
-            'mysql' => new DBConnection($config),
+            'mysql' => new QueryBuilder($config),
         };
     }
 }
