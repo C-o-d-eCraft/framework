@@ -6,7 +6,6 @@ use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Contracts\ObserverInterface;
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\EventDispatcher\Event;
-use Craft\Components\EventDispatcher\EventDispatcher;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\OutputInterface;
@@ -16,9 +15,9 @@ use ReflectionException;
 class InteractivePlugin implements PluginInterface, ObserverInterface
 {
     /**
-     * @var EventDispatcher
+     * @var EventDispatcherInterface
      */
-    private EventDispatcher $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @var InputInterface

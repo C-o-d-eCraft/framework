@@ -2,7 +2,15 @@
 
 namespace Craft\Components\Logger\StateProcessor;
 
+use Craft\Components\Logger\Observers\ObserverAttachContext;
+use Craft\Components\Logger\Observers\ObserverAttachExtras;
+use Craft\Components\Logger\Observers\ObserverDetachContext;
+use Craft\Components\Logger\Observers\ObserverFlushExtras;
+use Craft\Components\Logger\Observers\ObserverFlushContext;
 use Craft\Contracts\LogStateProcessorInterface;
+use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Contracts\EventDispatcherInterface;
+use Craft\Contracts\ObserverInterface;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -18,7 +26,6 @@ class LogStateProcessor implements LogStateProcessorInterface
     public function __construct(string $index)
     {
         $this->storage = new LogStorageDTO();
-
         $this->storage->index = $index;
 
         $this->setUpDefaults();
@@ -62,16 +69,32 @@ class LogStateProcessor implements LogStateProcessorInterface
      * @return object|LogStorageDTO
      * @throws \Exception
      */
-    public function process(string $level, string $message, ?array $context, $extras = []): object
+    public function process(string $level, string $message, array $extras = []): object
     {
         $this->validateSetUp();
 
         $storage = clone $this->storage;
 
-        $storage->context = $context ?? null;
+        $storage->context = $storage->context !== null ? implode(':', $storage->context) : $storage->context = 'No context';
+
         $storage->message = $message;
+
         $storage->level = $level;
-        $storage->category = $context['category'] ?? '';
+
+        if (
+            $storage->message instanceof Exception
+            ||
+            (class_exists(\Error::class) && $storage->message instanceof \Error)
+        ) {
+            $storage->exception = [
+                'file' => $storage->message->getFile(),
+                'line' => $storage->message->getLine(),
+                'code' => $storage->message->getCode(),
+                'trace' => explode(PHP_EOL, $storage->message->getTraceAsString()),
+            ];
+
+            $storage->message = $storage->message->getMessage();
+        }
 
         $utcDate = new DateTime('now', new DateTimeZone('UTC'));
 
@@ -83,7 +106,7 @@ class LogStateProcessor implements LogStateProcessorInterface
             $storage->real_ip = array_shift($realIpList);
         }
 
-        $storage->level_name = $level;
+        $storage->level = $level;
 
         $storage->action = $this->defineAction();
 

@@ -10,5 +10,5 @@ interface LogStateProcessorInterface
      * @param array $context
      * @return object
      */
-    public function process(string $level, string $message, array $context, array $extras = null): object;
+    public function process(string $level, string $message, array $extras = []): object;
 }

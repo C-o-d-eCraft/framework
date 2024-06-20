@@ -2,6 +2,8 @@
 
 namespace Craft\Components\Logger\StateProcessor;
 
+use Craft\Contracts\DTOInterface;
+
 class LogStorageDTO
 {
     /**
@@ -10,24 +12,14 @@ class LogStorageDTO
     public $index;
 
     /**
+     * @var array
+     */
+    public $context = [];
+
+    /**
      * @var string
-     */
-    public $category;
-
-    /**
-     * @var string|null
-     */
-    public $context = null;
-
-    /**
-     * @var int
      */
     public $level;
-
-    /**
-     * @var string
-     */
-    public $level_name;
 
     /**
      * @var string

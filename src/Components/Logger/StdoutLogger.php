@@ -3,6 +3,7 @@
 namespace Craft\Components\Logger;
 
 use Craft\Components\Logger\StateProcessor\LogStateProcessor;
+use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\LoggerInterface;
 
 class StdoutLogger implements LoggerInterface
@@ -15,7 +16,7 @@ class StdoutLogger implements LoggerInterface
         if (empty(getenv('INDEX_NAME'))) {
             throw new \InvalidArgumentException('Не задано имя приложения. Внесите доработку в конфигурацию приложения');
         }
-
+        
         $this->logStateProcessor = new LogStateProcessor(getenv('INDEX_NAME'));
 
         $logDir = PROJECT_ROOT . '/runtime/app-logs';
@@ -31,66 +32,57 @@ class StdoutLogger implements LoggerInterface
         }
     }
 
-    public function emergency($message, array $context = [], $extras = []): void
+    public function emergency(string $message, array $extras = [], array $trace = []): void
     {
-        $this->log(LogLevel::EMERGENCY, $message, $context, $extras);
+        $this->log(LogLevel::EMERGENCY->value, $message, $extras, $trace);
     }
 
-    public function alert($message, array $context = [], $extras = []): void
+    public function alert(string $message, array $extras = [], array $trace = []): void
     {
-        $this->log(LogLevel::ALERT, $message, $context, $extras);
+        $this->log(LogLevel::ALERT->value, $message, $extras, $trace);
     }
 
-    public function critical($message, array $context = [], $extras = []): void
+    public function critical(string $message, array $extras = [], array $trace = []): void
     {
-        $this->log(LogLevel::CRITICAL, $message, $context, $extras);
+        $this->log(LogLevel::CRITICAL->value, $message, $extras, $trace);
     }
 
-    public function error($message, array $context = [], $extras = []): void
+    public function error(string $message, array $extras = [], array $trace = []): void
     {
-        $this->log(LogLevel::ERROR, $message, $context, $extras);
+        $this->log(LogLevel::ERROR->value, $message, $extras, $trace);
     }
 
-    public function warning($message, array $context = [], $extras = []): void
+    public function warning(string $message, array $extras = [], array $trace = []): void
     {
-        $this->log(LogLevel::WARNING, $message, $context, $extras);
+        $this->log(LogLevel::WARNING->value, $message, $extras, $trace);
     }
 
-    public function notice($message, array $context = [], $extras = []): void
+    public function notice(string $message, array $extras = [], array $trace = []): void
     {
-        $this->log(LogLevel::NOTICE, $message, $context, $extras);
+        $this->log(LogLevel::NOTICE->value, $message, $extras, $trace);
     }
 
-    public function info($message, array $context = [], $extras = []): void
+    public function info(string $message, array $extras = [], array $trace = []): void
     {
-        $this->log(LogLevel::INFO, $message, $context, $extras);
+        $this->log(LogLevel::INFO->value, $message, $extras, $trace);
     }
 
-    public function debug($message, array $context = [], $extras = []): void
+    public function debug(string $message, array $extras = [], array $trace = []): void
     {
-        $this->log(LogLevel::DEBUG, $message, $context, $extras);
+        $this->log(LogLevel::DEBUG->value, $message, $extras, $trace);
     }
 
-    public function log($level, $message, array $context = [], $extras = []): void
+    public function log(string $level, string $message, array $trace = []): void
     {
-        if ($this->isValidLogLevel($level) === false) {
-            throw new \InvalidArgumentException("Несуществующий уровень логгирования: $level");
-        }
-
-        $logMessage = $this->formatMessage($level, $message, $context, $extras);
+        $logMessage = $this->formatMessage($level, $message, $trace);
 
         $this->writeLogToFile($logMessage);
         $this->writeLogToStdout($logMessage);
     }
 
-    private function isValidLogLevel($level): bool
+    private function formatMessage(string $level, string $message, array $extras = []): string
     {
-        return in_array($level, LogLevel::getLevel());
-    }
-
-    private function formatMessage($level, $message, $context, $extras): string
-    {
-        $loggingState = $this->logStateProcessor->process($level, $message, $context, $extras);
+        $loggingState = $this->logStateProcessor->process($level, $message, $extras);
 
         return json_encode((array)$loggingState, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }

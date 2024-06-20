@@ -2,28 +2,14 @@
 
 namespace Craft\Components\Logger;
 
-class LogLevel
+enum LogLevel: string
 {
-    const DEBUG = 'debug';
-    const INFO = 'info';
-    const NOTICE = 'notice';
-    const WARNING = 'warning';
-    const ERROR = 'error';
-    const CRITICAL = 'critical';
-    const ALERT = 'alert';
-    const EMERGENCY = 'emergency';
-
-    public static function getLevel(): array
-    {
-        return [
-            self::DEBUG,
-            self::INFO,
-            self::NOTICE,
-            self::WARNING,
-            self::ERROR,
-            self::CRITICAL,
-            self::ALERT,
-            self::EMERGENCY
-        ];
-    }
+    case DEBUG = 'debug';
+    case INFO = 'info';
+    case NOTICE = 'notice';
+    case WARNING = 'warning';
+    case ERROR = 'error';
+    case CRITICAL = 'critical';
+    case ALERT = 'alert';
+    case EMERGENCY = 'emergency';
 }
