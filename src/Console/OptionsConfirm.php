@@ -3,16 +3,16 @@
 namespace Craft\Console;
 
 use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\ObserverInterface;
 use Craft\Components\EventDispatcher\Event;
-use Craft\Components\EventDispatcher\EventDispatcher;
 
 readonly class OptionsConfirm implements ObserverInterface
 {
     /**
-     * @param EventDispatcher $eventDispatcher
+     * @param EventDispatcherInterface $eventDispatcher
      */
-    public function __construct(private EventDispatcher $eventDispatcher) { }
+    public function __construct(private EventDispatcherInterface $eventDispatcher) { }
 
     /**
      * @param EventMessage|null $message

@@ -2,8 +2,8 @@
 
 namespace Craft\Components\Logger;
 
-use Craft\Components\EventDispatcher\EventDispatcher;
 use Craft\Components\Logger\StateProcessor\LogStateProcessor;
+use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\LoggerInterface;
 
 class StdoutLogger implements LoggerInterface
@@ -11,13 +11,13 @@ class StdoutLogger implements LoggerInterface
     private LogStateProcessor $logStateProcessor;
     private string $logFilePath;
 
-    public function __construct(private EventDispatcher $eventDispatcher)
+    public function __construct()
     {
         if (empty(getenv('INDEX_NAME'))) {
             throw new \InvalidArgumentException('Не задано имя приложения. Внесите доработку в конфигурацию приложения');
         }
         
-        $this->logStateProcessor = new LogStateProcessor($this->eventDispatcher, getenv('INDEX_NAME'));
+        $this->logStateProcessor = new LogStateProcessor(getenv('INDEX_NAME'));
 
         $logDir = PROJECT_ROOT . '/runtime/app-logs';
 
@@ -72,17 +72,17 @@ class StdoutLogger implements LoggerInterface
         $this->log(LogLevel::DEBUG->value, $message, $context, $extras);
     }
 
-    public function log(string $level, string $message, array $context = [], array $extras = []): void
+    public function log(string $level, string $message, array $extras = []): void
     {
-        $logMessage = $this->formatMessage($level, $message, $context, $extras);
+        $logMessage = $this->formatMessage($level, $message, $extras);
 
         $this->writeLogToFile($logMessage);
         $this->writeLogToStdout($logMessage);
     }
 
-    private function formatMessage(string $level, string $message, array $context = [], array $extras = []): string
+    private function formatMessage(string $level, string $message, array $extras = []): string
     {
-        $loggingState = $this->logStateProcessor->process($level, $message, $context, $extras);
+        $loggingState = $this->logStateProcessor->process($level, $message, $extras);
 
         return json_encode((array)$loggingState, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }

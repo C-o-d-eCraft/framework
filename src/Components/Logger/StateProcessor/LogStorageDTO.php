@@ -12,9 +12,9 @@ class LogStorageDTO
     public $index;
 
     /**
-     * @var string|null
+     * @var array
      */
-    public $context = null;
+    public $context = [];
 
     /**
      * @var string

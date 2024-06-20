@@ -7,5 +7,5 @@ interface EventMessageInterface
     /**
      * @return mixed
      */
-    function getContent(): mixed;
+    function getMessage(): mixed;
 }

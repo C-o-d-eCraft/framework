@@ -14,7 +14,7 @@ readonly class EventMessage implements EventMessageInterface
     /**
      * @return array
      */
-    public function getContent(): mixed
+    public function getMessage(): mixed
     {
         return $this->message;
     }

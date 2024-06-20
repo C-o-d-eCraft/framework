@@ -13,17 +13,6 @@ class EventDispatcher implements EventDispatcherInterface
     protected array $observers = [];
 
     /**
-     * @param array $observers
-     */
-    public function __construct(array $observers = []) {
-        foreach ($observers as $event => $eventObservers) {
-            foreach ($eventObservers as $observer) {
-                $this->attach($event, $observer);
-            }
-        }
-    }
-
-    /**
      * @param string $event
      * @param ObserverInterface $observer
      * @return void
@@ -35,7 +24,6 @@ class EventDispatcher implements EventDispatcherInterface
         }
 
         $this->observers[$event][] = $observer;
-//        dd($this->observers);
     }
 
     /**
@@ -49,12 +37,11 @@ class EventDispatcher implements EventDispatcherInterface
 
     /**
      * @param string $event
-     * @param EventMessage|null $message
+     * @param Message|null $message
      * @return void
      */
     public function trigger(string $event, EventMessage $message = null): void
     {
-//        dd($this->observers);
         if (isset($this->observers[$event]) === false) {
             return;
         }

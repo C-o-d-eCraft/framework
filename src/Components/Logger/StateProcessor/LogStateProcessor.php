@@ -2,7 +2,6 @@
 
 namespace Craft\Components\Logger\StateProcessor;
 
-use Craft\Components\EventDispatcher\EventDispatcher;
 use Craft\Components\Logger\Observers\ObserverAttachContext;
 use Craft\Components\Logger\Observers\ObserverAttachExtras;
 use Craft\Components\Logger\Observers\ObserverDetachContext;
@@ -10,6 +9,7 @@ use Craft\Components\Logger\Observers\ObserverFlushExtras;
 use Craft\Components\Logger\Observers\ObserverFlushContext;
 use Craft\Contracts\LogStateProcessorInterface;
 use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\ObserverInterface;
 use DateTime;
 use DateTimeImmutable;
@@ -23,12 +23,11 @@ class LogStateProcessor implements LogStateProcessorInterface
     /**
      * @param string $index
      */
-    public function __construct(private EventDispatcher $eventDispatcher, string $index)
+    public function __construct(string $index)
     {
         $this->storage = new LogStorageDTO();
         $this->storage->index = $index;
 
-        $this->initEventsListeners();
         $this->setUpDefaults();
     }
 
@@ -45,15 +44,6 @@ class LogStateProcessor implements LogStateProcessorInterface
     private function setUpDefaults(): void
     {
         $this->storage->action_type = empty($_SERVER['argv']) ? 'web' : 'cli';
-    }
-
-    private function initEventsListeners()
-    {
-        $this->eventDispatcher->attach(LogContextEvent::ATTACH_CONTEXT, new ObserverAttachContext($this->storage));
-        $this->eventDispatcher->attach(LogContextEvent::DETACH_CONTEXT, new ObserverDetachContext($this->storage));
-        $this->eventDispatcher->attach(LogContextEvent::FLUSH_CONTEXT, new ObserverFlushContext($this->storage));
-        $this->eventDispatcher->attach(LogContextEvent::ATTACH_EXTRAS, new ObserverAttachExtras($this->storage));
-        $this->eventDispatcher->attach(LogContextEvent::FLUSH_EXTRAS, new ObserverFlushExtras($this->storage));
     }
 
     /**
@@ -79,13 +69,13 @@ class LogStateProcessor implements LogStateProcessorInterface
      * @return object|LogStorageDTO
      * @throws \Exception
      */
-    public function process(string $level, string $message, array $context = [], array $extras = []): object
+    public function process(string $level, string $message, array $extras = []): object
     {
         $this->validateSetUp();
 
         $storage = clone $this->storage;
 
-        $storage->context = $storage->context !== null ? implode(':', $storage->context) : null;
+        $storage->context = $storage->context !== null ? implode(':', $storage->context) : $storage->context = 'No context';
 
         $storage->message = $message;
 
