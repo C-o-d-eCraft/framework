@@ -62,8 +62,6 @@ class HttpErrorHandler implements ErrorHandlerInterface
             ]);
         }
 
-        $this->logger->error($exception->getMessage(), ['exception' => $exception]);
-
         return $this->view->render('ErrorView', $params);
     }
 
@@ -83,8 +81,6 @@ class HttpErrorHandler implements ErrorHandlerInterface
             ]);
         }
 
-        $this->logger->error($exception->getMessage(), ['exception' => $exception]);
-        
         return json_encode($params);
     }
 }

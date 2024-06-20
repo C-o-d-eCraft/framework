@@ -4,12 +4,12 @@ namespace Craft\Contracts;
 
 interface LoggerInterface
 {
-    public function emergency($message, array $context = []): void;
-    public function alert($message, array $context = []): void;
-    public function critical($message, array $context = []): void;
-    public function error($message, array $context = []): void;
-    public function warning($message, array $context = []): void;
-    public function notice($message, array $context = []): void;
-    public function info($message, array $context = []): void;
-    public function debug($message, array $context = []): void;
+    public function emergency(string $message, array $extras = [], array $trace = []): void;
+    public function alert(string $message, array $extras = [], array $trace = []): void;
+    public function critical(string $message, array $extras = [], array $trace = []): void;
+    public function error(string $message, array $extras = [], array $trace = []): void;
+    public function warning(string $message, array $extras = [], array $trace = []): void;
+    public function notice(string $message, array $extras = [], array $trace = []): void;
+    public function info(string $message, array $extras = [], array $trace = []): void;
+    public function debug(string $message, array $extras = [], array $trace = []): void;
 }

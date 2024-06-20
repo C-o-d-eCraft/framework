@@ -7,15 +7,15 @@ use Craft\Contracts\EventMessageInterface;
 readonly class EventMessage implements EventMessageInterface
 {
     /**
-     * @param array $items
+     * @param array $message
      */
-    public function __construct(private mixed $items) { }
+    public function __construct(private mixed $message) { }
 
     /**
      * @return array
      */
-    public function getContent(): mixed
+    public function getMessage(): mixed
     {
-        return $this->items;
+        return $this->message;
     }
 }

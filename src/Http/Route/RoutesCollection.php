@@ -8,19 +8,8 @@ use Craft\Http\Exceptions\NotFoundHttpException;
 
 class RoutesCollection implements RoutesCollectionInterface
 {
-    /**
-     * @var array
-     */
     private array $routes = [];
-
-    /**
-     * @var array
-     */
     private array $globalMiddlewares = [];
-
-    /**
-     * @var array
-     */
     private array $groupMiddlewares = [];
 
     /**
@@ -94,9 +83,11 @@ class RoutesCollection implements RoutesCollectionInterface
      */
     public function group(string $prefix, callable $callback, array $middleware = []): void
     {
-        $this->groupMiddlewares = array_merge($this->groupMiddlewares, $middleware);
+        array_push($this->groupMiddlewares, $middleware);
 
         $callback($this);
+
+        array_pop($this->groupMiddlewares);
     }
 
     /**
@@ -118,7 +109,7 @@ class RoutesCollection implements RoutesCollectionInterface
         foreach ($restMethods as $method) {
             if (is_callable($controllerAction) || method_exists($controllerAction, 'action' . ucfirst(strtolower($method)))) {
                 $path = "/api/{$apiVersion}/{$controllerName}";
-                $this->routes[] = new Route($method, $path, $controllerAction . '::action' . ucfirst(strtolower($method)), [], $this->mergeMiddleware());
+                $this->routes[] = new Route($method, $path, $controllerAction . '::action' . ucfirst(strtolower($method)), [], $this->mergeMiddlewares());
             }
         }
     }
@@ -144,11 +135,7 @@ class RoutesCollection implements RoutesCollectionInterface
             $params[] = $parsedParam;
         }
 
-        $middlewares = $this->mergeMiddleware();
-
-        $middlewares = array_merge($middlewares, $middleware);
-
-        $this->routes[] = new Route($method, $routePath, $controllerAction, $params, $middlewares);
+        $this->routes[] = new Route($method, $routePath, $controllerAction, $params, $this->mergeMiddlewares($middleware));
     }
 
     /**
@@ -182,23 +169,16 @@ class RoutesCollection implements RoutesCollectionInterface
         return $param;
     }
 
-    private function loadGlobalMiddlewaresFromFile(): void
+    public function addGlobalMiddleware(array $middleware): void
     {
-        $middlewareNamespace = require PROJECT_ROOT . 'config/global-middlewares.php';
-
-        foreach ($middlewareNamespace as $middlewareClass) {
-            if (class_exists($middlewareClass) === false || in_array($middlewareClass, $this->globalMiddlewares)) {
-                return;
-            }
-
-            $this->globalMiddlewares[] = $middlewareClass;
-        }
+        $this->globalMiddlewares = array_merge($this->globalMiddlewares, $middleware);
     }
 
-    private function mergeMiddleware(): array
+    private function mergeMiddlewares(array $middlewares = []): array
     {
-        $this->loadGlobalMiddlewaresFromFile();
+        $allMiddlewares = array_merge($this->globalMiddlewares, ...$this->groupMiddlewares);
+        $allMiddlewares = array_merge($allMiddlewares, $middlewares);
 
-        return array_merge($this->globalMiddlewares, $this->groupMiddlewares);
+        return array_values(array_unique($allMiddlewares));
     }
 }

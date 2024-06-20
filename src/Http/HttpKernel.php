@@ -6,7 +6,10 @@ use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\HttpErrorHandler;
 use Craft\Components\ErrorHandler\MessageEnum;
 use Craft\Components\ErrorHandler\StatusCodeEnum;
+use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Components\Logger\StateProcessor\LogContextEvent;
 use Craft\Contracts\ErrorHandlerInterface;
+use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\HttpKernelInterface;
 use Craft\Contracts\LoggerInterface;
 use Craft\Contracts\RequestInterface;
@@ -21,29 +24,31 @@ use Throwable;
 
 class HttpKernel implements HttpKernelInterface
 {
-    /**
-     * @param RequestInterface $request
-     * @param ResponseInterface $response
-     * @param RouterInterface $router
-     */
     public function __construct(
         private readonly RequestInterface $request,
         private ResponseInterface         $response,
         private readonly RouterInterface  $router,
-        private readonly LoggerInterface  $logger,
+        private LoggerInterface           $logger,
         private ErrorHandlerInterface     $errorHandler,
+        private EventDispatcherInterface  $eventDispatcher,
         private DIContainer               $container,
     ) { }
 
     /**
      * @param RequestInterface $request
+     * 
      * @return ResponseInterface
      */
     public function handle(RequestInterface $request): ResponseInterface
     {
         try {
+            $message = new EventMessage('Расчет стоимости сырья');
+            $this->eventDispatcher->trigger(LogContextEvent::ATTACH_CONTEXT, $message);
+            
             $this->logger->info('Запуск контроллера');
 
+            $this->eventDispatcher->trigger(LogContextEvent::FLUSH_CONTEXT);
+            
             $this->response = $this->router->dispatch($this->request);
 
             if ($this->response instanceof JsonResponse) {
@@ -61,7 +66,7 @@ class HttpKernel implements HttpKernelInterface
             $this->response->withStatus($e->getCode());
             $this->response->setReasonPhrase($e->getMessage());
 
-            $this->logger->error($e->getMessage(), ['exception' => $e]);
+            $this->logger->error($e->getMessage(), ['exception' => $e], explode(PHP_EOL, $e->getTraceAsString()));
 
             $errorsView = $this->container->call(HttpErrorHandler::class, 'handle', [$e]);
 
@@ -70,7 +75,7 @@ class HttpKernel implements HttpKernelInterface
             $this->response->withStatus(StatusCodeEnum::INTERNAL_SERVER_ERROR);
             $this->response->setReasonPhrase(MessageEnum::INTERNAL_SERVER_ERROR);
 
-            $this->logger->critical(MessageEnum::INTERNAL_SERVER_ERROR, ['exception' => $e]);
+            $this->logger->critical(MessageEnum::INTERNAL_SERVER_ERROR, ['exception' => $e], explode(PHP_EOL, $e->getTraceAsString()));
 
             $errorsView = $this->container->call(HttpErrorHandler::class, 'handle', [$e]);
 
