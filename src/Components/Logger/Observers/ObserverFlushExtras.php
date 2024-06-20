@@ -16,6 +16,6 @@ class ObserverFlushExtras implements ObserverInterface
      */
     public function update(?EventMessage $message = null): void
     {
-        $this->storage['extras'] = [];
+        $this->storage->extras = [];
     }
 }

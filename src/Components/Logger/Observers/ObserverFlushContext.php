@@ -16,6 +16,6 @@ class ObserverFlushContext implements ObserverInterface
      */
     public function update(?EventMessage $message = null): void
     {
-        $this->storage['context'] = [];
+        $this->storage->context = [];
     }
 }

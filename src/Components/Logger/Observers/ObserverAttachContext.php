@@ -14,10 +14,10 @@ class ObserverAttachContext implements ObserverInterface
      * @param EventMessage|null $message
      * @return void
      */
-    public function update(?EventMessage $message = null): void {
+    public function update(?EventMessage $message = null): void 
+    {
         if ($message) {
-            $this->storage->context[] = $message->getMessage();
-            error_log("Context updated: " . $message->getMessage());
+            $this->storage->context = json_encode($message->getMessage(), JSON_UNESCAPED_UNICODE);
         }
     }
 }

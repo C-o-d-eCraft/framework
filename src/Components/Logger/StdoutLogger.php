@@ -32,49 +32,49 @@ class StdoutLogger implements LoggerInterface
         }
     }
 
-    public function emergency(string $message, array $context = [], array $extras = []): void
+    public function emergency(string $message, array $extras = [], array $trace = []): void
     {
-        $this->log(LogLevel::EMERGENCY->value, $message, $context, $extras);
+        $this->log(LogLevel::EMERGENCY->value, $message, $extras, $trace);
     }
 
-    public function alert(string $message, array $context = [], array $extras = []): void
+    public function alert(string $message, array $extras = [], array $trace = []): void
     {
-        $this->log(LogLevel::ALERT->value, $message, $context, $extras);
+        $this->log(LogLevel::ALERT->value, $message, $extras, $trace);
     }
 
-    public function critical(string $message, array $context = [], array $extras = []): void
+    public function critical(string $message, array $extras = [], array $trace = []): void
     {
-        $this->log(LogLevel::CRITICAL->value, $message, $context, $extras);
+        $this->log(LogLevel::CRITICAL->value, $message, $extras, $trace);
     }
 
-    public function error(string $message, array $context = [], array $extras = []): void
+    public function error(string $message, array $extras = [], array $trace = []): void
     {
-        $this->log(LogLevel::ERROR->value, $message, $context, $extras);
+        $this->log(LogLevel::ERROR->value, $message, $extras, $trace);
     }
 
-    public function warning(string $message, array $context = [], array $extras = []): void
+    public function warning(string $message, array $extras = [], array $trace = []): void
     {
-        $this->log(LogLevel::WARNING->value, $message, $context, $extras);
+        $this->log(LogLevel::WARNING->value, $message, $extras, $trace);
     }
 
-    public function notice(string $message, array $context = [], array $extras = []): void
+    public function notice(string $message, array $extras = [], array $trace = []): void
     {
-        $this->log(LogLevel::NOTICE->value, $message, $context, $extras);
+        $this->log(LogLevel::NOTICE->value, $message, $extras, $trace);
     }
 
-    public function info(string $message, array $context = [], array $extras = []): void
+    public function info(string $message, array $extras = [], array $trace = []): void
     {
-        $this->log(LogLevel::INFO->value, $message, $context, $extras);
+        $this->log(LogLevel::INFO->value, $message, $extras, $trace);
     }
 
-    public function debug(string $message, array $context = [], array $extras = []): void
+    public function debug(string $message, array $extras = [], array $trace = []): void
     {
-        $this->log(LogLevel::DEBUG->value, $message, $context, $extras);
+        $this->log(LogLevel::DEBUG->value, $message, $extras, $trace);
     }
 
-    public function log(string $level, string $message, array $extras = []): void
+    public function log(string $level, string $message, array $trace = []): void
     {
-        $logMessage = $this->formatMessage($level, $message, $extras);
+        $logMessage = $this->formatMessage($level, $message, $trace);
 
         $this->writeLogToFile($logMessage);
         $this->writeLogToStdout($logMessage);
