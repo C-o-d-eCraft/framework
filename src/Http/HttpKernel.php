@@ -41,6 +41,12 @@ class HttpKernel implements HttpKernelInterface
      */
     public function handle(RequestInterface $request): ResponseInterface
     {
+        if ($this->request->getMethod() === 'OPTIONS') {
+            $this->response->withStatus(200);
+            $this->addCorsHeaders();
+            return $this->response;
+        }
+
         try {
             $message = new EventMessage('Расчет стоимости сырья');
             $this->eventDispatcher->trigger(LogContextEvent::ATTACH_CONTEXT, $message);
@@ -82,6 +88,16 @@ class HttpKernel implements HttpKernelInterface
             $this->response->setBody(new Stream($errorsView));
         }
 
+        $this->addCorsHeaders();
+
         return $this->response;
+    }
+
+    private function addCorsHeaders(): void
+    {
+        $this->response->withHeader('Access-Control-Allow-Origin', '*');
+        $this->response->withHeader('Access-Control-Allow-Methods', '*');
+        $this->response->withHeader('Access-Control-Allow-Headers', '*');
+        $this->response->withHeader('Access-Control-Allow-Credentials', 'true');
     }
 }
