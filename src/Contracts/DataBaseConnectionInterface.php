@@ -2,7 +2,7 @@
 
 namespace Craft\Contracts;
 
-use Craft\Components\QueryBuilder\Query;
+use Craft\Components\Database\Query;
 
 interface DataBaseConnectionInterface
 {

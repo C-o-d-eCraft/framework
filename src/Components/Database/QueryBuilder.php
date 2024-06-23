@@ -1,6 +1,6 @@
 <?php
 
-namespace Craft\Components\QueryBuilder;
+namespace Craft\Components\Database;
 
 
 use Craft\Contracts\DataBaseConnectionInterface;
