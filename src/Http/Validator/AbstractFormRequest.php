@@ -14,7 +14,7 @@ abstract class AbstractFormRequest
      *
      * @var array
      */
-    protected array $data;
+    public array $data;
 
     /**
      * Данные запроса.

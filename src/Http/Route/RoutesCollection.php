@@ -101,11 +101,11 @@ class RoutesCollection implements RoutesCollectionInterface
      */
     public function addResource(string $prefix, string $controller, array $middleware = []): void
     {
-        $this->addRoute('GET', "$prefix", "$controller::actionGet", $middleware);
-        $this->addRoute('POST', "$prefix", "$controller::actionPost", $middleware);
-        $this->addRoute('GET', "$prefix/{id}", "$controller::actionGetOne", $middleware);
-        $this->addRoute('PUT', "$prefix/{id}", "$controller::actionUpdate", $middleware);
-        $this->addRoute('DELETE', "$prefix/{id}", "$controller::actionDelete", $middleware);
+        $this->get($prefix, "$controller::actionGet", $middleware);
+        $this->post($prefix, "$controller::actionPost", $middleware);
+        $this->delete($prefix, "$controller::actionDelete", $middleware);
+        $this->put($prefix, "$controller::actionUpdate", $middleware);
+        $this->addRoute('GET', $prefix . '/{id}', "$controller::actionGetOne", $middleware);
     }
 
     /**
