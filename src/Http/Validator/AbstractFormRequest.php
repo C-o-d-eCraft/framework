@@ -4,6 +4,7 @@ namespace Craft\Http\Validator;
 
 
 use Craft\Contracts\RequestInterface;
+use Craft\Http\Exceptions\HttpException;
 use Exception;
 use InvalidArgumentException;
 
@@ -74,16 +75,15 @@ abstract class AbstractFormRequest
 
     /**
      * Возвращает ошибки валидации, строкой.
-     * @return string
+     *
+     * @return void
      */
-    public function getErrorsToString($allErrorsString = ''): string
+    public function getErrorsToString($allErrorsString = ''): void
     {
         foreach ($this->getErrors() as $error) {
             foreach ($error as $errorText) {
-                $allErrorsString .= $errorText . ', ';
+                throw new HttpException($errorText);
             }
         }
-
-        return json_decode($allErrorsString);
     }
 }
