@@ -30,16 +30,16 @@ class HttpErrorHandler implements ErrorHandlerInterface
     public function handle(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
     {
         if (file_exists($this->view->getBasePath() . 'ErrorView.php') === false) {
-            $this->view->setBasePath(__DIR__ . '/../../Http/View');
+            $this->view->setBasePath(__DIR__ . '/../../Http/View/ErrorsTemplate');
         }
 
         $requestContentType = $this->request->getHeaders()['CONTENT-TYPE'] ?? null;
 
-        if ($requestContentType === 'text/html') {
-            return $this->getHttpErrorView($exception, $statusCode, $reasonPhrase);
+        if ($requestContentType === 'application/json' || getenv('RENDER_MODE') === 'SPA') {
+            return $this->getJsonErrorBody($exception, $statusCode, $reasonPhrase);
         }
+        return $this->getHttpErrorView($exception, $statusCode, $reasonPhrase);
 
-        return $this->getJsonErrorBody($exception, $statusCode, $reasonPhrase);
     }
 
     /**
