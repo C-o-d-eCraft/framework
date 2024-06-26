@@ -36,11 +36,7 @@ abstract class AbstractFormRequest
      */
     public function __construct(readonly private RequestInterface $request)
     {
-        $this->data = $this->request->getQueryParams() ?? $this->request->getBodyContents();
-
-        if (in_array($this->request->getMethod(), ["POST", "DELETE"]) === true) {
-            $this->data = $this->request->getBodyContents() ?? $this->request->getQueryParams();
-        }
+        $this->data = $this->request->getParams();
 
         $this->validator = new Validator($this->rules());
     }

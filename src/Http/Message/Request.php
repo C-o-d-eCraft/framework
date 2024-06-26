@@ -253,4 +253,13 @@ class Request extends Message implements RequestInterface
     {
         return array_merge((array) json_decode($this->body->getContents()), $_POST);
     }
+    
+    /** Возвращает параметры из тела и URL вместе
+     * @return array
+     */
+    public function getParams(): array
+    {
+        return array_merge((array) $this->getBodyContents(), $this->getQueryParams());
+    }
+
 }
