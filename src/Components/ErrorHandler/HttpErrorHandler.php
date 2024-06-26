@@ -19,6 +19,7 @@ class HttpErrorHandler implements ErrorHandlerInterface
         private ViewInterface $view,
         private LoggerInterface $logger,
         private readonly RequestInterface $request,
+        private string $customPathToErrorView = ''
     ) { }
 
     /**
@@ -29,7 +30,7 @@ class HttpErrorHandler implements ErrorHandlerInterface
      */
     public function handle(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
     {
-        if (file_exists($this->view->getBasePath() . 'ErrorView.php') === false) {
+        if (file_exists($this->customPathToErrorView) === false) {
             $this->view->setBasePath(__DIR__ . '/../../Http/View/ErrorsTemplate');
         }
 
@@ -38,8 +39,8 @@ class HttpErrorHandler implements ErrorHandlerInterface
         if ($requestContentType === 'application/json' || getenv('RENDER_MODE') === 'SPA') {
             return $this->getJsonErrorBody($exception, $statusCode, $reasonPhrase);
         }
-        return $this->getHttpErrorView($exception, $statusCode, $reasonPhrase);
 
+        return $this->getHttpErrorView($exception, $statusCode, $reasonPhrase);
     }
 
     /**
