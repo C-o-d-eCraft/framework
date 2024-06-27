@@ -23,6 +23,7 @@ class HttpErrorHandler implements ErrorHandlerInterface
      * @param Throwable $exception
      * @param string|null $statusCode
      * @param string|null $reasonPhrase
+     *
      * @return string
      */
     public function handle(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
@@ -42,10 +43,6 @@ class HttpErrorHandler implements ErrorHandlerInterface
         return $this->getHttpErrorView($exception, $statusCode, $reasonPhrase);
     }
 
-    /**
-     * @param Throwable $exception
-     * @return string
-     */
     public function getHttpErrorView(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
     {
         $baseViewName = 'ErrorView';
