@@ -15,6 +15,7 @@ class View implements ViewInterface
 
     /**
      * @param string $basePath
+     *
      * @return void
      */
     public function setBasePath(string $basePath): void
@@ -33,6 +34,7 @@ class View implements ViewInterface
     /**
      * @param string $view
      * @param array $params
+     *
      * @return false|string
      */
     public function render(string $view, array $params = []): false|string

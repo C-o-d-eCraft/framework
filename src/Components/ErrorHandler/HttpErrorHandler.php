@@ -10,16 +10,13 @@ use Throwable;
 
 class HttpErrorHandler implements ErrorHandlerInterface 
 {
-    /**
-     * @param ViewInterface $view
-     * @param LoggerInterface $logger
-     *
-     */
     public function __construct(
         private ViewInterface $view,
         private LoggerInterface $logger,
         private readonly RequestInterface $request,
-        private string $customPathToErrorView = ''
+        private ?string $environmentMode = null,
+        private ?string $customErrorViewPath = null,
+        private ?string $customErrorViewName = null
     ) { }
 
     /**
@@ -30,13 +27,15 @@ class HttpErrorHandler implements ErrorHandlerInterface
      */
     public function handle(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
     {
-        if (file_exists($this->customPathToErrorView) === false) {
-            $this->view->setBasePath(__DIR__ . '/../../Http/View/ErrorsTemplate');
+        $this->view->setBasePath(__DIR__ . '/../../Http/View/ErrorsTemplate');
+
+        if (is_null($this->customErrorViewPath) === false) {
+            $this->view->setBasePath($this->customErrorViewPath);
         }
 
         $requestContentType = $this->request->getHeaders()['CONTENT-TYPE'] ?? null;
 
-        if ($requestContentType === 'application/json' || getenv('RENDER_MODE') === 'SPA') {
+        if ($requestContentType === 'application/json') {
             return $this->getJsonErrorBody($exception, $statusCode, $reasonPhrase);
         }
 
@@ -49,12 +48,18 @@ class HttpErrorHandler implements ErrorHandlerInterface
      */
     public function getHttpErrorView(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
     {
+        $baseViewName = 'ErrorView';
+
+        if (is_null($this->customErrorViewName) === false) {
+            $baseViewName = $this->customErrorViewName;
+        }
+
         $params = [
             'statusCode' => $statusCode ?? $exception->getCode(),
             'reasonPhrase' => $reasonPhrase ?? $exception->getMessage(),
         ];
 
-        if (getenv('ENV') === 'development') {
+        if ($this->environmentMode === 'development') {
             $params = array_merge($params, [
                 'xdebugTag' => defined('X_DEBUG_TAG') ? X_DEBUG_TAG : null,
                 'file' => $exception->getFile(),
@@ -63,7 +68,7 @@ class HttpErrorHandler implements ErrorHandlerInterface
             ]);
         }
 
-        return $this->view->render('ErrorView', $params);
+        return $this->view->render($baseViewName, $params);
     }
 
     public function getJsonErrorBody(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
@@ -73,7 +78,7 @@ class HttpErrorHandler implements ErrorHandlerInterface
             'reasonPhrase' => $reasonPhrase ?? $exception->getMessage(),
         ];
 
-        if (getenv('ENV') === 'development') {
+        if ($this->environmentMode === 'development') {
             $params = array_merge($params, [
                 'xdebugTag' => defined('X_DEBUG_TAG') ? X_DEBUG_TAG : null,
                 'file' => $exception->getFile(),

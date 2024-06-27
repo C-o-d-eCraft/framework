@@ -8,16 +8,11 @@ use Craft\Contracts\LoggerInterface;
 
 class StdoutLogger implements LoggerInterface
 {
-    private LogStateProcessor $logStateProcessor;
-    private string $logFilePath;
-
-    public function __construct()
+    public function __construct(private LogStateProcessor $logStateProcessor, private ?string $logFilePath = null)
     {
         if (empty(getenv('INDEX_NAME'))) {
             throw new \InvalidArgumentException('Не задано имя приложения. Внесите доработку в конфигурацию приложения');
         }
-        
-        $this->logStateProcessor = new LogStateProcessor(getenv('INDEX_NAME'));
 
         $logDir = PROJECT_ROOT . '/runtime/app-logs';
 
