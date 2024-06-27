@@ -49,9 +49,9 @@
     <p><?= htmlspecialchars($xdebugTag ?? '') ?></p>
     <?php if ($environmentMode === 'development'): ?>
         <div class="details">
-            <p><strong>File:</strong> <?= htmlspecialchars($file ?? 'Unknown') ?></p>
-            <p><strong>Line:</strong> <?= htmlspecialchars($line ?? 'Unknown') ?></p>
-            <pre><?= isset($stackTrace) && is_array($stackTrace) ? implode(PHP_EOL, $stackTrace) : 'No stack trace available' ?></pre>
+            <p><strong>File:</strong> <?= htmlspecialchars($file ?? '') ?></p>
+            <p><strong>Line:</strong> <?= htmlspecialchars($line ?? '') ?></p>
+            <pre><?= isset($stackTrace) && is_array($stackTrace) ? implode(PHP_EOL, $stackTrace) : '' ?></pre>
         </div>
     <?php endif; ?>
 </div>
