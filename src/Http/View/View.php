@@ -8,10 +8,7 @@ use InvalidArgumentException;
 
 class View implements ViewInterface
 {
-    /**
-     * @var string
-     */
-    private ?string $basePath = PROJECT_SOURCE_ROOT . 'view/';
+    public function __construct(private ?string $basePath = PROJECT_SOURCE_ROOT . 'view/') { }
 
     /**
      * @param string $basePath

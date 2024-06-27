@@ -57,16 +57,10 @@ class HttpErrorHandler implements ErrorHandlerInterface
         $params = [
             'statusCode' => $statusCode ?? $exception->getCode(),
             'reasonPhrase' => $reasonPhrase ?? $exception->getMessage(),
+            'environmentMode' => $this->environmentMode
         ];
 
-        if ($this->environmentMode === 'development') {
-            $params = array_merge($params, [
-                'xdebugTag' => defined('X_DEBUG_TAG') ? X_DEBUG_TAG : null,
-                'file' => $exception->getFile(),
-                'line' => $exception->getLine(),
-                'stackTrace' => explode(PHP_EOL, $exception->getTraceAsString()),
-            ]);
-        }
+        $params = $this->checkEnvironmentMode($params, $exception);
 
         return $this->view->render($baseViewName, $params);
     }
@@ -78,6 +72,13 @@ class HttpErrorHandler implements ErrorHandlerInterface
             'reasonPhrase' => $reasonPhrase ?? $exception->getMessage(),
         ];
 
+        $params = $this->checkEnvironmentMode($params, $exception);
+
+        return json_encode($params);
+    }
+
+    private function checkEnvironmentMode(array $params, Throwable $exception): array
+    {
         if ($this->environmentMode === 'development') {
             $params = array_merge($params, [
                 'xdebugTag' => defined('X_DEBUG_TAG') ? X_DEBUG_TAG : null,
@@ -87,6 +88,6 @@ class HttpErrorHandler implements ErrorHandlerInterface
             ]);
         }
 
-        return json_encode($params);
+        return $params;
     }
 }
