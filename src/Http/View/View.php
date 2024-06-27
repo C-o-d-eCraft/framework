@@ -8,13 +8,11 @@ use InvalidArgumentException;
 
 class View implements ViewInterface
 {
-    /**
-     * @var string
-     */
-    private ?string $basePath = PROJECT_SOURCE_ROOT . 'view/';
+    public function __construct(private ?string $basePath = PROJECT_SOURCE_ROOT . 'view/') { }
 
     /**
      * @param string $basePath
+     *
      * @return void
      */
     public function setBasePath(string $basePath): void
@@ -33,6 +31,7 @@ class View implements ViewInterface
     /**
      * @param string $view
      * @param array $params
+     *
      * @return false|string
      */
     public function render(string $view, array $params = []): false|string

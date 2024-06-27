@@ -14,6 +14,7 @@ abstract class Message implements MessageInterface
 
     /**
      * @param string $version
+     *
      * @return $this
      */
     abstract public function withProtocolVersion(string $version): static;
@@ -25,18 +26,21 @@ abstract class Message implements MessageInterface
 
     /**
      * @param string $name
+     *
      * @return bool
      */
     abstract public function hasHeader(string $name): bool;
 
     /**
      * @param string $name
+     *
      * @return array|string[]
      */
     abstract public function getHeader(string $name): array;
 
     /**
      * @param string $name
+     *
      * @return string
      */
     abstract public function getHeaderLine(string $name): string;
@@ -44,6 +48,7 @@ abstract class Message implements MessageInterface
     /**
      * @param string $name
      * @param array|string $value
+     *
      * @return $this
      */
     abstract public function withHeader(string $name, array|string $value): static;
@@ -51,12 +56,14 @@ abstract class Message implements MessageInterface
     /**
      * @param string $name
      * @param array|string $value
+     *
      * @return $this
      */
     abstract public function withAddedHeader(string $name, array|string $value): static;
 
     /**
      * @param string $name
+     *
      * @return $this
      */
     abstract public function withoutHeader(string $name): static;
@@ -68,6 +75,7 @@ abstract class Message implements MessageInterface
 
     /**
      * @param StreamInterface $body
+     *
      * @return $this
      */
     abstract public function withBody(StreamInterface $body): static;

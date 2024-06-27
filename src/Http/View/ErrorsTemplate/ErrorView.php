@@ -44,14 +44,16 @@
 </head>
 <body>
 <div class="container">
-    <h1>Error <?= $statusCode ?></h1>
-    <p><?= $reasonPhrase ?></p>
-    <p><?= $xdebugTag ?></p>
-    <div class="details">
-        <p><strong>File:</strong> <?= $file ?></p>
-        <p><strong>Line:</strong> <?= $line ?></p>
-        <pre><?= implode(PHP_EOL, $stackTrace) ?></pre>
-    </div>
+    <h1>Error <?= htmlspecialchars($statusCode ?? '') ?></h1>
+    <p><?= htmlspecialchars($reasonPhrase ?? '') ?></p>
+    <p><?= htmlspecialchars($xdebugTag ?? '') ?></p>
+    <?php if ($environmentMode === 'development'): ?>
+        <div class="details">
+            <p><strong>File:</strong> <?= htmlspecialchars($file ?? 'Unknown') ?></p>
+            <p><strong>Line:</strong> <?= htmlspecialchars($line ?? 'Unknown') ?></p>
+            <pre><?= isset($stackTrace) && is_array($stackTrace) ? implode(PHP_EOL, $stackTrace) : 'No stack trace available' ?></pre>
+        </div>
+    <?php endif; ?>
 </div>
 </body>
 </html>

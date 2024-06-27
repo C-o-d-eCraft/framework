@@ -56,6 +56,7 @@ class Response extends Message implements ResponseInterface
 
     /**
      * @param string $name
+     *
      * @return bool
      */
     public function hasHeader(string $name): bool
@@ -65,6 +66,7 @@ class Response extends Message implements ResponseInterface
 
     /**
      * @param string $name
+     *
      * @return array|string[]
      */
     public function getHeader(string $name): array
@@ -98,6 +100,7 @@ class Response extends Message implements ResponseInterface
 
     /**
      * @param StreamInterface $body
+     *
      * @return void
      */
     public function setBody(StreamInterface $body): void
@@ -107,6 +110,7 @@ class Response extends Message implements ResponseInterface
 
     /**
      * @param int $statusCode
+     *
      * @return void
      */
     public function setStatusCode(int $statusCode): void
@@ -116,6 +120,7 @@ class Response extends Message implements ResponseInterface
 
     /**
      * @param string $reasonPhrase
+     *
      * @return void
      */
     public function setReasonPhrase(string $reasonPhrase): void
@@ -126,6 +131,7 @@ class Response extends Message implements ResponseInterface
     /**
      * @param array|string $name
      * @param array|string $value
+     *
      * @return void
      */
     public function setHeaders(array|string $name, array|string $value = []): void
@@ -136,6 +142,7 @@ class Response extends Message implements ResponseInterface
     /**
      * @param string $name
      * @param array|string $value
+     *
      * @return $this
      */
     public function withAddedHeader(string $name, array|string $value): static
@@ -149,6 +156,7 @@ class Response extends Message implements ResponseInterface
     /**
      * @param int $code
      * @param string $reasonPhrase
+     *
      * @return $this
      */
     public function withStatus(int $code, string $reasonPhrase = ''): static
@@ -169,6 +177,7 @@ class Response extends Message implements ResponseInterface
 
     /**
      * @param string $version
+     *
      * @return $this
      */
     public function withProtocolVersion(string $version): static
@@ -182,6 +191,7 @@ class Response extends Message implements ResponseInterface
     /**
      * @param string $name
      * @param array|string $value
+     *
      * @return $this
      */
     public function withHeader(string $name, array|string $value): static
@@ -197,6 +207,7 @@ class Response extends Message implements ResponseInterface
 
     /**
      * @param string $name
+     *
      * @return $this
      */
     public function withoutHeader(string $name): static
@@ -209,6 +220,7 @@ class Response extends Message implements ResponseInterface
 
     /**
      * @param string $name
+     *
      * @return string
      */
     public function getHeaderLine(string $name): string
@@ -228,6 +240,7 @@ class Response extends Message implements ResponseInterface
 
     /**
      * @param StreamInterface $body
+     *
      * @return $this
      */
     public function withBody(StreamInterface $body): static

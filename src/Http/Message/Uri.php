@@ -135,6 +135,7 @@ class Uri implements UriInterface
 
     /**
      * @param array $param
+     *
      * @return void
      */
     public function addQueryParams(array $param): void
@@ -180,6 +181,7 @@ class Uri implements UriInterface
 
     /**
      * @param string $host
+     *
      * @return $this
      */
     public function withHost(string $host): static
@@ -193,6 +195,7 @@ class Uri implements UriInterface
 
     /**
      * @param string $scheme
+     *
      * @return $this
      */
     public function withScheme(string $scheme): static
@@ -206,6 +209,7 @@ class Uri implements UriInterface
 
     /**
      * @param int|null $port
+     *
      * @return $this
      */
     public function withPort(?int $port): static
@@ -219,6 +223,7 @@ class Uri implements UriInterface
 
     /**
      * @param string $path
+     *
      * @return $this
      */
     public function withPath(string $path): static
@@ -232,6 +237,7 @@ class Uri implements UriInterface
 
     /**
      * @param string $query
+     *
      * @return $this
      */
     public function withQuery(string $query): static
@@ -245,6 +251,7 @@ class Uri implements UriInterface
 
     /**
      * @param string $fragment
+     *
      * @return $this
      */
     public function withFragment(string $fragment): static
@@ -271,8 +278,6 @@ class Uri implements UriInterface
     }
 
     /**
-     * заглушка
-     *
      * @return string
      */
     public function getUserInfo(): string
@@ -281,10 +286,9 @@ class Uri implements UriInterface
     }
 
     /**
-     *  заглушка
-     *
      * @param string $user
      * @param string|null $password
+     *
      * @return $this
      */
     public function withUserInfo(string $user, string $password = null): static

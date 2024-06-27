@@ -42,12 +42,11 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
         private readonly LoggerInterface  $logger,
         private readonly CliErrorHandler  $errorHandler,
         private readonly array            $plugins,
-
-    )
-    { }
+    ) { }
 
     /**
      * @param array $commandNameSpaces
+     *
      * @return void
      */
     public function registerCommandNamespaces(array $commandNameSpaces): void
@@ -66,6 +65,7 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
 
     /**
      * @param int $exitStatus
+     *
      * @return void
      */
     #[NoReturn] public function terminate(int $exitStatus): void
@@ -219,6 +219,7 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
 
     /**
      * @param EventMessage|null $message
+     *
      * @return void
      */
     public function update(?EventMessage $message = null): void

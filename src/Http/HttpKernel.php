@@ -41,13 +41,14 @@ class HttpKernel implements HttpKernelInterface
      */
     public function handle(RequestInterface $request): ResponseInterface
     {
-        try {
-            $message = new EventMessage('Расчет стоимости сырья');
-            $this->eventDispatcher->trigger(LogContextEvent::ATTACH_CONTEXT, $message);
-            
-            $this->logger->info('Запуск контроллера');
+        if ($this->request->getMethod() === 'OPTIONS') {
+            $this->response->withStatus(200);
+            $this->addCorsHeaders();
+            return $this->response;
+        }
 
-            $this->eventDispatcher->trigger(LogContextEvent::FLUSH_CONTEXT);
+        try {
+            $this->logger->info('Запуск контроллера');
             
             $this->response = $this->router->dispatch($this->request);
 
@@ -68,7 +69,7 @@ class HttpKernel implements HttpKernelInterface
 
             $this->logger->error($e->getMessage(), ['exception' => $e], explode(PHP_EOL, $e->getTraceAsString()));
 
-            $errorsView = $this->container->call(HttpErrorHandler::class, 'handle', [$e]);
+            $errorsView = $this->container->call($this->errorHandler, 'handle', [$e]);
 
             $this->response->setBody(new Stream($errorsView));
         } catch (Throwable $e) {
@@ -82,6 +83,16 @@ class HttpKernel implements HttpKernelInterface
             $this->response->setBody(new Stream($errorsView));
         }
 
+        $this->addCorsHeaders();
+
         return $this->response;
+    }
+
+    private function addCorsHeaders(): void
+    {
+        $this->response->withHeader('Access-Control-Allow-Origin', '*');
+        $this->response->withHeader('Access-Control-Allow-Methods', '*');
+        $this->response->withHeader('Access-Control-Allow-Headers', '*');
+        $this->response->withHeader('Access-Control-Allow-Credentials', 'true');
     }
 }

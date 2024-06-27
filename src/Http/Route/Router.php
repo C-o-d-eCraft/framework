@@ -42,8 +42,6 @@ readonly class Router implements RouterInterface
             if ($route->route === $path && $route->method === $method) {
                 $this->processMiddlewares($route->middlewares);
 
-                $this->validateParams($route->params);
-
                 [$controllerNameSpace, $action] = explode('::', $route->controllerAction);
 
                 $controller = $this->container->make($controllerNameSpace);
@@ -56,41 +54,14 @@ readonly class Router implements RouterInterface
     }
 
     /**
-     * @param $params
-     * @return void
-     * @throws HttpException
-     */
-    private function validateParams($params): void
-    {
-        if (empty($params[0]) && empty($this->request->getUri()->getQueryParams())) {
-            return;
-        }
-
-        foreach ($params as $param) {
-            $paramName = $this->request->getUri()->getQueryParams()[$param['name']];
-
-            if ($param['required'] && (empty($paramName))) {
-                throw new HttpException("Обязательный параметр {$param['name']} отсутствует");
-            }
-
-            if ((isset($paramName )) === false) {
-                $this->request->getUri()->addQueryParams([$param['name'] => $param['defaultValue']]);
-            }
-
-            if ($param['type'] === 'numeric' && (is_numeric($paramName )) === false) {
-                throw new HttpException("Параметр {$param['name']} должен быть числом");
-            }
-        }
-    }
-
-    /**
      * @param array $middlewares
+     *
      * @return void
      * @throws ReflectionException
      */
     private function processMiddlewares(array $middlewares): void
     {
-        if (empty($middlewares) === true) {
+        if (empty($middlewares)) {
             return;
         }
 

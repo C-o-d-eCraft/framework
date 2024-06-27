@@ -2,15 +2,11 @@
 
 namespace Craft\Components\ErrorHandler;
 
-use Craft\Contracts\LoggerInterface;
 use Throwable;
 
 class CliErrorHandler
 {
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function __construct(private LoggerInterface $logger) { }
+    public function __construct(private ?string $environmentMode = null) { }
 
     /**
      * @param Throwable $exception
@@ -24,7 +20,7 @@ class CliErrorHandler
             'reasonPhrase' => $reasonPhrase ?? $exception->getMessage(),
         ];
 
-        if (getenv('ENV') === 'development') {
+        if ($this->environmentMode === 'development') {
             $params = array_merge($params, [
                 'xdebugTag' => defined('X_DEBUG_TAG') ? X_DEBUG_TAG : null,
                 'file' => $exception->getFile(),

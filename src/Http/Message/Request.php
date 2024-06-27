@@ -65,6 +65,7 @@ class Request extends Message implements RequestInterface
 
     /**
      * @param mixed $requestTarget
+     *
      * @return $this
      */
     public function withRequestTarget(mixed $requestTarget): static
@@ -82,6 +83,7 @@ class Request extends Message implements RequestInterface
 
     /**
      * @param string $method
+     *
      * @return $this
      */
     public function withMethod(string $method): static
@@ -103,6 +105,7 @@ class Request extends Message implements RequestInterface
     /**
      * @param UriInterface $uri
      * @param bool $preserveHost
+     *
      * @return $this
      */
     public function withUri(UriInterface $uri, bool $preserveHost = false): static
@@ -127,6 +130,7 @@ class Request extends Message implements RequestInterface
 
     /**
      * @param string $version
+     *
      * @return $this
      */
     public function withProtocolVersion(string $version): static
@@ -147,6 +151,7 @@ class Request extends Message implements RequestInterface
 
     /**
      * @param string $name
+     *
      * @return bool
      */
     public function hasHeader(string $name): bool
@@ -156,6 +161,7 @@ class Request extends Message implements RequestInterface
 
     /**
      * @param string $name
+     *
      * @return array|string[]
      */
     public function getHeader(string $name): array
@@ -165,6 +171,7 @@ class Request extends Message implements RequestInterface
 
     /**
      * @param string $name
+     *
      * @return string
      */
     public function getHeaderLine(string $name): string
@@ -183,6 +190,7 @@ class Request extends Message implements RequestInterface
     /**
      * @param string $name
      * @param array|string $value
+     *
      * @return $this
      */
     public function withHeader(string $name, array|string $value): static
@@ -197,6 +205,7 @@ class Request extends Message implements RequestInterface
     /**
      * @param string $name
      * @param array|string $value
+     *
      * @return $this
      */
     public function withAddedHeader(string $name, array|string $value): static
@@ -209,6 +218,7 @@ class Request extends Message implements RequestInterface
 
     /**
      * @param string $name
+     *
      * @return $this
      */
     public function withoutHeader(string $name): static
@@ -229,6 +239,7 @@ class Request extends Message implements RequestInterface
 
     /**
      * @param StreamInterface $body
+     *
      * @return $this
      */
     public function withBody(StreamInterface $body): static
@@ -252,5 +263,13 @@ class Request extends Message implements RequestInterface
     public function getBodyContents(): array
     {
         return array_merge((array) json_decode($this->body->getContents()), $_POST);
+    }
+    
+    /** Возвращает параметры из тела и URL вместе
+     * @return array
+     */
+    public function getParams(): array
+    {
+        return array_merge((array) $this->getBodyContents(), $this->getQueryParams());
     }
 }

@@ -1,19 +1,17 @@
 <?php
 
-namespace Craft\Components\QueryBuilder;
-
+namespace Craft\Components\Database;
 
 use Craft\Contracts\DataBaseConnectionInterface;
 use PDO;
 use PDOException;
-
 
 class QueryBuilder implements DataBaseConnectionInterface
 {
     /**
      * @var PDO
      */
-    public  PDO $pdo;
+    public PDO $pdo;
 
     /**
      * @param array $config
@@ -40,6 +38,7 @@ class QueryBuilder implements DataBaseConnectionInterface
 
     /**
      * @param Query $query
+     *
      * @return array
      */
     public function select(Query $query): array
@@ -49,6 +48,7 @@ class QueryBuilder implements DataBaseConnectionInterface
 
     /**
      * @param Query $query
+     *
      * @return array
      */
     public function selectColumn(Query $query): array
@@ -58,6 +58,7 @@ class QueryBuilder implements DataBaseConnectionInterface
 
     /**
      * @param Query $query
+     *
      * @return mixed
      */
     public function selectScalar(Query $query): mixed
@@ -69,6 +70,7 @@ class QueryBuilder implements DataBaseConnectionInterface
      * @param string $table
      * @param array $data
      * @param array $condition
+     *
      * @return int
      */
     public function update(string $table, array $data, array $condition): int
@@ -103,6 +105,7 @@ class QueryBuilder implements DataBaseConnectionInterface
     /**
      * @param string $table
      * * @param array $data
+     *
      * @return int
      */
     public function insert(string $table, array $data): int
@@ -112,6 +115,7 @@ class QueryBuilder implements DataBaseConnectionInterface
         $placeholders = ':' . implode(', :', $keys);
 
         $params = [];
+
         foreach ($data as $key => $value) {
             if ($value instanceof Query === true) {
                 $params[$key] = '(' . $value->build() . ')';
@@ -136,12 +140,14 @@ class QueryBuilder implements DataBaseConnectionInterface
     /**
      * @param string $table
      * @param array $condition
+     *
      * @return int
      */
     public function delete(string $table, array $condition): int
     {
         $where = [];
         $params = [];
+
         foreach ($condition as $key => $value) {
             if ($value instanceof Query) {
                 $where[] = "$key = (" . $value->build() . ")";
@@ -163,6 +169,7 @@ class QueryBuilder implements DataBaseConnectionInterface
     /**
      * @param string $query
      * @param array $params
+     *
      * @return string
      */
     private function interpolateQuery(string $query, array $params): string
@@ -189,9 +196,7 @@ class QueryBuilder implements DataBaseConnectionInterface
         }
 
         $query = preg_replace($keys, $values, $query, 1);
+
         return $query;
     }
-
 }
-
-
