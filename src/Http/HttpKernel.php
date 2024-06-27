@@ -48,12 +48,7 @@ class HttpKernel implements HttpKernelInterface
         }
 
         try {
-            $message = new EventMessage('Расчет стоимости сырья');
-            $this->eventDispatcher->trigger(LogContextEvent::ATTACH_CONTEXT, $message);
-            
             $this->logger->info('Запуск контроллера');
-
-            $this->eventDispatcher->trigger(LogContextEvent::FLUSH_CONTEXT);
             
             $this->response = $this->router->dispatch($this->request);
 
@@ -74,7 +69,7 @@ class HttpKernel implements HttpKernelInterface
 
             $this->logger->error($e->getMessage(), ['exception' => $e], explode(PHP_EOL, $e->getTraceAsString()));
 
-            $errorsView = $this->container->call(HttpErrorHandler::class, 'handle', [$e]);
+            $errorsView = $this->container->call($this->errorHandler, 'handle', [$e]);
 
             $this->response->setBody(new Stream($errorsView));
         } catch (Throwable $e) {

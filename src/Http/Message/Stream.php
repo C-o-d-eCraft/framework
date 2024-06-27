@@ -74,6 +74,7 @@ class Stream implements StreamInterface
             $resource = $this->resource;
             $this->resource = null;
             $this->closed = true;
+            
             return $resource;
         }
 
@@ -249,6 +250,7 @@ class Stream implements StreamInterface
 
     /**
      * @param string|null $key
+     *
      * @return mixed
      */
     public function getMetadata(string $key = null): mixed
@@ -266,6 +268,7 @@ class Stream implements StreamInterface
      * Проверяет, содержится ли указанный режим в текущем режиме потока
      *
      * @param string $mode Режим для проверки
+     *
      * @return bool
      */
     private function hasMode(string $mode): bool

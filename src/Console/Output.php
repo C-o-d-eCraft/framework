@@ -18,6 +18,7 @@ class Output implements OutputInterface
 
     /**
      * @param string $message
+     *
      * @return void
      */
     public function setMessage(string $message): void
@@ -43,6 +44,7 @@ class Output implements OutputInterface
 
     /**
      * @param int $statusCode
+     *
      * @return void
      */
     public function setStatusCode(int $statusCode): void
@@ -52,6 +54,7 @@ class Output implements OutputInterface
 
     /**
      * @param string $result
+     *
      * @return void
      */
     public function stdout(string $result): void
@@ -61,6 +64,7 @@ class Output implements OutputInterface
 
     /**
      * @param string $result
+     *
      * @return void
      */
     public function info(string $result): void
@@ -70,6 +74,7 @@ class Output implements OutputInterface
 
     /**
      * @param string $result
+     *
      * @return void
      */
     public function warning(string $result): void
@@ -79,6 +84,7 @@ class Output implements OutputInterface
 
     /**
      * @param string $result
+     *
      * @return void
      */
     public function success(string $result): void
@@ -88,6 +94,7 @@ class Output implements OutputInterface
 
     /**
      * @param string $result
+     *
      * @return void
      */
     public function primary(string $result): void

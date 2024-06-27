@@ -15,6 +15,7 @@ class EventDispatcher implements EventDispatcherInterface
     /**
      * @param string $event
      * @param ObserverInterface $observer
+     *
      * @return void
      */
     public function attach(string $event, ObserverInterface $observer): void
@@ -28,6 +29,7 @@ class EventDispatcher implements EventDispatcherInterface
 
     /**
      * @param string $event
+     *
      * @return void
      */
     public function detach(string $event): void
@@ -38,6 +40,7 @@ class EventDispatcher implements EventDispatcherInterface
     /**
      * @param string $event
      * @param Message|null $message
+     *
      * @return void
      */
     public function trigger(string $event, EventMessage $message = null): void

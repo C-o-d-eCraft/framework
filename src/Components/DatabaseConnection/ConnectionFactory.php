@@ -10,6 +10,7 @@ class ConnectionFactory implements ConnectionFactoryInterface
 {
     /**
      * @param array $config
+     *
      * @return DataBaseConnectionInterface
      */
     public function createConnection(array $config): DataBaseConnectionInterface

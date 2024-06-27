@@ -16,6 +16,7 @@ readonly class OptionsConfirm implements ObserverInterface
 
     /**
      * @param EventMessage|null $message
+     *
      * @return void
      */
     public function update(?EventMessage $message = null): void

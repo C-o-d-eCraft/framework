@@ -2,18 +2,6 @@
 
 namespace Craft\Contracts;
 
-/**
- * HTTP messages consist of requests from a client to a server and responses
- * from a server to a client. This interface defines the methods common to
- * each.
- *
- * Messages are considered immutable; all methods that might change state MUST
- * be implemented such that they retain the internal state of the current
- * message and return an instance that contains the changed state.
- *
- * @see http://www.ietf.org/rfc/rfc7230.txt
- * @see http://www.ietf.org/rfc/rfc7231.txt
- */
 interface MessageInterface
 {
     /**
@@ -35,6 +23,7 @@ interface MessageInterface
      * new protocol version.
      *
      * @param string $version HTTP protocol version
+     *
      * @return static
      */
     public function withProtocolVersion(string $version): static;

@@ -55,6 +55,7 @@ readonly class Router implements RouterInterface
 
     /**
      * @param array $middlewares
+     *
      * @return void
      * @throws ReflectionException
      */
