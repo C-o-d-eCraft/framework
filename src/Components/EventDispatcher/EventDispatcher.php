@@ -43,7 +43,7 @@ class EventDispatcher implements EventDispatcherInterface
      *
      * @return void
      */
-    public function trigger(string $event, EventMessage $message = null): void
+    public function trigger(string $event, mixed $message = null): void
     {
         if (isset($this->observers[$event]) === false) {
             return;

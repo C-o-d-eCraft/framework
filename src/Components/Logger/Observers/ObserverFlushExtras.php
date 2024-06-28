@@ -11,11 +11,11 @@ class ObserverFlushExtras implements ObserverInterface
     public function __construct(private LogStorageDTO $storage) { }
 
     /**
-     * @param EventMessage|null $message
+     * @param EventMessage|string|null $message
      * @return void
      */
-    public function update(?EventMessage $message = null): void
+    public function update(EventMessage|string $message = null): void
     {
-        $this->storage->extras = [];
+        $this->storage->extras = null;
     }
 }

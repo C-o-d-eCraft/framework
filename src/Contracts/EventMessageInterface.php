@@ -5,7 +5,7 @@ namespace Craft\Contracts;
 interface EventMessageInterface
 {
     /**
-     * @return mixed
+     * @return void
      */
-    function getMessage(): mixed;
+    function setMessage(mixed $message): void;
 }

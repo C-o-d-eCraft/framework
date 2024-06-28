@@ -11,13 +11,22 @@ class ObserverAttachContext implements ObserverInterface
     public function __construct(private LogStorageDTO $storage) { }
 
     /**
-     * @param EventMessage|null $message
+     * @param mixed $message
      * @return void
      */
-    public function update(?EventMessage $message = null): void 
+    public function update(mixed $message = null): void
     {
-        if ($message) {
-            $this->storage->context = json_encode($message->getMessage(), JSON_UNESCAPED_UNICODE);
+        if (is_null($message)) {
+            return;
         }
+
+        $newContext = $message->getMessage();
+
+        if ($this->storage->context === null) {
+            $this->storage->context = $newContext;
+            return;
+        }
+
+        $this->storage->context .= ':' . $newContext;
     }
 }

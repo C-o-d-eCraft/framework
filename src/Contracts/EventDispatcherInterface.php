@@ -33,5 +33,5 @@ interface EventDispatcherInterface
      *
      * @return void
      */
-    public function trigger(string $event, EventMessage|null $message): void;
+    public function trigger(string $event, mixed $message): void;
 }
