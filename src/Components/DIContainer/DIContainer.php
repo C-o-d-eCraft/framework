@@ -35,13 +35,12 @@ class DIContainer implements ContainerInterface
      * Создает экземпляр класса DIContainer
      *
      * @param array $config Массив конфигурации
-     *
      * @return DIContainer Экземпляр класса DIContainer
      */
     public static function createContainer(array $config = []): self
     {
         if (empty(self::$instance) === false) {
-            throw new LogicException('Контейнер уже инициализирован!');
+            return self::$instance;
         }
 
         return self::$instance = new self($config);
@@ -64,13 +63,16 @@ class DIContainer implements ContainerInterface
      * Создание экземпляра объекта в зависимости от имени класса
      *
      * @param string $dependencyName Имя зависимости, для которой нужно создать объект
-     *
      * @return object Возвращает экземпляр объекта в зависимости от имени класса
      * @throws InvalidArgumentException Если класс не существует
      * @throws ReflectionException Если экземпляр класса не может быть создан
      */
     public function build(string $dependencyName): object
     {
+        if ($dependencyName === self::class) {
+            return $this;
+        }
+
         $className = $this->config[$dependencyName] ?? $dependencyName;
 
         if (is_callable($className) === true) {
@@ -111,7 +113,6 @@ class DIContainer implements ContainerInterface
      * Создает экземпляр класса, реализующего указанный интерфейс, и сохраняет его в качестве синглтона.
      *
      * @param string $contract Имя контракта
-     *
      * @return object Экземпляр класса, реализующего указанный интерфейс и сохраненный в качестве синглтона
      * @throws ReflectionException Если экземпляр класса не может быть создан
      * @throws Exception Если зависимость для указанного контракта не задана в конфигурационном файле
@@ -130,7 +131,6 @@ class DIContainer implements ContainerInterface
      *
      * @param callable|object$handler Обработчик
      * @param string $method Имя метода
-     *
      * @return mixed Результат выполнения обработчика
      * @throws InvalidArgumentException Если при вызове метода класса не передано имя метода
      * @throws ReflectionException Если не удается создать экземпляр класса или получить информацию о методе или функции
@@ -160,7 +160,6 @@ class DIContainer implements ContainerInterface
 
     /**
      * @param array $parameters
-     *
      * @return array
      * @throws ReflectionException
      */
@@ -193,7 +192,6 @@ class DIContainer implements ContainerInterface
      * Проверяет наличие контракта в конфигурации.
      *
      * @param string $contract Имя контракта
-     *
      * @return bool Возвращает true, если контракт существует в конфигурации
      */
     public function has(string $contract): bool
