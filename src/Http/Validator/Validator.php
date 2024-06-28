@@ -32,7 +32,9 @@ class Validator
         [$attributes, $ruleName, $params] = array_pad($rule, 3, []);
 
         if (is_callable($ruleName)) {
-            $ruleName();
+            foreach ((array)$attributes as $attribute) {
+                $ruleName($this->data[$attribute] ?? null, $attribute);
+            }
             return;
         }
 
@@ -53,13 +55,8 @@ class Validator
 
     protected function validateAttributes(array|string $attributes, ValidationRuleInterface $ruleClass, array $params): void
     {
-        if (is_array($attributes) === true) {
-            foreach ($attributes as $attribute) {
-                $ruleClass->validate($attribute, $this->data[$attribute] ?? null, $params, $this);
-            }
-        }
-        if (is_array($attributes) === false) {
-            $ruleClass->validate($attributes, $this->data[$attributes] ?? null, $params, $this);
+        foreach ((array)$attributes as $attribute) {
+            $ruleClass->validate($attribute, $this->data[$attribute] ?? null, $params, $this);
         }
     }
 
