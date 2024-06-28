@@ -5,6 +5,13 @@
 Формат основан на [стандарте формата CHANGELOG](https://keepachangelog.com/en/1.0.0/),
 и придерживается [правил версионирования](https://semver.org/spec/v2.0.0.html).
 
+## [ [0.3.2](https://github.com/C-o-d-eCraft/framework/releases/tag/0.3.2) ] - 28.06.2024
+- Реализовано:
+  - Хранилище xDebugTag
+- Изменено:
+  - xDebugTag генератор
+  - логирование
+
 ## [ [0.3.1](https://github.com/C-o-d-eCraft/framework/releases/tag/0.3.1) ] - 20.06.2024
 - Исправлено:
   - Исправлена запись трейса при ошибке
