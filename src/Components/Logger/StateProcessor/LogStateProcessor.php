@@ -49,7 +49,7 @@ class LogStateProcessor implements LogStateProcessorInterface
      * @return object|LogStorageDTO
      * @throws \Exception
      */
-    public function process(string $level, string $message): object
+    public function process(string $level, mixed $message): object
     {
         $this->validateSetUp();
 
@@ -57,10 +57,8 @@ class LogStateProcessor implements LogStateProcessorInterface
 
         $this->storage->message = $message;
 
-        $this->storage->level = $level;
-
         if (
-            $this->storage->message instanceof Exception
+            $this->storage->message instanceof \Exception
             ||
             (class_exists(\Error::class) && $this->storage->message instanceof \Error)
         ) {
@@ -71,6 +69,9 @@ class LogStateProcessor implements LogStateProcessorInterface
                 'trace' => explode(PHP_EOL, $this->storage->message->getTraceAsString()),
             ];
         }
+
+        $this->storage->level = $level;
+
 
         $utcDate = new DateTime('now', new DateTimeZone('UTC'));
 

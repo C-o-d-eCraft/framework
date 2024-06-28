@@ -4,12 +4,12 @@ namespace Craft\Contracts;
 
 interface LoggerInterface
 {
-    public function emergency(string $message): void;
-    public function alert(string $message): void;
-    public function critical(string $message): void;
-    public function error(string $message): void;
-    public function warning(string $message): void;
-    public function notice(string $message): void;
-    public function info(string $message): void;
-    public function debug(string $message): void;
+    public function emergency(mixed $message): void;
+    public function alert(mixed $message): void;
+    public function critical(mixed $message): void;
+    public function error(mixed $message): void;
+    public function warning(mixed $message): void;
+    public function notice(mixed $message): void;
+    public function info(mixed $message): void;
+    public function debug(mixed $message): void;
 }

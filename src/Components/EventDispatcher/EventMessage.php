@@ -9,7 +9,7 @@ class EventMessage implements EventMessageInterface
     /**
      * @param array $message
      */
-    public function __construct(private mixed $message = null) { }
+    public function __construct(public mixed $message = null) { }
 
     /**
      * @return array

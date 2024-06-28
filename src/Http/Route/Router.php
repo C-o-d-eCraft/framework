@@ -3,6 +3,10 @@
 namespace Craft\Http\Route;
 
 use Craft\Components\DIContainer\DIContainer;
+use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Components\Logger\StateProcessor\LogContextEvent;
+use Craft\Contracts\EventDispatcherInterface;
+use Craft\Contracts\EventMessageInterface;
 use Craft\Contracts\MiddlewareInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ResponseInterface;
@@ -24,7 +28,9 @@ readonly class Router implements RouterInterface
         private DIContainer               $container,
         private RoutesCollectionInterface $routesCollection,
         private MiddlewareInterface       $middleware,
-        private RequestInterface          $request
+        private RequestInterface          $request,
+        private EventMessageInterface     $eventMessage,
+        private EventDispatcherInterface  $eventDispatcher
     ) { }
 
     /**
@@ -46,7 +52,9 @@ readonly class Router implements RouterInterface
 
                 $controller = $this->container->make($controllerNameSpace);
 
-                return $this->container->call($controllerNameSpace, $action);
+                $this->eventMessage->setMessage('Расчет стоимости сырья');
+
+                return $this->container->call($controllerNameSpace, $action, [$this->eventDispatcher->trigger(LogContextEvent::ATTACH_CONTEXT, $this->eventMessage)]);
             }
         }
 

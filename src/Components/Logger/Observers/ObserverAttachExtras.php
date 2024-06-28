@@ -16,12 +16,14 @@ class ObserverAttachExtras implements ObserverInterface
      */
     public function update(EventMessage|string $message = null): void
     {
-        if (is_null($message) === true) {
+        if ($message === null) {
             return;
         }
-
-        if (is_array($this->storage->extras)) {
-            $this->storage->extras[] = json_encode($message->getMessage(), JSON_UNESCAPED_UNICODE);
+        
+        if ($this->storage->extras === null) {
+            $this->storage->extras = [];
         }
+
+        $this->storage->extras[] = $message->getMessage();
     }
 }

@@ -25,47 +25,47 @@ class StdoutLogger implements LoggerInterface
         }
     }
 
-    public function emergency(string $message): void
+    public function emergency(mixed $message): void
     {
         $this->log(LogLevel::EMERGENCY->value, $message);
     }
 
-    public function alert(string $message): void
+    public function alert(mixed $message): void
     {
         $this->log(LogLevel::ALERT->value, $message);
     }
 
-    public function critical(string $message): void
+    public function critical(mixed $message): void
     {
         $this->log(LogLevel::CRITICAL->value, $message);
     }
 
-    public function error(string $message): void
+    public function error(mixed $message): void
     {
         $this->log(LogLevel::ERROR->value, $message);
     }
 
-    public function warning(string $message): void
+    public function warning(mixed $message): void
     {
         $this->log(LogLevel::WARNING->value, $message);
     }
 
-    public function notice(string $message): void
+    public function notice(mixed $message): void
     {
         $this->log(LogLevel::NOTICE->value, $message);
     }
 
-    public function info(string $message): void
+    public function info(mixed $message): void
     {
         $this->log(LogLevel::INFO->value, $message);
     }
 
-    public function debug(string $message): void
+    public function debug(mixed $message): void
     {
         $this->log(LogLevel::DEBUG->value, $message);
     }
 
-    private function log(string $level, string $message): void
+    private function log(string $level, mixed $message): void
     {
         $logMessage = $this->formatMessage($level, $message);
 
@@ -73,19 +73,19 @@ class StdoutLogger implements LoggerInterface
         $this->writeLogToStdout($logMessage);
     }
 
-    private function formatMessage(string $level, string $message): string
+    private function formatMessage(string $level, mixed $message): string
     {
         $loggingState = $this->logStateProcessor->process($level, $message);
 
         return json_encode((array)$loggingState, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
 
-    private function writeLogToFile(string $logMessage): void
+    private function writeLogToFile(mixed $logMessage): void
     {
         file_put_contents($this->logFilePath, $logMessage . PHP_EOL, FILE_APPEND);
     }
 
-    private function writeLogToStdout(string $logMessage): void
+    private function writeLogToStdout(mixed $logMessage): void
     {
         $fileHandle = fopen('php://stdout', 'w');
 

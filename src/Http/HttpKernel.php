@@ -65,7 +65,7 @@ class HttpKernel implements HttpKernelInterface
             $this->response->withStatus($e->getCode());
             $this->response->setReasonPhrase($e->getMessage());
 
-            $this->logger->error($e->getMessage());
+            $this->logger->error($e);
 
             $errorsView = $this->container->call($this->errorHandler, 'handle', [$e]);
 
@@ -74,7 +74,7 @@ class HttpKernel implements HttpKernelInterface
             $this->response->withStatus(StatusCodeEnum::INTERNAL_SERVER_ERROR);
             $this->response->setReasonPhrase(MessageEnum::INTERNAL_SERVER_ERROR);
 
-            $this->logger->critical($e->getMessage());
+            $this->logger->critical($e);
 
             $errorsView = $this->container->call(HttpErrorHandler::class, 'handle', [$e]);
 

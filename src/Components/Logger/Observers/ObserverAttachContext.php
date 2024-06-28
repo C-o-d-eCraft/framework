@@ -20,15 +20,13 @@ class ObserverAttachContext implements ObserverInterface
             return;
         }
 
-        // Преобразуем текущее сообщение в строку
         $newContext = $message->getMessage();
 
-        // Проверяем, существует ли уже контекст
         if ($this->storage->context === null) {
             $this->storage->context = $newContext;
-        } else {
-            // Если существует, добавляем новый контекст с разделителем
-            $this->storage->context .= ':' . $newContext;
+            return;
         }
+
+        $this->storage->context .= ':' . $newContext;
     }
 }

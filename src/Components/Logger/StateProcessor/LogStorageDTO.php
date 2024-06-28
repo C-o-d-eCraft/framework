@@ -11,9 +11,9 @@ class LogStorageDTO
     public ?string $action_type = null;
     public ?string $context = null;
     public ?string $level = null;
-    public ?string $message = null;
+    public mixed $message = null;
     public ?string $datetime = null;
     public ?string $timestamp = null;
     public mixed $exception = null;
-    public ?array $extras = [];
+    public ?array $extras = null;
 }
