@@ -81,6 +81,10 @@ class HttpKernel implements HttpKernelInterface
             $errorsView = $this->container->call(HttpErrorHandler::class, 'handle', [$e]);
 
             $this->response->setBody(new Stream($errorsView));
+        } finally {
+            if (isset($this->request->getHeaders()['CONTENT-TYPE']) && $this->request->getHeaders()['CONTENT-TYPE'] === 'application/json'){
+                $this->response->withHeader('Content-Type','application/json');
+            }
         }
 
         $this->addCorsHeaders();
