@@ -8,12 +8,10 @@ use Craft\Contracts\LoggerInterface;
 
 class StdoutLogger implements LoggerInterface
 {
-    public function __construct(private LogStateProcessor $logStateProcessor, private ?string $logFilePath = null)
-    {
-        if (empty(getenv('INDEX_NAME'))) {
-            throw new \InvalidArgumentException('Не задано имя приложения. Внесите доработку в конфигурацию приложения');
-        }
+    private string $logFilePath;
 
+    public function __construct(private LogStateProcessor $logStateProcessor)
+    {
         $logDir = PROJECT_ROOT . '/runtime/app-logs';
 
         if (is_dir($logDir) === false) {
@@ -27,57 +25,57 @@ class StdoutLogger implements LoggerInterface
         }
     }
 
-    public function emergency(string $message, array $extras = [], array $trace = []): void
+    public function emergency(string $message): void
     {
-        $this->log(LogLevel::EMERGENCY->value, $message, $extras, $trace);
+        $this->log(LogLevel::EMERGENCY->value, $message);
     }
 
-    public function alert(string $message, array $extras = [], array $trace = []): void
+    public function alert(string $message): void
     {
-        $this->log(LogLevel::ALERT->value, $message, $extras, $trace);
+        $this->log(LogLevel::ALERT->value, $message);
     }
 
-    public function critical(string $message, array $extras = [], array $trace = []): void
+    public function critical(string $message): void
     {
-        $this->log(LogLevel::CRITICAL->value, $message, $extras, $trace);
+        $this->log(LogLevel::CRITICAL->value, $message);
     }
 
-    public function error(string $message, array $extras = [], array $trace = []): void
+    public function error(string $message): void
     {
-        $this->log(LogLevel::ERROR->value, $message, $extras, $trace);
+        $this->log(LogLevel::ERROR->value, $message);
     }
 
-    public function warning(string $message, array $extras = [], array $trace = []): void
+    public function warning(string $message): void
     {
-        $this->log(LogLevel::WARNING->value, $message, $extras, $trace);
+        $this->log(LogLevel::WARNING->value, $message);
     }
 
-    public function notice(string $message, array $extras = [], array $trace = []): void
+    public function notice(string $message): void
     {
-        $this->log(LogLevel::NOTICE->value, $message, $extras, $trace);
+        $this->log(LogLevel::NOTICE->value, $message);
     }
 
-    public function info(string $message, array $extras = [], array $trace = []): void
+    public function info(string $message): void
     {
-        $this->log(LogLevel::INFO->value, $message, $extras, $trace);
+        $this->log(LogLevel::INFO->value, $message);
     }
 
-    public function debug(string $message, array $extras = [], array $trace = []): void
+    public function debug(string $message): void
     {
-        $this->log(LogLevel::DEBUG->value, $message, $extras, $trace);
+        $this->log(LogLevel::DEBUG->value, $message);
     }
 
-    public function log(string $level, string $message, array $trace = []): void
+    private function log(string $level, string $message): void
     {
-        $logMessage = $this->formatMessage($level, $message, $trace);
+        $logMessage = $this->formatMessage($level, $message);
 
         $this->writeLogToFile($logMessage);
         $this->writeLogToStdout($logMessage);
     }
 
-    private function formatMessage(string $level, string $message, array $extras = []): string
+    private function formatMessage(string $level, string $message): string
     {
-        $loggingState = $this->logStateProcessor->process($level, $message, $extras);
+        $loggingState = $this->logStateProcessor->process($level, $message);
 
         return json_encode((array)$loggingState, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }

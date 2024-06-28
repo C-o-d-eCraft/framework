@@ -4,12 +4,12 @@ namespace Craft\Components\EventDispatcher;
 
 use Craft\Contracts\EventMessageInterface;
 
-readonly class EventMessage implements EventMessageInterface
+class EventMessage implements EventMessageInterface
 {
     /**
      * @param array $message
      */
-    public function __construct(private mixed $message) { }
+    public function __construct(private mixed $message = null) { }
 
     /**
      * @return array
@@ -17,5 +17,13 @@ readonly class EventMessage implements EventMessageInterface
     public function getMessage(): mixed
     {
         return $this->message;
+    }
+
+    /**
+     * @return void
+     */
+    public function setMessage(mixed $message): void
+    {
+        $this->message = $message;
     }
 }

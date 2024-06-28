@@ -48,8 +48,6 @@ class HttpKernel implements HttpKernelInterface
         }
 
         try {
-            $this->logger->info('Запуск контроллера');
-            
             $this->response = $this->router->dispatch($this->request);
 
             if ($this->response instanceof JsonResponse) {
@@ -67,7 +65,7 @@ class HttpKernel implements HttpKernelInterface
             $this->response->withStatus($e->getCode());
             $this->response->setReasonPhrase($e->getMessage());
 
-            $this->logger->error($e->getMessage(), ['exception' => $e], explode(PHP_EOL, $e->getTraceAsString()));
+            $this->logger->error($e->getMessage());
 
             $errorsView = $this->container->call($this->errorHandler, 'handle', [$e]);
 
@@ -76,7 +74,7 @@ class HttpKernel implements HttpKernelInterface
             $this->response->withStatus(StatusCodeEnum::INTERNAL_SERVER_ERROR);
             $this->response->setReasonPhrase(MessageEnum::INTERNAL_SERVER_ERROR);
 
-            $this->logger->critical(MessageEnum::INTERNAL_SERVER_ERROR, ['exception' => $e], explode(PHP_EOL, $e->getTraceAsString()));
+            $this->logger->critical($e->getMessage());
 
             $errorsView = $this->container->call(HttpErrorHandler::class, 'handle', [$e]);
 
