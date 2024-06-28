@@ -28,7 +28,7 @@ abstract class AbstractFormRequest
                 $this->addError($rule[0], $e->getMessage());
             }
         }
-        if (empty($this->errors) === false) {
+        if (empty($this->getErrors()) === false) {
             throw new InvalidArgumentException($this->getErrorsAsString(), 404);
         }
     }
@@ -40,6 +40,8 @@ abstract class AbstractFormRequest
 
     public function getErrors(): array
     {
+        $this->errors = array_merge($this->errors, $this->validator->errors);
+        
         return $this->errors;
     }
 
@@ -51,6 +53,6 @@ abstract class AbstractFormRequest
                 $errorMessages[] = $errorMessage;
             }
         }
-        return implode(', ', $errorMessages);
+        return implode(' ', $errorMessages);
     }
 }

@@ -8,16 +8,15 @@ class RequiredRule implements ValidationRuleInterface
 {
     public function validate(string|array $attribute, mixed $value, array $params, Validator $validator): void
     {
-        if (is_array($attribute)) {
-            foreach ($attribute as $attr) {
-                if (empty($value[$attr])) {
-                    $validator->addError($attr, 'required');
-                }
-            }
-        } else {
-            if (empty($value)) {
-                $validator->addError($attribute, 'required');
-            }
+        foreach ((array)$attribute as $attr) {
+            $this->validateAttribute($attr, $value, $validator);
+        }
+    }
+
+    private function validateAttribute(string $attribute, mixed $value, Validator $validator): void
+    {
+        if (empty($value)) {
+            $validator->addError($attribute, 'required');
         }
     }
 }

@@ -37,10 +37,10 @@ class HttpErrorHandler implements ErrorHandlerInterface
         $requestContentType = $this->request->getHeaders()['CONTENT-TYPE'] ?? null;
 
         if ($requestContentType === 'application/json') {
-            return $this->getJsonErrorBody($exception, $statusCode, $reasonPhrase);
+            return $this->getJsonErrorBody($exception, $exception->getCode() ?? null, $reasonPhrase);
         }
 
-        return $this->getHttpErrorView($exception, $statusCode, $reasonPhrase);
+        return $this->getHttpErrorView($exception, $exception->getCode() ?? null, $reasonPhrase);
     }
 
     public function getHttpErrorView(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
