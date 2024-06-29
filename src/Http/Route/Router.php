@@ -45,21 +45,40 @@ readonly class Router implements RouterInterface
         $path = $this->request->getUri()->getPath();
 
         foreach ($this->routesCollection->getRoutes() as $route) {
-            if ($route->route === $path && $route->method === $method) {
+            if ($this->matchRoute($route, $path, $method)) {
                 $this->processMiddlewares($route->middlewares);
 
                 [$controllerNameSpace, $action] = explode('::', $route->controllerAction);
 
                 $controller = $this->container->make($controllerNameSpace);
 
-                $this->eventMessage->setMessage('Расчет стоимости сырья');
-
-                return $this->container->call($controllerNameSpace, $action, [$this->eventDispatcher->trigger(LogContextEvent::ATTACH_CONTEXT, $this->eventMessage)]);
+                return $this->container->call($controller, $action);
             }
         }
 
         throw new NotFoundHttpException("Страница не найдена для $method запроса по пути $path");
     }
+
+    /**
+     * Проверка, соответствует ли данный маршрут пути и метод запроса.
+     *
+     * @param Route $route
+     * @param string $path
+     * @param string $method
+     * @return bool
+     */
+    private function matchRoute(Route $route, string $path, string $method): bool
+    {
+        $pattern = preg_quote($route->route, '/');
+
+        $pattern = preg_replace('/\{(\w+)\}/', '(?<$1>\w+)', $pattern);
+
+        $pattern = "/^$pattern$/";
+
+        return preg_match($pattern, $path) && $route->method === $method;
+    }
+
+
 
     /**
      * @param array $middlewares
