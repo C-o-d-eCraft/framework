@@ -129,34 +129,42 @@ class DIContainer implements ContainerInterface
     /**
      * Выполняет вызов указанного обработчика (callable или объекта) с передачей аргументов.
      *
-     * @param callable|object$handler Обработчик
+     * @param callable|object|string $handler Обработчик
      * @param string $method Имя метода
+     * @param array $args Аргументы метода (по умолчанию пустой массив)
      * @return mixed Результат выполнения обработчика
      * @throws InvalidArgumentException Если при вызове метода класса не передано имя метода
      * @throws ReflectionException Если не удается создать экземпляр класса или получить информацию о методе или функции
      */
     public function call(callable|object|string $handler, string $method, array $args = []): mixed
     {
-        $reflection = is_callable($handler) ? new ReflectionFunction($handler) : new ReflectionMethod($handler, $method);
-
-        $parameters = $reflection->getParameters();
-
-        $arguments = $this->resolveArguments($parameters);
-
-        if (empty($arguments) === false) {
-            $args = $arguments;
-        }
-
         if (is_callable($handler)) {
             return $handler(...$args);
         }
 
         if (is_object($handler)) {
-            return $handler->{$method}(...$args);
+            $reflection = new ReflectionMethod($handler, $method);
+        } elseif (is_string($handler) && class_exists($handler)) {
+            $instance = $this->make($handler);
+            $reflection = new ReflectionMethod($instance, $method);
+        } else {
+            throw new InvalidArgumentException('Невозможно выполнить вызов: некорректный обработчик или класс');
         }
 
-        return $this->make($handler)->{$method}(...$args);
+        $parameters = $reflection->getParameters();
+
+        $resolvedArgs = $this->resolveArguments($parameters);
+
+        $args = array_merge($resolvedArgs, $args);
+
+        if (is_object($handler)) {
+            return $reflection->invokeArgs($handler, $args);
+        } else {
+            $instance = $this->make($handler);
+            return $reflection->invokeArgs($instance, $args);
+        }
     }
+
 
     /**
      * @param array $parameters
