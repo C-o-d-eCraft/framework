@@ -46,7 +46,7 @@ class QueryBuilder implements DataBaseConnectionInterface
         return $query->all($this->pdo);
     }
 
-    public function selectOne(Query $query): array
+    public function selectOne(Query $query): ?array
     {
         return $query->one($this->pdo);
     }
