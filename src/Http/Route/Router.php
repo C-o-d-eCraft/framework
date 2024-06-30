@@ -3,10 +3,6 @@
 namespace Craft\Http\Route;
 
 use Craft\Components\DIContainer\DIContainer;
-use Craft\Components\EventDispatcher\EventMessage;
-use Craft\Components\Logger\StateProcessor\LogContextEvent;
-use Craft\Contracts\EventDispatcherInterface;
-use Craft\Contracts\EventMessageInterface;
 use Craft\Contracts\MiddlewareInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ResponseInterface;
@@ -23,16 +19,12 @@ readonly class Router implements RouterInterface
      * @param RoutesCollectionInterface $routesCollection
      * @param MiddlewareInterface $middleware
      * @param RequestInterface $request
-     * @param EventMessageInterface $eventMessage
-     * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
         private DIContainer               $container,
         private RoutesCollectionInterface $routesCollection,
         private MiddlewareInterface       $middleware,
         private RequestInterface          $request,
-        private EventMessageInterface     $eventMessage,
-        private EventDispatcherInterface  $eventDispatcher
     ) { }
 
     /**
@@ -75,7 +67,7 @@ readonly class Router implements RouterInterface
 
             if (count($keys) === count($numbers)) {
                 $params = array_combine($keys, $numbers);
-                $this->request->getUri()->addQueryParams($params);
+                $this->request->getUri()->addPathVariables($params);
             }
 
             return true;

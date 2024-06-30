@@ -260,6 +260,14 @@ class Request extends Message implements RequestInterface
     /**
      * @return array
      */
+    public function getPathVariables(): array
+    {
+        return $this->uri->getPathVariables();
+    }
+
+    /**
+     * @return array
+     */
     public function getBodyContents(): array
     {
         return array_merge((array) json_decode($this->body->getContents()), $_POST);
@@ -270,6 +278,6 @@ class Request extends Message implements RequestInterface
      */
     public function getParams(): array
     {
-        return array_merge((array) $this->getBodyContents(), $this->getQueryParams());
+        return array_merge((array) $this->getBodyContents(), $this->getQueryParams(), $this->getPathVariables());
     }
 }
