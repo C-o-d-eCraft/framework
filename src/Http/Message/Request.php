@@ -5,6 +5,7 @@ namespace Craft\Http\Message;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\StreamInterface;
 use Craft\Contracts\UriInterface;
+use Craft\Http\Exceptions\ForbiddenHttpException;
 
 class Request extends Message implements RequestInterface
 {
@@ -282,6 +283,10 @@ class Request extends Message implements RequestInterface
 
             unset($params['formData']);
             $params = array_merge($params, $formDataArray);
+        }
+
+        if (isset($this->getHeaders()['X-BASE-AUTH']) === false) {
+            throw new ForbiddenHttpException('Доступ запрещен! Пропущен заголовок X-BASE-AUTH');
         }
 
         $params['email'] = $this->getHeaders()['X-BASE-AUTH'];
