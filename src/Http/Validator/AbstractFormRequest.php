@@ -13,7 +13,8 @@ abstract class AbstractFormRequest
 
     public function __construct(RequestInterface $request)
     {
-        $this->data = (array) $request->getParams()['formData'];
+        $this->data = (isset($request->getParams()['formData']) === true) ? $request->getParams()['formData'] : [];
+
         if ($request->getMethod() === 'GET') {
             $this->data = $request->getParams();
         }
@@ -33,7 +34,7 @@ abstract class AbstractFormRequest
             }
         }
         if (empty($this->getErrors()) === false) {
-            throw new InvalidArgumentException($this->getErrorsAsString(), 404);
+            throw new InvalidArgumentException($this->getErrorsAsString(), 400);
         }
     }
 
