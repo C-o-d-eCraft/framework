@@ -14,14 +14,7 @@ abstract class AbstractFormRequest
 
     public function __construct(RequestInterface $request)
     {
-        $stdClass = $request->getParams()['formData'] ?? [];
-        if (($stdClass instanceof stdClass) === true){
-            $this->data = json_decode(json_encode($stdClass), true);
-        }
-
-        if ($request->getMethod() === 'GET') {
-            $this->data = $request->getParams();
-        }
+        $this->data = $request->getParams();
 
         $this->validator = new Validator($this->data);
     }
