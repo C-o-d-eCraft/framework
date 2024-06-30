@@ -58,6 +58,13 @@ readonly class Router implements RouterInterface
         $cleanPath = preg_replace('/\/\d+(?=\/|$)/', '', $path);
         $cleanRoute = preg_replace('/\/\{\w+\}(?=\/|$)/', '', $route->route);
 
+        $cleanPathSegments = explode('/', trim($cleanPath, '/'));
+        $cleanRouteSegments = explode('/', trim($cleanRoute, '/'));
+
+        if (count($cleanPathSegments) !== count($cleanRouteSegments)) {
+            return false;
+        }
+
         if (strcmp($cleanPath, $cleanRoute) === 0 && $route->method === $method) {
             preg_match_all('/\/(\d+)(?=\/|$)/', $path, $numberMatches);
             $numbers = $numberMatches[1];
