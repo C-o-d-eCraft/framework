@@ -278,7 +278,10 @@ class Request extends Message implements RequestInterface
         $params = array_merge($this->getBodyContents(), $this->getQueryParams(), $this->getPathVariables());
 
         if (isset($params['formData']) && $params['formData'] instanceof \stdClass) {
-            $params = json_decode(json_encode($params['formData']), true);
+            $formDataArray = json_decode(json_encode($params['formData']), true);
+
+            unset($params['formData']);
+            $params = array_merge($params, $formDataArray);
         }
 
         $params['user_id'] = $_SESSION['userId'] ?? null;
