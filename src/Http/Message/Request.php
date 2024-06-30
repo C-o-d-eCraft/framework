@@ -285,10 +285,6 @@ class Request extends Message implements RequestInterface
             $params = array_merge($params, $formDataArray);
         }
 
-        if (isset($this->getHeaders()['X-BASE-AUTH']) === false) {
-            throw new ForbiddenHttpException('Доступ запрещен! Пропущен заголовок X-BASE-AUTH');
-        }
-
         $params['email'] = $this->getHeaders()['X-BASE-AUTH'];
 
         return $params;
