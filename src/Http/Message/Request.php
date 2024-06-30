@@ -285,7 +285,7 @@ class Request extends Message implements RequestInterface
             $params = array_merge($params, $formDataArray);
         }
 
-        $params['email'] = $this->getHeaders()['X-BASE-AUTH'];
+        $params['token'] = $this->getHeaders()['X-BASE-AUTH'];
 
         return $params;
     }
