@@ -280,6 +280,13 @@ class Request extends Message implements RequestInterface
 
         $params['token'] = $this->getHeaders()['X-BASE-AUTH'];
 
+        if (isset($params['formData']) && $params['formData'] instanceof \stdClass) {
+            $formDataArray = json_decode(json_encode($params['formData']), true);
+            $params['formData'] = $formDataArray;
+
+            $params = array_merge($params, $formDataArray);
+        }
+
         return $params;
     }
 }
