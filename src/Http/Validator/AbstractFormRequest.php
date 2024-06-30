@@ -4,16 +4,20 @@ namespace Craft\Http\Validator;
 
 use Craft\Contracts\RequestInterface;
 use InvalidArgumentException;
+use stdClass;
 
 abstract class AbstractFormRequest
 {
-    public array $data;
+    public array $data = [];
     public array $errors = [];
     protected Validator $validator;
 
     public function __construct(RequestInterface $request)
     {
-        $this->data = (isset($request->getParams()['formData']) === true) ? $request->getParams()['formData'] : [];
+        $stdClass = $request->getParams()['formData'] ?? [];
+        if (($stdClass instanceof stdClass) === true){
+            $this->data = json_decode(json_encode($stdClass), true);
+        }
 
         if ($request->getMethod() === 'GET') {
             $this->data = $request->getParams();
