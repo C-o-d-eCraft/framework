@@ -284,7 +284,7 @@ class Request extends Message implements RequestInterface
             $params = array_merge($params, $formDataArray);
         }
 
-        $params['user_id'] = $_SESSION['userId'] ?? null;
+        $params['email'] = $this->getHeaders()['X-BASE-AUTH'];
 
         return $params;
     }
