@@ -277,11 +277,11 @@ class Request extends Message implements RequestInterface
     {
         $params = array_merge($this->getBodyContents(), $this->getQueryParams(), $this->getPathVariables());
 
-        $params['user_id'] = $_SESSION['userId'] ?? null;
-
         if (isset($params['formData']) && $params['formData'] instanceof \stdClass) {
-            $params['formData'] = json_decode(json_encode($params['formData']), true);
+            $params = json_decode(json_encode($params['formData']), true);
         }
+
+        $params['user_id'] = $_SESSION['userId'] ?? null;
 
         return $params;
     }
