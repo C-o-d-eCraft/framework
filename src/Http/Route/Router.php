@@ -58,8 +58,8 @@ readonly class Router implements RouterInterface
         $cleanPath = preg_replace('/\/\d+(?=\/|$)/', '', $path);
         $cleanRoute = preg_replace('/\/\{\w+\}(?=\/|$)/', '', $route->route);
 
-        $cleanPathSegments = explode('/', trim($cleanPath, '/'));
-        $cleanRouteSegments = explode('/', trim($cleanRoute, '/'));
+        $cleanPathSegments = explode('/', trim($path, '/'));
+        $cleanRouteSegments = explode('/', trim($route->route, '/'));
 
         if (count($cleanPathSegments) !== count($cleanRouteSegments)) {
             return false;
