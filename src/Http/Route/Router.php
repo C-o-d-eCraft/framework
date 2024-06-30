@@ -23,6 +23,8 @@ readonly class Router implements RouterInterface
      * @param RoutesCollectionInterface $routesCollection
      * @param MiddlewareInterface $middleware
      * @param RequestInterface $request
+     * @param EventMessageInterface $eventMessage
+     * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
         private DIContainer               $container,
@@ -45,7 +47,7 @@ readonly class Router implements RouterInterface
         $path = $this->request->getUri()->getPath();
 
         foreach ($this->routesCollection->getRoutes() as $route) {
-            if ($this->matchRoute($route, $path, $method)) {
+            if ($this->handleRoute($route, $path, $method)) {
                 $this->processMiddlewares($route->middlewares);
 
                 [$controllerNameSpace, $action] = explode('::', $route->controllerAction);
@@ -59,26 +61,28 @@ readonly class Router implements RouterInterface
         throw new NotFoundHttpException("Страница не найдена для $method запроса по пути $path");
     }
 
-    /**
-     * Проверка, соответствует ли данный маршрут пути и метод запроса.
-     *
-     * @param Route $route
-     * @param string $path
-     * @param string $method
-     * @return bool
-     */
-    private function matchRoute(Route $route, string $path, string $method): bool
+    private function handleRoute(Route $route, string $path, string $method): bool
     {
-        $pattern = preg_quote($route->route, '/');
+        $cleanPath = preg_replace('/\/\d+(?=\/|$)/', '', $path);
+        $cleanRoute = preg_replace('/\/\{\w+\}(?=\/|$)/', '', $route->route);
 
-        $pattern = preg_replace('/\{(\w+)\}/', '(?<$1>\w+)', $pattern);
+        if (strcmp($cleanPath, $cleanRoute) === 0 && $route->method === $method) {
+            preg_match_all('/\/(\d+)(?=\/|$)/', $path, $numberMatches);
+            $numbers = $numberMatches[1];
 
-        $pattern = "/^$pattern$/";
+            preg_match_all('/\{(\w+)\}/', $route->route, $keyMatches);
+            $keys = $keyMatches[1];
 
-        return preg_match($pattern, $path) && $route->method === $method;
+            if (count($keys) === count($numbers)) {
+                $params = array_combine($keys, $numbers);
+                $this->request->getUri()->addQueryParams($params);
+            }
+
+            return true;
+        }
+
+        return false;
     }
-
-
 
     /**
      * @param array $middlewares
