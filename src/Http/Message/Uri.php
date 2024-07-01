@@ -37,6 +37,11 @@ class Uri implements UriInterface
     public array $queryParams;
 
     /**
+     * @var array
+     */
+    public array $pathVariables;
+
+    /**
      * @var string
      */
     public string $fragment;
@@ -53,6 +58,7 @@ class Uri implements UriInterface
      * @param string $path
      * @param string $query
      * @param array $queryParams
+     * @param array $pathVariables
      * @param string $fragment
      * @param int|null $port
      */
@@ -63,6 +69,7 @@ class Uri implements UriInterface
         string $path = '',
         string $query = '',
         array $queryParams = [],
+        array $pathVariables = [],
         string $fragment = '',
         ?int $port = null,
     )
@@ -73,6 +80,7 @@ class Uri implements UriInterface
         $this->host = $host;
         $this->query = $query;
         $this->queryParams = $queryParams;
+        $this->pathVariables = $pathVariables;
         $this->fragment = $fragment;
         $this->port = $port;
     }
@@ -134,6 +142,14 @@ class Uri implements UriInterface
     }
 
     /**
+     * @return array
+     */
+    public function getPathVariables(): array
+    {
+        return $this->pathVariables;
+    }
+
+    /**
      * @param array $param
      *
      * @return void
@@ -143,6 +159,20 @@ class Uri implements UriInterface
         foreach ($param as $key => $value) {
             if (in_array($key, array_keys($this->queryParams), true) === false) {
                 $this->queryParams[$key] = $value;
+            }
+        }
+    }
+
+    /**
+     * @param array $param
+     *
+     * @return void
+     */
+    public function addPathVariables(array $param): void
+    {
+        foreach ($param as $key => $value) {
+            if (in_array($key, array_keys($this->pathVariables), true) === false) {
+                $this->pathVariables[$key] = $value;
             }
         }
     }

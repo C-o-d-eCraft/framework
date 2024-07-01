@@ -2,9 +2,7 @@
 
 namespace Craft\Http\Route;
 
-use Craft\Contracts\MiddlewareInterface;
 use Craft\Contracts\RoutesCollectionInterface;
-use Craft\Http\Exceptions\NotFoundHttpException;
 
 class RoutesCollection implements RoutesCollectionInterface
 {
@@ -35,12 +33,12 @@ class RoutesCollection implements RoutesCollectionInterface
 
     /**
      * @param string $route
-     * @param string|callable $controllerAction
+     * @param string|callable|array $controllerAction
      * @param array $middleware
      *
      * @return void
      */
-    public function get(string $route, string|callable $controllerAction, array $middleware = []): void
+    public function get(string $route, string|callable|array $controllerAction, array $middleware = []): void
     {
         $this->addRoute('GET', $route, $controllerAction, $middleware);
     }
@@ -100,22 +98,6 @@ class RoutesCollection implements RoutesCollectionInterface
     }
 
     /**
-     * @param string $name
-     * @param string $controller
-     * @param array $middleware
-     *
-     * @return void
-     */
-    public function addResource(string $prefix, string $controller, array $middleware = []): void
-    {
-        $this->get($prefix, "$controller::actionGet", $middleware);
-        $this->post($prefix, "$controller::actionPost", $middleware);
-        $this->delete($prefix, "$controller::actionDelete", $middleware);
-        $this->put($prefix, "$controller::actionUpdate", $middleware);
-        $this->addRoute('GET', $prefix . '/{id}', "$controller::actionGetOne", $middleware);
-    }
-
-    /**
      * @param string $method
      * @param string $route
      * @param string|callable $controllerAction
@@ -123,7 +105,7 @@ class RoutesCollection implements RoutesCollectionInterface
      *
      * @return void
      */
-    private function addRoute(string $method, string $route, string|callable $controllerAction, array $middleware = []): void
+    private function addRoute(string $method, string $route, string|callable|array $controllerAction, array $middleware = []): void
     {
         $params = [];
 
@@ -145,15 +127,17 @@ class RoutesCollection implements RoutesCollectionInterface
      *
      * @return array|null
      */
-    private function parseParams(string $argument): array|null
+    private function parseParams(string $argument): ?array
     {
         if ($argument === '') {
             return null;
         }
 
-        $param['required'] = true;
-        $param['name'] = $argument;
-        $param['type'] = 'string';
+        $param = [
+            'required' => true,
+            'name' => $argument,
+            'type' => 'string'
+        ];
 
         if (str_contains($argument, '?')) {
             $param['required'] = false;

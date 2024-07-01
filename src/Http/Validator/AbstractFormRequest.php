@@ -4,16 +4,18 @@ namespace Craft\Http\Validator;
 
 use Craft\Contracts\RequestInterface;
 use InvalidArgumentException;
+use stdClass;
 
 abstract class AbstractFormRequest
 {
-    public array $data;
+    public array $data = [];
     public array $errors = [];
     protected Validator $validator;
 
     public function __construct(RequestInterface $request)
     {
         $this->data = $request->getParams();
+
         $this->validator = new Validator($this->data);
     }
 
@@ -28,8 +30,8 @@ abstract class AbstractFormRequest
                 $this->addError($rule[0], $e->getMessage());
             }
         }
-        if (empty($this->errors) === false) {
-            throw new InvalidArgumentException($this->getErrorsAsString(), 404);
+        if (empty($this->getErrors()) === false) {
+            throw new InvalidArgumentException($this->getErrorsAsString(), 400);
         }
     }
 
@@ -40,6 +42,8 @@ abstract class AbstractFormRequest
 
     public function getErrors(): array
     {
+        $this->errors = array_merge($this->errors, $this->validator->errors);
+        
         return $this->errors;
     }
 
@@ -51,6 +55,6 @@ abstract class AbstractFormRequest
                 $errorMessages[] = $errorMessage;
             }
         }
-        return implode(', ', $errorMessages);
+        return implode(' ', $errorMessages);
     }
 }

@@ -311,8 +311,23 @@ interface UriInterface
     public function getQueryParams(): array;
 
     /**
+     * Получить список переменных маршрута
+     *
+     * @return array
+     */
+    public function getPathVariables(): array;
+
+    /**
      * @param array $param
+     *
      * @return void
      */
     public function addQueryParams(array $param): void;
+
+    /**
+     * @param array $param
+     *
+     * @return void
+     */
+    public function addPathVariables(array $param): void;
 }

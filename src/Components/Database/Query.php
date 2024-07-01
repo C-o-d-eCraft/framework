@@ -62,6 +62,23 @@ class Query implements QueryInterface
     }
 
     /**
+     * @param string $column
+     * @param array $values
+     *
+     * @return self
+     */
+    public function whereIn(string $column, array $values): self
+    {
+        $escapedValues = array_map(function($value) {
+            return is_numeric($value) ? $value : "'" . addslashes((string) $value) . "'";
+        }, $values);
+
+        $this->where[] = "$column IN (" . implode(', ', $escapedValues) . ")";
+
+        return $this;
+    }
+
+    /**
      * @param string $type
      * @param string $table
      * @param string $on

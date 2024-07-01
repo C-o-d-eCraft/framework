@@ -18,10 +18,11 @@ class UriFactory
         $path = parse_url($uri, PHP_URL_PATH);
         $query = parse_url($uri, PHP_URL_QUERY) ?? '';
         $queryParams = [];
+        $pathVariables = [];
         parse_str($query, $queryParams);
         $fragment = parse_url($uri, PHP_URL_FRAGMENT) ?? '';
         $port = $_SERVER['SERVER_PORT'] ?? null;
 
-        return new Uri($uri, $scheme, $host, $path, $query, $queryParams, $fragment, $port);
+        return new Uri($uri, $scheme, $host, $path, $query, $queryParams, $pathVariables, $fragment, $port);
     }
 }

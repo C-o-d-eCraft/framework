@@ -5,6 +5,7 @@ namespace Craft\Http\Message;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\StreamInterface;
 use Craft\Contracts\UriInterface;
+use Craft\Http\Exceptions\ForbiddenHttpException;
 
 class Request extends Message implements RequestInterface
 {
@@ -260,16 +261,36 @@ class Request extends Message implements RequestInterface
     /**
      * @return array
      */
+    public function getPathVariables(): array
+    {
+        return $this->uri->getPathVariables();
+    }
+
+    /**
+     * @return array
+     */
     public function getBodyContents(): array
     {
         return array_merge((array) json_decode($this->body->getContents()), $_POST);
     }
-    
-    /** Возвращает параметры из тела и URL вместе
-     * @return array
-     */
+
     public function getParams(): array
     {
-        return array_merge((array) $this->getBodyContents(), $this->getQueryParams());
+        $params = array_merge($this->getBodyContents(), $this->getQueryParams(), $this->getPathVariables());
+
+        if (isset($this->getHeaders()['X-BASE-AUTH']) === true) {
+
+            $params['token'] = $this->getHeaders()['X-BASE-AUTH'];
+        }
+
+
+        if (isset($params['formData']) && $params['formData'] instanceof \stdClass) {
+            $formDataArray = json_decode(json_encode($params['formData']), true);
+            $params['formData'] = $formDataArray;
+
+            $params = array_merge($params, $formDataArray);
+        }
+
+        return $params;
     }
 }

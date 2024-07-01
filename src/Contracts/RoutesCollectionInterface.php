@@ -20,12 +20,12 @@ interface RoutesCollectionInterface
 
     /**
      * @param string $route
-     * @param string|callable $controllerAction
+     * @param string|callable|array $controllerAction
      * @param array $middleware
      *
      * @return void
      */
-    public function get(string $route, string|callable $controllerAction, array $middleware = []): void;
+    public function get(string $route, string|callable|array $controllerAction, array $middleware = []): void;
 
     /**
      * @param string $route
