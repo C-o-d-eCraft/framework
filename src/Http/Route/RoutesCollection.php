@@ -2,9 +2,7 @@
 
 namespace Craft\Http\Route;
 
-use Craft\Contracts\MiddlewareInterface;
 use Craft\Contracts\RoutesCollectionInterface;
-use Craft\Http\Exceptions\NotFoundHttpException;
 
 class RoutesCollection implements RoutesCollectionInterface
 {
@@ -97,23 +95,6 @@ class RoutesCollection implements RoutesCollectionInterface
 
         array_pop($this->groupMiddlewares);
         array_pop($this->groupPrefixes);
-    }
-
-    /**
-     * @param string $prefix
-     * @param string $controller
-     * @param array $methods
-     *
-     * @return void
-     */
-    public function addResource(string $prefix, string $controller, array $methods): void
-    {
-        foreach ($methods as $httpMethod => $action) {
-            $this->addRoute(strtoupper($httpMethod), "/$prefix", "$controller::$action");
-        }
-
-         //Если у вас есть специфические методы для получения ресурса по ID
-        $this->addRoute('GET', "/$prefix/{id}", "$controller::actionGetOne");
     }
 
     /**
