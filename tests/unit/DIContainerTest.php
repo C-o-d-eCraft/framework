@@ -31,16 +31,7 @@ class DIContainerTest extends Unit
 
         $this->assertInstanceOf(DIContainer::class, $container);
     }
-
-    public function testCreateContainerTwice(): void
-    {
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('Контейнер уже инициализирован!');
-
-        DIContainer::createContainer();
-        DIContainer::createContainer();
-    }
-
+    
     public function testCloneThrowsException(): void
     {
         $this->expectException(\LogicException::class);

@@ -97,6 +97,15 @@ class RoutesCollection implements RoutesCollectionInterface
         array_pop($this->groupPrefixes);
     }
 
+    public function addResource(string $prefix, string $controller, array $middleware = []): void
+    {
+        $this->get($prefix, "$controller::actionGet", $middleware);
+        $this->post($prefix, "$controller::actionPost", $middleware);
+        $this->delete($prefix, "$controller::actionDelete", $middleware);
+        $this->put($prefix, "$controller::actionPut", $middleware);
+        $this->patch($prefix, "$controller::actionPatch", $middleware);
+    }
+
     /**
      * @param string $method
      * @param string $route
