@@ -168,7 +168,7 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
         $actualParams = count($inputArguments);
 
         if ($actualParams > $expectedParams) {
-            throw new LogicException('Избыточное колличество арргументов');
+            throw new LogicException('Избыточное количество аргументов');
         }
 
         $argumentIndex = 0;
