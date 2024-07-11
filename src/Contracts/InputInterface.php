@@ -13,4 +13,8 @@ interface InputInterface
      * @return string|null
      */
     public function getCommandNameSpace(): ?string;
+
+    public function setArguments(array $arguments): void;
+
+    public function getOptions(): array;
 }

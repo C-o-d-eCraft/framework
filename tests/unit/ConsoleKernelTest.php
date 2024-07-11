@@ -5,16 +5,16 @@ namespace Tests\Unit;
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
 use Craft\Components\EventDispatcher\EventDispatcher;
+use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Console\ConsoleKernel;
 use Craft\Console\InputArguments;
 use Craft\Contracts\CommandInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\LoggerInterface;
+use Craft\Contracts\ObserverInterface;
 use Craft\Contracts\OutputInterface;
 use LogicException;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
-use Throwable;
 
 class FakeCommand implements CommandInterface
 {
@@ -30,6 +30,14 @@ class FakeCommand implements CommandInterface
     {
         return 'Fake command for testing';
     }
+}
+
+class FakeOptionsConfirm implements ObserverInterface
+{
+    public function __construct(private EventDispatcher $eventDispatcher) {}
+
+    public function update(EventMessage|null $message = null): void
+    {}
 }
 
 class ConsoleKernelTest extends TestCase
@@ -50,7 +58,7 @@ class ConsoleKernelTest extends TestCase
             $this->eventDispatcherMock,
             $this->loggerMock,
             $this->errorHandlerMock,
-            []
+            ['SomePlugin']
         );
     }
 
@@ -79,7 +87,7 @@ class ConsoleKernelTest extends TestCase
         }
     }
 
-    public function testComparisonArgumentsExcess(): void
+    public function testComparisonArgumentsWithManyArguments(): void
     {
         $commandArguments = [
             new InputArguments('arg1'),
@@ -91,5 +99,57 @@ class ConsoleKernelTest extends TestCase
         $this->expectExceptionMessage('Избыточное количество аргументов');
 
         $this->kernel->comparisonArguments($commandArguments);
+    }
+
+    public function testComparisonArguments(): void
+    {
+        $commandArguments = [
+            new InputArguments('arg1'),
+            new InputArguments('arg2=default')
+        ];
+
+        $this->inputMock->method('getArguments')->willReturn(['value1', 'default']);
+
+        $this->inputMock->expects($this->once())
+            ->method('setArguments')
+            ->with([
+                'arg1' => 'value1',
+                'arg2' => 'default'
+            ]);
+
+        $this->kernel->comparisonArguments($commandArguments);
+    }
+
+    public function testRegisteredOptions(): void
+    {
+        $this->inputMock->method('getOptions')->willReturn(['option1' => 'value1']);
+
+        $fakeOptionsConfirm = new FakeOptionsConfirm($this->eventDispatcherMock);
+        $this->containerMock->method('make')->willReturn($fakeOptionsConfirm);
+
+        $this->eventDispatcherMock->expects($this->exactly(2))
+            ->method('attach');
+
+        $this->eventDispatcherMock->expects($this->once())
+            ->method('trigger')
+            ->with('options_confirm', $this->isInstanceOf(EventMessage::class));
+
+        $this->kernel->registeredOptions();
+    }
+
+    public function testRegisteredOptionsWithEmptyOptions(): void
+    {
+        $this->inputMock->method('getOptions')->willReturn([]);
+
+        $fakeOptionsConfirm = new FakeOptionsConfirm($this->eventDispatcherMock);
+        $this->containerMock->method('make')->willReturn($fakeOptionsConfirm);
+
+        $this->eventDispatcherMock->expects($this->exactly(2))
+            ->method('attach');
+
+        $this->eventDispatcherMock->expects($this->never())
+            ->method('trigger');
+
+        $this->kernel->registeredOptions();
     }
 }
