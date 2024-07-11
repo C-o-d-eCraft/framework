@@ -144,26 +144,24 @@ class DIContainer implements ContainerInterface
 
         if (is_object($handler)) {
             $reflection = new ReflectionMethod($handler, $method);
-        } elseif (is_string($handler) && class_exists($handler)) {
+            $parameters = $reflection->getParameters();
+            $resolvedArgs = $this->resolveArguments($parameters);
+            $args = array_merge($resolvedArgs, $args);
+            return $reflection->invokeArgs($handler, $args);
+        }
+
+        if (is_string($handler) && class_exists($handler)) {
             $instance = $this->make($handler);
             $reflection = new ReflectionMethod($instance, $method);
-        } else {
-            throw new InvalidArgumentException('Невозможно выполнить вызов: некорректный обработчик или класс');
-        }
-
-        $parameters = $reflection->getParameters();
-
-        $resolvedArgs = $this->resolveArguments($parameters);
-
-        $args = array_merge($resolvedArgs, $args);
-
-        if (is_object($handler)) {
-            return $reflection->invokeArgs($handler, $args);
-        } else {
-            $instance = $this->make($handler);
+            $parameters = $reflection->getParameters();
+            $resolvedArgs = $this->resolveArguments($parameters);
+            $args = array_merge($resolvedArgs, $args);
             return $reflection->invokeArgs($instance, $args);
         }
+
+        throw new InvalidArgumentException('Невозможно выполнить вызов: некорректный обработчик или класс');
     }
+
 
 
     /**
