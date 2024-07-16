@@ -52,7 +52,6 @@ class RouterTest extends TestCase
      */
     public function testDispatchMethodCallsHandleRoute()
     {
-        // Мокируем методы и устанавливаем ожидания
         $this->request->method('getMethod')->willReturn('GET');
         $uri = $this->createMock(UriInterface::class);
         $uri->method('getPath')->willReturn('/test');
