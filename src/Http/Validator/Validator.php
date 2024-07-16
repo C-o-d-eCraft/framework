@@ -39,18 +39,20 @@ class Validator
         }
 
         $ruleClass = $this->getRuleClass($ruleName);
-        if ($ruleClass === null) {
-            throw new InvalidArgumentException("Правило валидации {$ruleName} не существует.");
-        }
 
         $this->validateAttributes($attributes, $ruleClass, $params);
     }
 
-    protected function getRuleClass(string $ruleName): ?ValidationRuleInterface
+    protected function getRuleClass(string $ruleName): ValidationRuleInterface
     {
         $rulesNamespace = 'Craft\\Http\\Validator\\Rules\\';
         $className = $rulesNamespace . ucfirst($ruleName) . 'Rule';
-        return class_exists($className) ? new $className() : null;
+
+        if (class_exists($className) === true) {
+            return new $className();
+        }
+
+        throw new InvalidArgumentException("Правило валидации {$ruleName} не существует.");
     }
 
     protected function validateAttributes(array|string $attributes, ValidationRuleInterface $ruleClass, array $params): void
