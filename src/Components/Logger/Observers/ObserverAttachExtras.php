@@ -14,7 +14,7 @@ class ObserverAttachExtras implements ObserverInterface
      * @param EventMessage|string|null $message
      * @return void
      */
-    public function update(EventMessage|string $message = null): void
+    public function update(mixed $message = null): void
     {
         if ($message === null) {
             return;

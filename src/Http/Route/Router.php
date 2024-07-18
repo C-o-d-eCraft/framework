@@ -10,6 +10,9 @@ use Craft\Contracts\RouterInterface;
 use Craft\Contracts\RoutesCollectionInterface;
 use Craft\Http\Exceptions\HttpException;
 use Craft\Http\Exceptions\NotFoundHttpException;
+use Craft\Contracts\EventMessageInterface;
+use Craft\Contracts\EventDispatcherInterface;
+use Craft\Components\Logger\StateProcessor\LogContextEvent;
 use ReflectionException;
 
 readonly class Router implements RouterInterface
@@ -25,6 +28,8 @@ readonly class Router implements RouterInterface
         private RoutesCollectionInterface $routesCollection,
         private MiddlewareInterface       $middleware,
         private RequestInterface          $request,
+        private EventMessageInterface     $eventMessage,
+        private EventDispatcherInterface  $eventDispatcher
     ) { }
 
     /**
@@ -46,7 +51,9 @@ readonly class Router implements RouterInterface
 
                 $controller = $this->container->make($controllerNameSpace);
 
-                return $this->container->call($controller, $action);
+                $this->eventMessage->setMessage('Расчет стоимости сырья');
+
+                return $this->container->call($controllerNameSpace, $action, [$this->eventDispatcher->trigger(LogContextEvent::ATTACH_CONTEXT, $this->eventMessage)]);
             }
         }
 
