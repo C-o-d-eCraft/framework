@@ -14,7 +14,7 @@ class ObserverDetachContext implements ObserverInterface
      * @param EventMessage|string|null $message
      * @return void
      */
-    public function update(EventMessage|string $message = null): void
+    public function update(mixed $message = null): void
     {
         if ((is_null($this->storage->context) && is_null($message)) === false) {
             $contextArray = explode(':', $this->storage->context);
