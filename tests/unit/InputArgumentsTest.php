@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class InputArgumentsTest extends TestCase
 {
-    public function testRequiredArgumentIsSetCorrectly(): void
+    public function testRequiredArgumentParseAndSetCorrectly(): void
     {
         $inputArgument = new InputArguments('testRequiredArg');
 
@@ -21,14 +21,14 @@ class InputArgumentsTest extends TestCase
         $this->assertNull($inputArgument->defaultValue);
     }
 
-    public function testOptionalArgumentIsSetCorrectly(): void
+    public function testOptionalArgumentParseAndSetCorrectly(): void
     {
         $inputArgument = new InputArguments('?testOptionalArg=42');
 
         $this->assertFalse($inputArgument->required);
     }
 
-    public function testArgumentWithDefaultValueIsSetCorrectly(): void
+    public function testArgumentWithDefaultValueParseAndSetCorrectly(): void
     {
         $inputArgument = new InputArguments('?testOptionalArg=42');
 
@@ -50,7 +50,7 @@ class InputArgumentsTest extends TestCase
         new InputArguments('?testOptionalArg');
     }
 
-    public function testArgumentNameIsSetCorrectly(): void
+    public function testArgumentNameParseAndSetCorrectly(): void
     {
         $inputArgument = new InputArguments('testArg');
 
