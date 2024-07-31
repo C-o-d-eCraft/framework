@@ -4,35 +4,29 @@ namespace Craft\Console;
 
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
-use Craft\Components\ErrorHandler\MessageEnum;
 use Craft\Components\EventDispatcher\Event;
 use Craft\Components\EventDispatcher\EventDispatcher;
 use Craft\Components\EventDispatcher\EventMessage;
-use Craft\Contracts\CommandInterface;
 use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\InputInterface;
+use Craft\Contracts\InputOptionsInterface;
 use Craft\Contracts\LoggerInterface;
-use Craft\Contracts\ObserverInterface;
 use Craft\Contracts\OutputInterface;
 use JetBrains\PhpStorm\NoReturn;
 use LogicException;
-use ReflectionException;
 use RuntimeException;
 use Throwable;
 
-class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
+class ConsoleKernel implements ConsoleKernelInterface
 {
-    /**
-     * @var array
-     */
-    private array $commandMap = [];
-
     /**
      * @param DIContainer $container
      * @param InputInterface $input
      * @param OutputInterface $output
      * @param EventDispatcher $eventDispatcher
-     * @param array $plugins
+     * @param LoggerInterface $logger
+     * @param CliErrorHandler $errorHandler
+     * @param InputOptionsInterface $inputOptions
      */
     public function __construct(
         private readonly DIContainer      $container,
@@ -41,52 +35,25 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
         private readonly EventDispatcher  $eventDispatcher,
         private readonly LoggerInterface  $logger,
         private readonly CliErrorHandler  $errorHandler,
-        private readonly array            $plugins,
+        private InputOptionsInterface     $inputOptions
     ) { }
 
     /**
      * @param array $commandNameSpaces
-     *
      * @return void
      */
     public function registerCommandNamespaces(array $commandNameSpaces): void
     {
-        foreach ($commandNameSpaces as $commandClass) {
-
-            if (in_array(CommandInterface::class, class_implements($commandClass), true) === false) {
-                throw new LogicException('не удалось прочитать команду');
-            }
-
-            $commandName = explode(' ', $commandClass::getCommandName())[0];
-
-            $this->commandMap[$commandName] = $commandClass;
-        }
+        $this->inputOptions->registerCommandNamespaces($commandNameSpaces);
     }
 
     /**
      * @param int $exitStatus
-     *
      * @return void
      */
     #[NoReturn] public function terminate(int $exitStatus): void
     {
         exit($exitStatus);
-    }
-
-    /**
-     * @return array
-     */
-    public function getCommandMap(): array
-    {
-        return $this->commandMap;
-    }
-
-    /**
-     * @return array
-     */
-    public function getPlugins(): array
-    {
-        return $this->plugins;
     }
 
     /**
@@ -96,10 +63,11 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
     {
         try {
             $calledCommandName = $this->input->getCommandNameSpace();
+            $commandMap = $this->inputOptions->getCommandMap();
 
-            $commandClass = $this->commandMap[$calledCommandName];
+            $commandClass = $commandMap[$calledCommandName] ?? null;
 
-            if (empty($commandClass) === true) {
+            if ($commandClass === null) {
                 throw new RuntimeException(
                     'Неизвестная команда.' . PHP_EOL . 'Для получения списка команд введите: ' . PHP_EOL . 'list' . PHP_EOL
                 );
@@ -152,6 +120,10 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
         return $arguments;
     }
 
+    /**
+     * @param array $commandArguments
+     * @return void
+     */
     public function comparisonArguments(array $commandArguments): void
     {
         $inputArguments = $this->input->getArguments();
@@ -168,15 +140,11 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
         }
 
         $argumentIndex = 0;
-
         $enteredArguments = [];
 
         foreach ($commandArguments as $argument) {
-
             $paramName = $argument->name;
-
             $defaultValue = $argument->defaultValue;
-
             $paramsValue = $inputArguments[$argumentIndex] ?? $defaultValue;
 
             if ($paramsValue === null && $defaultValue === null) {
@@ -184,46 +152,9 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
             }
 
             $enteredArguments[$paramName] = $paramsValue;
-
             $argumentIndex ++;
         }
 
         $this->input->setArguments($enteredArguments);
-    }
-
-    /**
-     * @return void
-     * @throws ReflectionException
-     */
-    public function registeredOptions(): void
-    {
-        $this->eventDispatcher->attach(Event::OPTIONS_CONFIRM, new OptionsConfirm($this->eventDispatcher));
-        $this->eventDispatcher->attach(Event::OPTION_CONFIRMED, $this->container->make(ConsoleKernelInterface::class));
-
-        $options = $this->input->getOptions();
-
-        if ((empty($this->plugins) || empty($options)) === true) {
-            return;
-        }
-
-        $this->eventDispatcher->trigger(Event::OPTIONS_CONFIRM, new EventMessage([
-            'options' => $options,
-            'commandMap' => $this->commandMap,
-            'plugins' => $this->plugins,
-        ]));
-    }
-
-    /**
-     * @param EventMessage|null $message
-     *
-     * @return void
-     */
-    public function update(mixed $message = null): void
-    {
-        $optionsConfirmed = $message->getContent()['optionsConfirmed'];
-
-        $optionsConfirmedInstance = new $optionsConfirmed($this->container);
-
-        $optionsConfirmedInstance->init();
     }
 }

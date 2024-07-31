@@ -2,10 +2,10 @@
 
 namespace Craft\Console;
 
+use Craft\Components\EventDispatcher\Event;
 use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\ObserverInterface;
-use Craft\Components\EventDispatcher\Event;
 
 readonly class OptionsConfirm implements ObserverInterface
 {
@@ -16,7 +16,6 @@ readonly class OptionsConfirm implements ObserverInterface
 
     /**
      * @param EventMessage|null $message
-     *
      * @return void
      */
     public function update(mixed $message = null): void
