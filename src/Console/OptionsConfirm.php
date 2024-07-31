@@ -19,7 +19,7 @@ readonly class OptionsConfirm implements ObserverInterface
      *
      * @return void
      */
-    public function update(?EventMessage $message = null): void
+    public function update(mixed $message = null): void
     {
         [
             'commandMap' => $commandMap,

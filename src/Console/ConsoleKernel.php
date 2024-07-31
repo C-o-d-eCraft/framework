@@ -95,8 +95,6 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
     public function handle(): int
     {
         try {
-            $this->logger->info('Запуск команды');
-
             $calledCommandName = $this->input->getCommandNameSpace();
 
             $commandClass = $this->commandMap[$calledCommandName];
@@ -124,8 +122,6 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
             return $this->output->getStatusCode();
         } catch (Throwable $e) {
             $message = $this->errorHandler->handle($e);
-
-            $this->logger->critical(MessageEnum::INTERNAL_SERVER_ERROR, ['exception' => $e]);
 
             $this->output->error($message);
 
@@ -222,7 +218,7 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
      *
      * @return void
      */
-    public function update(?EventMessage $message = null): void
+    public function update(mixed $message = null): void
     {
         $optionsConfirmed = $message->getContent()['optionsConfirmed'];
 
