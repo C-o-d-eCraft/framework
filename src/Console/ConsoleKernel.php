@@ -3,9 +3,9 @@
 namespace Craft\Console;
 
 use Craft\Components\DIContainer\DIContainer;
-use Craft\Components\ErrorHandler\CliErrorHandler;
 use Craft\Components\EventDispatcher\Event;
-use Craft\Components\EventDispatcher\EventDispatcher;
+use Craft\Components\ErrorHandler\CliErrorHandler;
+use Craft\Contracts\EventDispatcherInterface;
 use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\InputInterface;
@@ -32,8 +32,7 @@ class ConsoleKernel implements ConsoleKernelInterface
         private readonly DIContainer      $container,
         private InputInterface            $input,
         private OutputInterface           $output,
-        private readonly EventDispatcher  $eventDispatcher,
-        private readonly LoggerInterface  $logger,
+        private readonly EventDispatcherInterface  $eventDispatcher,
         private readonly CliErrorHandler  $errorHandler,
         private InputOptionsInterface     $inputOptions
     ) { }

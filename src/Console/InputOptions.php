@@ -10,16 +10,17 @@ use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\InputOptionsInterface;
-use Craft\Contracts\OutputInterface;
+use Craft\Contracts\ObserverInterface;
+use Craft\Console\OptionsConfirm;
+use LogicException;
 
-class InputOptions implements InputOptionsInterface
+class InputOptions implements InputOptionsInterface, ObserverInterface
 {
     public function __construct(
         private readonly DIContainer               $container,
         private readonly InputInterface            $input,
-        private readonly OutputInterface           $output,
         private readonly EventDispatcherInterface  $eventDispatcher,
-        private readonly array                     $plugins,
+        private array                              $plugins = [],
         private array                              $options = [],
         private array                              $commandMap = [],
     ) { }
@@ -47,7 +48,7 @@ class InputOptions implements InputOptionsInterface
     {
         foreach ($commandNameSpaces as $commandClass) {
             if (in_array(CommandInterface::class, class_implements($commandClass), true) === false) {
-                throw new LogicException('не удалось прочитать команду');
+                throw new LogicException('Не удалось прочитать команду');
             }
 
             $commandName = explode(' ', $commandClass::getCommandName())[0];
@@ -62,7 +63,9 @@ class InputOptions implements InputOptionsInterface
      */
     public function registerOptions(): void
     {
-        $this->eventDispatcher->attach(Event::OPTIONS_CONFIRM, new OptionsConfirm($this->eventDispatcher));
+        $optionsConfirm = $this->container->make(OptionsConfirm::class);
+        
+        $this->eventDispatcher->attach(Event::OPTIONS_CONFIRM, $optionsConfirm);
         $this->eventDispatcher->attach(Event::OPTION_CONFIRMED, $this->container->make(ConsoleKernelInterface::class));
 
         $options = $this->input->getOptions();
@@ -76,12 +79,10 @@ class InputOptions implements InputOptionsInterface
             'commandMap' => $this->commandMap,
             'plugins' => $this->plugins,
         ]));
-        
-        dd($this->commandMap, $this->options);
     }
 
     /**
-     * @param EventMessage|null $message
+     * @param mixed $message
      * @return void
      */
     public function update(mixed $message = null): void
