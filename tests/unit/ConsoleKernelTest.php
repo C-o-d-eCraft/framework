@@ -132,4 +132,17 @@ class ConsoleKernelTest extends TestCase
         $consoleKernelMock = $this->createConsoleKernel(null, null, null, $inputOptionsMock);
         $consoleKernelMock->registerCommandNamespaces([get_class($commandStub)]);
     }
+
+    public function testInabilityReadCommandThrowsLogicException(): void
+    {
+        $invalidCommandClass = \stdClass::class;
+
+        $consoleKernel = $this->createConsoleKernel();
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage("Класс {$invalidCommandClass} команды не соответствует интерфейсу " . CommandInterface::class);
+
+
+        $consoleKernel->registerCommandNamespaces([$invalidCommandClass]);
+    }
 }
