@@ -3,14 +3,14 @@
 namespace Craft\Console;
 
 use Craft\Components\DIContainer\DIContainer;
-use Craft\Components\EventDispatcher\Event;
 use Craft\Components\ErrorHandler\CliErrorHandler;
-use Craft\Contracts\EventDispatcherInterface;
+use Craft\Components\EventDispatcher\Event;
 use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Contracts\CommandInterface;
 use Craft\Contracts\ConsoleKernelInterface;
+use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\InputOptionsInterface;
-use Craft\Contracts\LoggerInterface;
 use Craft\Contracts\OutputInterface;
 use JetBrains\PhpStorm\NoReturn;
 use LogicException;
@@ -23,8 +23,7 @@ class ConsoleKernel implements ConsoleKernelInterface
      * @param DIContainer $container
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @param EventDispatcher $eventDispatcher
-     * @param LoggerInterface $logger
+     * @param EventDispatcherInterface $eventDispatcher
      * @param CliErrorHandler $errorHandler
      * @param InputOptionsInterface $inputOptions
      */
@@ -43,7 +42,19 @@ class ConsoleKernel implements ConsoleKernelInterface
      */
     public function registerCommandNamespaces(array $commandNameSpaces): void
     {
-        $this->inputOptions->registerCommandNamespaces($commandNameSpaces);
+        $commandMap = [];
+
+        foreach ($commandNameSpaces as $commandClass) {
+            if (in_array(CommandInterface::class, class_implements($commandClass), true) === false) {
+                throw new LogicException("Класс {$commandClass} команды не соответстует интерфейсу " . CommandInterface::class);
+            }
+
+            $commandName = explode(' ', $commandClass::getCommandName())[0];
+
+            $commandMap[$commandName] = $commandClass;
+        }
+
+        $this->inputOptions->setCommandMap($commandMap);
     }
 
     /**

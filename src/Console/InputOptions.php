@@ -40,21 +40,9 @@ class InputOptions implements InputOptionsInterface, ObserverInterface
         return $this->commandMap;
     }
 
-    /**
-     * @param array $commandNameSpaces
-     * @return void
-     */
-    public function registerCommandNamespaces(array $commandNameSpaces): void
+    public function setCommandMap(array $commandMap): void
     {
-        foreach ($commandNameSpaces as $commandClass) {
-            if (in_array(CommandInterface::class, class_implements($commandClass), true) === false) {
-                throw new LogicException('Не удалось прочитать команду');
-            }
-
-            $commandName = explode(' ', $commandClass::getCommandName())[0];
-
-            $this->commandMap[$commandName] = $commandClass;
-        }
+        $this->commandMap = $commandMap;
     }
 
     /**
