@@ -6,9 +6,11 @@ use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
 use Craft\Components\EventDispatcher\EventDispatcher;
 use Craft\Console\ConsoleKernel;
+use Craft\Contracts\CommandInterface;
 use Craft\Console\Input;
 use Craft\Console\InputOptions;
 use Craft\Contracts\InputInterface;
+use Craft\Contracts\InputOptionsInterface;
 use Craft\Contracts\OutputInterface;
 use Craft\Console\InputArguments;
 use Craft\Console\Output;
@@ -33,6 +35,25 @@ class ConsoleKernelTest extends TestCase
             $errorHandler ?: $this->createMock(CliErrorHandler::class),
             $inputOptions ?: $this->createMock(InputOptions::class)
         );
+    }
+
+    private function createCommandSpy(): CommandInterface
+    {
+        return new class() implements CommandInterface
+        {
+            public static function getCommandName(): string
+            {
+                return 'testCommand';
+            }
+
+            public static function getDescription(): string
+            {
+                return 'Test command description';
+            }
+
+            public function execute(InputInterface $input, OutputInterface $output): void
+            { }
+        };
     }
 
     public function testHandleInputFromConsoleWithUnknownCommand(): void
@@ -95,5 +116,20 @@ class ConsoleKernelTest extends TestCase
 
         $consoleKernel->comparisonArguments($commandArguments);
     }
-}
 
+    public function testRegisterCommandNamespaceIsCorrectly(): void
+    {
+        $commandStub = $this->createCommandSpy();
+
+        $inputOptionsMock = $this->createMock(InputOptions::class);
+
+        $inputOptionsMock->expects($this->once())
+            ->method('setCommandMap')
+            ->with($this->callback(function (array $commandMap) {
+                return isset($commandMap['testCommand']);
+            }));
+
+        $consoleKernelMock = $this->createConsoleKernel(null, null, null, $inputOptionsMock);
+        $consoleKernelMock->registerCommandNamespaces([get_class($commandStub)]);
+    }
+}
