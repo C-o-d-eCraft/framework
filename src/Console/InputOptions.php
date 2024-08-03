@@ -5,13 +5,13 @@ namespace Craft\Console;
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\EventDispatcher\Event;
 use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Console\OptionsConfirm;
 use Craft\Contracts\CommandInterface;
 use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\InputOptionsInterface;
 use Craft\Contracts\ObserverInterface;
-use Craft\Console\OptionsConfirm;
 use LogicException;
 
 class InputOptions implements InputOptionsInterface, ObserverInterface
@@ -51,16 +51,16 @@ class InputOptions implements InputOptionsInterface, ObserverInterface
      */
     public function registerOptions(): void
     {
-        $optionsConfirm = $this->container->make(OptionsConfirm::class);
-        
-        $this->eventDispatcher->attach(Event::OPTIONS_CONFIRM, $optionsConfirm);
-        $this->eventDispatcher->attach(Event::OPTION_CONFIRMED, $this->container->make(ConsoleKernelInterface::class));
-
         $options = $this->input->getOptions();
 
         if (empty($options) === true) {
             return;
         }
+
+        $optionsConfirm = $this->container->make(OptionsConfirm::class);
+
+        $this->eventDispatcher->attach(Event::OPTIONS_CONFIRM, $optionsConfirm);
+        $this->eventDispatcher->attach(Event::OPTION_CONFIRMED, $this->container->make(ConsoleKernelInterface::class));
 
         $this->eventDispatcher->trigger(Event::OPTIONS_CONFIRM, new EventMessage([
             'options' => $options,
