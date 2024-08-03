@@ -24,11 +24,4 @@ interface ConsoleKernelInterface
      * @return int Код завершения выполнения команды.
      */
     public function handle(): int;
-
-    /**
-     * Возвращает карту зарегистрированных консольных команд.
-     *
-     * @return array Массив, представляющий карту зарегистрированных консольных команд.
-     */
-    public function getCommandMap(): array;
 }
