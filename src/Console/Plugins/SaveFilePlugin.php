@@ -10,7 +10,6 @@ use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\OutputInterface;
 use Craft\Contracts\PluginInterface;
-use ReflectionException;
 use RuntimeException;
 
 class SaveFilePlugin implements PluginInterface, ObserverInterface
@@ -91,13 +90,17 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
         $clearMessage = $this->removeAnsiEscapeSequences($this->output->getMessage());
         $fileName = $this->filePath . '/' . date('Y-m-d H:i:s') . '.log';
 
-        if (file_put_contents($fileName, $clearMessage, FILE_APPEND) === false) {
+        if ($this->filePutContents($fileName, $clearMessage, FILE_APPEND) === false) {
             throw new RuntimeException(sprintf('Ошибка чтения файла "%s"', $fileName));
         }
-
     }
 
-    private function removeAnsiEscapeSequences($text): string
+    protected function filePutContents(string $fileName, string $data, int $flags): bool
+    {
+        return file_put_contents($fileName, $data, $flags) !== false;
+    }
+
+    public function removeAnsiEscapeSequences(string $text): string
     {
         $regex = '/\e\[[0-9;]*m/';
         return preg_replace($regex, '', $text);

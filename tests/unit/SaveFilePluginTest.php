@@ -2,85 +2,114 @@
 
 namespace Tests\Unit;
 
-use Craft\Components\DIContainer\DIContainer;
-use Craft\Components\EventDispatcher\EventMessage;
-use Craft\Components\EventDispatcher\Event;
+use Craft\Console\Plugins\SaveFilePlugin;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\OutputInterface;
-use Craft\Console\Plugins\SaveFilePlugin;
-use Codeception\Stub;
-use Codeception\Test\Unit;
+use Craft\Components\DIContainer\DIContainer;
+use PHPUnit\Framework\MockObject\Exception;
+use PHPUnit\Framework\TestCase;
 
-class SaveFilePluginTest extends Unit
+/**
+ * Класс для тестирования SaveFilePlugin
+ */
+class SaveFilePluginTest extends TestCase
 {
-    protected $tester;
-    private $containerMock;
-    private $eventDispatcherMock;
-    private $inputMock;
-    private $outputMock;
-    private $saveFilePlugin;
-    private $testLogDir;
+    /**
+     * @var EventDispatcherInterface
+     */
+    private EventDispatcherInterface $eventDispatcherMock;
 
-    protected function _before()
+    /**
+     * @var OutputInterface
+     */
+    private OutputInterface $outputMock;
+
+    /**
+     * @var DIContainer
+     */
+    private DIContainer $containerMock;
+
+    /**
+     * @var SaveFilePlugin
+     */
+    private SaveFilePlugin $saveFilePlugin;
+
+    /**
+     * Устанавливает начальные условия для тестов
+     *
+     * @return void
+     * @throws Exception
+     */
+    protected function setUp(): void
     {
-        $this->eventDispatcherMock = Stub::makeEmpty(EventDispatcherInterface::class);
-        $this->inputMock = Stub::makeEmpty(InputInterface::class);
-        $this->outputMock = Stub::makeEmpty(OutputInterface::class, [
-            'getMessage' => 'Test message'
-        ]);
+        $this->eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
+        $inputMock = $this->createMock(InputInterface::class);
+        $this->outputMock = $this->createMock(OutputInterface::class);
+        $this->containerMock = $this->createMock(DIContainer::class);
 
-        $this->containerMock = Stub::make(DIContainer::class, [
-            'make' => function ($class) {
-                if ($class === EventDispatcherInterface::class) {
-                    return $this->eventDispatcherMock;
-                }
-                if ($class === InputInterface::class) {
-                    return $this->inputMock;
-                }
-                if ($class === OutputInterface::class) {
-                    return $this->outputMock;
-                }
-                throw new \LogicException("Не найден: $class");
-            }
-        ]);
+        $this->containerMock->method('make')
+            ->willreturnMap([
+                [EventDispatcherInterface::class, $this->eventDispatcherMock],
+                [InputInterface::class, $inputMock],
+                [OutputInterface::class, $this->outputMock],
+            ]);
 
-        $this->testLogDir = dirname(__DIR__, 5) . '/runtime/console-output';
-        $this->saveFilePlugin = new SaveFilePlugin($this->containerMock);
+        $this->saveFilePlugin = new SaveFilePlugin($this->containerMock, '/tmp');
     }
 
-    public function testInit()
+    /**
+     * Тестирует метод init на предмет привязки события
+     *
+     * @return void
+     */
+    public function testInitAttachesEvent(): void
     {
         $this->eventDispatcherMock->expects($this->once())
             ->method('attach')
-            ->with(Event::AFTER_EXECUTE, $this->saveFilePlugin);
+            ->with($this->equalTo('after_execute'), $this->saveFilePlugin);
 
         $this->saveFilePlugin->init();
     }
 
-    public function testUpdateCreatesLogFile()
+    /**
+     * Тестирует метод update на вызов функции file_put_contents с правильными аргументами
+     *
+     * @return void
+     */
+    public function testUpdateCallsFilePutContents(): void
     {
-        $eventMessageMock = Stub::makeEmpty(EventMessage::class);
+        $message = "Command output\n";
+        $this->outputMock->method('getMessage')->willReturn($message);
 
-        $runtimeDir = $this->testLogDir;
-        $logFile = $runtimeDir . '/' . date('Y-m-d H:i:s') . '.log';
+        $filePutContentsMock = $this->getMockBuilder(SaveFilePlugin::class)
+            ->onlyMethods(['filePutContents'])
+            ->setConstructorArgs([$this->containerMock, '/tmp'])
+            ->getMock();
 
-        if (!is_dir($runtimeDir)) {
-            mkdir($runtimeDir, 0777, true);
-        }
+        $filePutContentsMock->expects($this->once())
+            ->method('filePutContents')
+            ->with(
+                $this->callback(function ($fileName) {
+                    return str_contains($fileName, '/tmp/');
+                }),
+                $this->equalTo("Command output\n"),
+                $this->equalTo(FILE_APPEND)
+            )
+            ->willReturn(true);
 
-        if (file_exists($logFile)) {
-            unlink($logFile);
-        }
+        $filePutContentsMock->update();
+    }
 
-        $this->saveFilePlugin->update($eventMessageMock);
-
-        $this->assertFileExists($logFile, "Лог-файл должен быть создан по пути $logFile");
-
-        $loggedContent = file_get_contents($logFile);
-
-        $this->assertStringContainsString('Test message', $loggedContent, "Лог-файл должен содержать 'Test message'");
-
-        unlink($logFile);
+    /**
+     * Тестирует метод removeAnsiEscapeSequences на удаление ANSI последовательностей
+     *
+     * @return void
+     */
+    public function testRemoveAnsiEscapeSequences(): void
+    {
+        $text = "\e[32mSuccess\e[0m";
+        $result = $this->saveFilePlugin->removeAnsiEscapeSequences($text);
+        $this->assertEquals("Success", $result);
     }
 }

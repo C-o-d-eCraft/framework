@@ -117,9 +117,11 @@ class ConsoleKernel implements ConsoleKernelInterface, ObserverInterface
 
             $this->container->make($commandClass)->execute($this->input, $this->output);
 
-            $this->eventDispatcher->trigger(Event::AFTER_EXECUTE);
+            if($this->input->outputToFile() === true) {
+                $this->eventDispatcher->trigger(Event::AFTER_EXECUTE);
+            }
 
-            $this->output->stdout($this->output->getMessage());
+                $this->output->stdout($this->output->getMessage());
 
             return $this->output->getStatusCode();
         } catch (Throwable $e) {
