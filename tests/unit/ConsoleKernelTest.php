@@ -6,18 +6,16 @@ use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
 use Craft\Components\EventDispatcher\EventDispatcher;
 use Craft\Console\ConsoleKernel;
-use Craft\Contracts\CommandInterface;
 use Craft\Console\Input;
-use Craft\Console\InputOptions;
-use Craft\Contracts\InputInterface;
-use Craft\Contracts\InputOptionsInterface;
-use Craft\Contracts\OutputInterface;
 use Craft\Console\InputArguments;
+use Craft\Console\InputOptions;
 use Craft\Console\Output;
-use Craft\Components\EventDispatcher\Event;
+use Craft\Contracts\CommandInterface;
+use Craft\Contracts\InputInterface;
+use Craft\Contracts\OutputInterface;
+use LogicException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use LogicException;
 
 class ConsoleKernelTest extends TestCase
 {

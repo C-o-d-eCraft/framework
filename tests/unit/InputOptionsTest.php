@@ -3,14 +3,10 @@
 namespace Tests\Unit;
 
 use Craft\Components\DIContainer\DIContainer;
-use Craft\Console\ConsoleKernel;
-use Craft\Console\Input;
 use Craft\Console\InputOptions;
+use Craft\Console\OptionsConfirm;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\InputInterface;
-use Craft\Components\EventDispatcher\Event;
-use Craft\Contracts\ObserverInterface;
-use Craft\Console\OptionsConfirm;
 use PHPUnit\Framework\TestCase;
 
 class InputOptionsTest extends TestCase
