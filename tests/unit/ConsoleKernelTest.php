@@ -14,6 +14,7 @@ use Craft\Contracts\InputOptionsInterface;
 use Craft\Contracts\OutputInterface;
 use Craft\Console\InputArguments;
 use Craft\Console\Output;
+use Craft\Components\EventDispatcher\Event;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use LogicException;
@@ -142,7 +143,69 @@ class ConsoleKernelTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Класс {$invalidCommandClass} команды не соответствует интерфейсу " . CommandInterface::class);
 
-
         $consoleKernel->registerCommandNamespaces([$invalidCommandClass]);
+    }
+
+    public function testHandleIsCorrectForCommandAndTriggersAfterExecute(): void
+    {
+        $commandMock = $this->createCommandSpy();
+        $inputMock = $this->createMock(Input::class);
+        $inputOptionsMock = $this->createMock(InputOptions::class);
+        $containerMock = $this->createMock(DIContainer::class);
+        $outputMock = $this->createMock(Output::class);
+        $eventDispatcherMock = $this->createMock(EventDispatcher::class);
+
+        $inputMock->method('getCommandNameSpace')
+            ->willReturn('testCommand');
+        $inputOptionsMock->method('getCommandMap')
+            ->willReturn(['testCommand' => get_class($commandMock)]);
+        $containerMock->method('make')
+            ->willReturn($commandMock);
+
+        $kernel = new ConsoleKernel(
+            $containerMock,
+            $inputMock,
+            $outputMock,
+            $eventDispatcherMock,
+            $this->createMock(CliErrorHandler::class),
+            $inputOptionsMock
+        );
+
+        $result = $kernel->handle();
+
+        $this->assertEquals(0, $result);
+    }
+
+    public function testHandleWithErrorsThrowsException(): void
+    {
+        $commandMock = $this->createCommandSpy();
+        $inputMock = $this->createMock(Input::class);
+        $inputOptionsMock = $this->createMock(InputOptions::class);
+        $containerMock = $this->createMock(DIContainer::class);
+        $outputMock = $this->createMock(Output::class);
+        $eventDispatcherMock = $this->createMock(EventDispatcher::class);
+        $errorHandlerMock = $this->createMock(CliErrorHandler::class);
+
+        $inputMock->method('getCommandNameSpace')
+            ->willReturn('testCommand');
+        $inputOptionsMock->method('getCommandMap')
+            ->willReturn(['testCommand' => get_class($commandMock)]);
+        $containerMock->method('make')
+            ->will($this->throwException(new RuntimeException('test exception')));
+        $errorHandlerMock->method('handle')
+            ->willReturn('Handled exception message');
+
+        $kernel = new ConsoleKernel(
+            $containerMock,
+            $inputMock,
+            $outputMock,
+            $eventDispatcherMock,
+            $errorHandlerMock,
+            $inputOptionsMock
+        );
+
+        $result = $kernel->handle();
+
+        $this->assertEquals(1, $result);
     }
 }
