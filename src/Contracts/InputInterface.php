@@ -17,4 +17,6 @@ interface InputInterface
     public function setArguments(array $arguments): void;
 
     public function getOptions(): array;
+
+    public function outputToFile(): bool;
 }
