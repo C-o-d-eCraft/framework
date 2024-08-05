@@ -45,4 +45,6 @@ interface OutputInterface
     public function error(string $result): void;
 
     public function getStatusCode(): int;
+
+    public function getMessage(): string;
 }

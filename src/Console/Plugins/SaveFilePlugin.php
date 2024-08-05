@@ -10,7 +10,7 @@ use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\OutputInterface;
 use Craft\Contracts\PluginInterface;
-use ReflectionException;
+use RuntimeException;
 
 class SaveFilePlugin implements PluginInterface, ObserverInterface
 {
@@ -34,20 +34,23 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      */
     private static string $pluginName = '--save-file';
 
+    private string $filePath;
+
     /**
      * @var string
      */
-    private static string $description = 'Сохранить вывод комманды в файл';
+    private static string $description = 'Сохранить вывод команды в файл';
 
     /**
      * @param DIContainer $container
      * @throws ReflectionException
      */
-    public function __construct(private readonly DIContainer $container)
+    public function __construct(private readonly DIContainer $container, string $filePath = null)
     {
         $this->eventDispatcher = $this->container->make(EventDispatcherInterface::class);
         $this->input = $this->container->make(InputInterface::class);
         $this->output = $this->container->make(OutputInterface::class);
+        $this->filePath = $filePath ?? dirname(__DIR__, 6) . '/runtime/console-output';
     }
 
     /**
@@ -80,12 +83,26 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      */
     public function update(EventMessage|null $message = null): void
     {
-        $filePath = __DIR__ . 'runtime/console-output';
-
-        if (is_dir($filePath) === false) {
-            mkdir($filePath);
+        if (is_dir($this->filePath) === false) {
+            mkdir($this->filePath);
         }
 
-        file_put_contents($filePath . '/' . date('Y-m-d H:i:s'), $this->output->getMessage(), FILE_APPEND);
+        $clearMessage = $this->removeAnsiEscapeSequences($this->output->getMessage());
+        $fileName = $this->filePath . '/' . date('Y-m-d H:i:s') . '.log';
+
+        if ($this->filePutContents($fileName, $clearMessage, FILE_APPEND) === false) {
+            throw new RuntimeException(sprintf('Ошибка чтения файла "%s"', $fileName));
+        }
+    }
+
+    protected function filePutContents(string $fileName, string $data, int $flags): bool
+    {
+        return file_put_contents($fileName, $data, $flags) !== false;
+    }
+
+    public function removeAnsiEscapeSequences(string $text): string
+    {
+        $regex = '/\e\[[0-9;]*m/';
+        return preg_replace($regex, '', $text);
     }
 }
