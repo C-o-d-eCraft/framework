@@ -81,7 +81,7 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      * @param EventMessage|null $message
      * @return void
      */
-    public function update(EventMessage|null $message = null): void
+    public function update(mixed $message = null): void
     {
         if (is_dir($this->filePath) === false) {
             mkdir($this->filePath);
