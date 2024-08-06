@@ -6,6 +6,7 @@ use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
 use Craft\Components\EventDispatcher\Event;
 use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Console\Plugins\SaveFilePlugin;
 use Craft\Contracts\CommandInterface;
 use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
@@ -74,6 +75,8 @@ class ConsoleKernel implements ConsoleKernelInterface
         try {
             $calledCommandName = $this->input->getCommandNameSpace();
             $commandMap = $this->inputOptions->getCommandMap();
+
+            $this->container->make(SaveFilePlugin::class)->init();
 
             $commandClass = $commandMap[$calledCommandName] ?? null;
 
