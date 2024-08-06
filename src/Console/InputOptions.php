@@ -20,8 +20,8 @@ class InputOptions implements InputOptionsInterface, ObserverInterface
         private readonly DIContainer               $container,
         private readonly InputInterface            $input,
         private readonly EventDispatcherInterface  $eventDispatcher,
-        private readonly array                     $plugins = [],
-        private readonly array                     $options = [],
+        private array                              $plugins = [],
+        private array                              $options = [],
         private array                              $commandMap = [],
     ) { }
 

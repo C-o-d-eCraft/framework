@@ -75,8 +75,12 @@ class ConsoleKernel implements ConsoleKernelInterface
         try {
             $calledCommandName = $this->input->getCommandNameSpace();
             $commandMap = $this->inputOptions->getCommandMap();
-
-            $this->container->make(SaveFilePlugin::class)->init();
+            $plugins = $this->inputOptions->getPlugins();
+            
+            foreach ($plugins as $plugin) {
+                $plugin = $this->container->make($plugin);
+                $plugin->init();
+            }
 
             $commandClass = $commandMap[$calledCommandName] ?? null;
 
