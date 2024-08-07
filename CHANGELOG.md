@@ -10,6 +10,8 @@
   - Покрыл юнит тестами ConsoleKernel
   - Покрыл юнит тестами Input
   - Покрыл юнит тестами InputArguments
+- Изменено:
+  - Изменил метод получения типа в catch блоках 
 
 ## [ [0.3.3](https://github.com/C-o-d-eCraft/framework/releases/tag/0.3.3) ] - 01.07.2024
 - Исправлено:
