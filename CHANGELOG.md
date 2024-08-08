@@ -5,10 +5,15 @@
 Формат основан на [стандарте формата CHANGELOG](https://keepachangelog.com/en/1.0.0/),
 и придерживается [правил версионирования](https://semver.org/spec/v2.0.0.html).
 
+## [ [0.3.4](https://github.com/C-o-d-eCraft/framework/releases/tag/0.3.4) ] - 08.08.2024
 - Реализовано:
+  - Абстрактный базовый контроллер
+  - Обработчик опций 
   - Покрыл юнит тестами ConsoleKernel
   - Покрыл юнит тестами Input
   - Покрыл юнит тестами InputArguments
+- Изменено:
+  - Изменил метод получения типа в catch блоках 
 
 ## [ [0.3.3](https://github.com/C-o-d-eCraft/framework/releases/tag/0.3.3) ] - 01.07.2024
 - Исправлено:

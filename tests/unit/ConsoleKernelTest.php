@@ -5,151 +5,205 @@ namespace Tests\Unit;
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
 use Craft\Components\EventDispatcher\EventDispatcher;
-use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Console\ConsoleKernel;
+use Craft\Console\Input;
 use Craft\Console\InputArguments;
+use Craft\Console\InputOptions;
+use Craft\Console\Output;
 use Craft\Contracts\CommandInterface;
 use Craft\Contracts\InputInterface;
-use Craft\Contracts\LoggerInterface;
-use Craft\Contracts\ObserverInterface;
 use Craft\Contracts\OutputInterface;
 use LogicException;
 use PHPUnit\Framework\TestCase;
-
-class FakeCommand implements CommandInterface
-{
-    public static function getCommandName(): string
-    {
-        return 'test:command';
-    }
-
-    public function execute(InputInterface $input, OutputInterface $output): void
-    { }
-
-    public static function getDescription(): string
-    {
-        return 'Fake command for testing';
-    }
-}
-
-class FakeOptionsConfirm implements ObserverInterface
-{
-    public function __construct(private EventDispatcher $eventDispatcher) {}
-
-    public function update(EventMessage|null $message = null): void
-    {}
-}
+use RuntimeException;
 
 class ConsoleKernelTest extends TestCase
 {
-    protected function setUp(): void
+    private function createConsoleKernel(
+        ?Input $input = null,
+        ?Output $output = null,
+        ?CliErrorHandler $errorHandler = null,
+        ?InputOptions $inputOptions = null
+    ): ConsoleKernel 
     {
-        $this->containerMock = $this->createMock(DIContainer::class);
-        $this->inputMock = $this->createMock(InputInterface::class);
-        $this->outputMock = $this->createMock(OutputInterface::class);
-        $this->eventDispatcherMock = $this->createMock(EventDispatcher::class);
-        $this->loggerMock = $this->createMock(LoggerInterface::class);
-        $this->errorHandlerMock = $this->createMock(CliErrorHandler::class);
-
-        $this->kernel = new ConsoleKernel(
-            $this->containerMock,
-            $this->inputMock,
-            $this->outputMock,
-            $this->eventDispatcherMock,
-            $this->loggerMock,
-            $this->errorHandlerMock,
-            ['SomePlugin']
+        return new ConsoleKernel(
+            $this->createMock(DIContainer::class),
+            $input ?: $this->createMock(Input::class),
+            $output ?: $this->createMock(Output::class),
+            $this->createMock(EventDispatcher::class),
+            $errorHandler ?: $this->createMock(CliErrorHandler::class),
+            $inputOptions ?: $this->createMock(InputOptions::class)
         );
     }
 
-    public function testRegisterCommandNamespaces(): void
+    private function createCommandSpy(): CommandInterface
     {
-        $this->kernel->registerCommandNamespaces([FakeCommand::class]);
+        return new class() implements CommandInterface
+        {
+            public static function getCommandName(): string
+            {
+                return 'testCommand';
+            }
 
-        $this->assertArrayHasKey('test:command', $this->kernel->getCommandMap());
+            public static function getDescription(): string
+            {
+                return 'Test command description';
+            }
+
+            public function execute(InputInterface $input, OutputInterface $output): void
+            { }
+        };
     }
 
-    public function testParseCommandArguments(): void
+    public function testHandleInputFromConsoleWithUnknownCommand(): void
     {
-        $commandName = 'command arg1 arg2=default ?arg3';
-        $expectedArguments = [
-            new InputArguments('arg1'),
-            new InputArguments('arg2=default'),
-            new InputArguments('?arg3'),
-        ];
+        $input = $this->createMock(Input::class);
+        $input->method('getCommandNameSpace')
+            ->willReturn('unknownCommand');
 
-        $result = $this->kernel->parseCommandArguments($commandName);
+        $inputOptions = $this->createMock(InputOptions::class);
+        $inputOptions->method('getCommandMap')
+            ->willReturn([]);
 
-        foreach ($result as $index => $arg) {
-            $this->assertEquals($expectedArguments[$index]->name, $arg->name);
-            $this->assertEquals($expectedArguments[$index]->required, $arg->required);
-            $this->assertEquals($expectedArguments[$index]->defaultValue, $arg->defaultValue);
-        }
+        $errorHandler = $this->createMock(CliErrorHandler::class);
+        $errorHandler->method('handle')
+            ->will($this->returnCallback(function ($exception) {
+                return $exception->getMessage();
+            }));
+
+        $output = $this->createMock(Output::class);
+        $output->expects($this->once())
+            ->method('error')
+            ->with('Неизвестная команда.' . PHP_EOL . 'Для получения списка команд введите: ' . PHP_EOL . 'list' . PHP_EOL);
+
+        $consoleKernel = $this->createConsoleKernel($input, $output, $errorHandler, $inputOptions);
+
+        $result = $consoleKernel->handle();
     }
 
-    public function testComparisonArgumentsWithManyArguments(): void
+
+    public function testParseArgumentsWithExcessArgumentsThrowLogicException(): void
     {
+        $input = $this->createMock(Input::class);
+        $input->method('getArguments')->willReturn(['arg1', 'arg2']);
+        
+        $consoleKernel = $this->createConsoleKernel($input);
+
         $commandArguments = [
             new InputArguments('arg1'),
         ];
-
-        $this->inputMock->method('getArguments')->willReturn(['value1', 'value2']);
 
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('Избыточное количество аргументов');
 
-        $this->kernel->comparisonArguments($commandArguments);
+        $consoleKernel->comparisonArguments($commandArguments);
     }
 
-    public function testComparisonArguments(): void
+    public function testParseArgumentsWithRequiredArgumentMissingThrowLogicException(): void
     {
+        $input = $this->createMock(Input::class);
+        $input->method('getArguments')->willReturn([]);
+
+        $consoleKernel = $this->createConsoleKernel($input);
+
         $commandArguments = [
             new InputArguments('arg1'),
-            new InputArguments('arg2=default')
         ];
 
-        $this->inputMock->method('getArguments')->willReturn(['value1', 'default']);
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('"arg1" Аргумент обязателен для ввода');
 
-        $this->inputMock->expects($this->once())
-            ->method('setArguments')
-            ->with([
-                'arg1' => 'value1',
-                'arg2' => 'default'
-            ]);
-
-        $this->kernel->comparisonArguments($commandArguments);
+        $consoleKernel->comparisonArguments($commandArguments);
     }
 
-    public function testRegisteredOptions(): void
+    public function testRegisterCommandNamespaceIsCorrectly(): void
     {
-        $this->inputMock->method('getOptions')->willReturn(['option1' => 'value1']);
+        $commandStub = $this->createCommandSpy();
 
-        $fakeOptionsConfirm = new FakeOptionsConfirm($this->eventDispatcherMock);
-        $this->containerMock->method('make')->willReturn($fakeOptionsConfirm);
+        $inputOptionsMock = $this->createMock(InputOptions::class);
 
-        $this->eventDispatcherMock->expects($this->exactly(2))
-            ->method('attach');
+        $inputOptionsMock->expects($this->once())
+            ->method('setCommandMap')
+            ->with($this->callback(function (array $commandMap) {
+                return isset($commandMap['testCommand']);
+            }));
 
-        $this->eventDispatcherMock->expects($this->once())
-            ->method('trigger')
-            ->with('options_confirm', $this->isInstanceOf(EventMessage::class));
-
-        $this->kernel->registeredOptions();
+        $consoleKernelMock = $this->createConsoleKernel(null, null, null, $inputOptionsMock);
+        $consoleKernelMock->registerCommandNamespaces([get_class($commandStub)]);
     }
 
-    public function testRegisteredOptionsWithEmptyOptions(): void
+    public function testInabilityReadCommandThrowsLogicException(): void
     {
-        $this->inputMock->method('getOptions')->willReturn([]);
+        $invalidCommandClass = \stdClass::class;
 
-        $fakeOptionsConfirm = new FakeOptionsConfirm($this->eventDispatcherMock);
-        $this->containerMock->method('make')->willReturn($fakeOptionsConfirm);
+        $consoleKernel = $this->createConsoleKernel();
 
-        $this->eventDispatcherMock->expects($this->exactly(2))
-            ->method('attach');
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage("Класс {$invalidCommandClass} команды не соответствует интерфейсу " . CommandInterface::class);
 
-        $this->eventDispatcherMock->expects($this->never())
-            ->method('trigger');
+        $consoleKernel->registerCommandNamespaces([$invalidCommandClass]);
+    }
 
-        $this->kernel->registeredOptions();
+    public function testHandleIsCorrectForCommandAndTriggersAfterExecute(): void
+    {
+        $commandMock = $this->createCommandSpy();
+        $inputMock = $this->createMock(Input::class);
+        $inputOptionsMock = $this->createMock(InputOptions::class);
+        $containerMock = $this->createMock(DIContainer::class);
+        $outputMock = $this->createMock(Output::class);
+        $eventDispatcherMock = $this->createMock(EventDispatcher::class);
+
+        $inputMock->method('getCommandNameSpace')
+            ->willReturn('testCommand');
+        $inputOptionsMock->method('getCommandMap')
+            ->willReturn(['testCommand' => get_class($commandMock)]);
+        $containerMock->method('make')
+            ->willReturn($commandMock);
+
+        $kernel = new ConsoleKernel(
+            $containerMock,
+            $inputMock,
+            $outputMock,
+            $eventDispatcherMock,
+            $this->createMock(CliErrorHandler::class),
+            $inputOptionsMock
+        );
+
+        $result = $kernel->handle();
+
+        $this->assertEquals(0, $result);
+    }
+
+    public function testHandleWithErrorsThrowsException(): void
+    {
+        $commandMock = $this->createCommandSpy();
+        $inputMock = $this->createMock(Input::class);
+        $inputOptionsMock = $this->createMock(InputOptions::class);
+        $containerMock = $this->createMock(DIContainer::class);
+        $outputMock = $this->createMock(Output::class);
+        $eventDispatcherMock = $this->createMock(EventDispatcher::class);
+        $errorHandlerMock = $this->createMock(CliErrorHandler::class);
+
+        $inputMock->method('getCommandNameSpace')
+            ->willReturn('testCommand');
+        $inputOptionsMock->method('getCommandMap')
+            ->willReturn(['testCommand' => get_class($commandMock)]);
+        $containerMock->method('make')
+            ->will($this->throwException(new RuntimeException('test exception')));
+        $errorHandlerMock->method('handle')
+            ->willReturn('Handled exception message');
+
+        $kernel = new ConsoleKernel(
+            $containerMock,
+            $inputMock,
+            $outputMock,
+            $eventDispatcherMock,
+            $errorHandlerMock,
+            $inputOptionsMock
+        );
+
+        $result = $kernel->handle();
+
+        $this->assertEquals(1, $result);
     }
 }

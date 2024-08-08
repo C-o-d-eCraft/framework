@@ -40,9 +40,25 @@ interface OutputInterface
      */
     public function success(string $result): void;
 
+    /**
+     * @param string $result
+     * @return void
+     */
     public function primary(string $result): void;
 
+    /**
+     * @param string $result
+     * @return void
+     */
     public function error(string $result): void;
 
+    /**
+     * @return int
+     */
     public function getStatusCode(): int;
+
+    /**
+     * @return string
+     */
+    public function getMessage(): string;
 }

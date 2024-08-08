@@ -4,7 +4,6 @@ namespace Craft\Http\Validator;
 
 use Craft\Contracts\RequestInterface;
 use InvalidArgumentException;
-use stdClass;
 
 abstract class AbstractFormRequest
 {

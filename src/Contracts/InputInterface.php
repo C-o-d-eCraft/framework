@@ -14,7 +14,19 @@ interface InputInterface
      */
     public function getCommandNameSpace(): ?string;
 
+    /**
+     * @param array $arguments
+     * @return void
+     */
     public function setArguments(array $arguments): void;
 
+    /**
+     * @return array
+     */
     public function getOptions(): array;
+
+    /**
+     * @return bool
+     */
+    public function outputToFile(): bool;
 }

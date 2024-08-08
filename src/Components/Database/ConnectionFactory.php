@@ -4,7 +4,6 @@ namespace Craft\Components\Database;
 
 use Craft\Contracts\ConnectionFactoryInterface;
 use Craft\Contracts\DataBaseConnectionInterface;
-use Craft\Components\Database\QueryBuilder;
 
 class ConnectionFactory implements ConnectionFactoryInterface
 {

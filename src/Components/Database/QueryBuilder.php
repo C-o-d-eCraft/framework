@@ -4,7 +4,6 @@ namespace Craft\Components\Database;
 
 use Craft\Contracts\DataBaseConnectionInterface;
 use PDO;
-use PDOException;
 
 class QueryBuilder implements DataBaseConnectionInterface
 {
@@ -82,12 +81,14 @@ class QueryBuilder implements DataBaseConnectionInterface
     {
         $set = [];
         $params = [];
+        
         foreach ($data as $key => $value) {
             $set[] = "$key = :$key";
             $params[":$key"] = $value;
         }
 
         $where = [];
+        
         foreach ($condition as $key => $value) {
             if ($value instanceof Query  === true) {
                 $where[] = "$key = (" . $value->build() . ")";

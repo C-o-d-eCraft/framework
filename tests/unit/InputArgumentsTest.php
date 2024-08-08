@@ -7,43 +7,53 @@ use PHPUnit\Framework\TestCase;
 
 class InputArgumentsTest extends TestCase
 {
-    public function testRequiredArgument(): void
+    public function testRequiredArgumentParseAndSetCorrectly(): void
     {
-        $argument = 'requiredArg';
-        $inputArgument = new InputArguments($argument);
+        $inputArgument = new InputArguments('testRequiredArg');
 
-        $this->assertEquals('requiredArg', $inputArgument->name);
         $this->assertTrue($inputArgument->required);
+    }
+
+    public function testRequiredArgumentIsDefaultNull(): void
+    {
+        $inputArgument = new InputArguments('testRequiredArg');
+
         $this->assertNull($inputArgument->defaultValue);
     }
 
-    public function testOptionalArgument(): void
+    public function testOptionalArgumentParseAndSetCorrectly(): void
     {
-        $argument = '?optionalArg';
-        $inputArgument = new InputArguments($argument);
+        $inputArgument = new InputArguments('?testOptionalArg=42');
 
-        $this->assertEquals('optionalArg', $inputArgument->name);
         $this->assertFalse($inputArgument->required);
-        $this->assertNull($inputArgument->defaultValue);
     }
 
-    public function testArgumentWithDefaultValue(): void
+    public function testArgumentWithDefaultValueParseAndSetCorrectly(): void
     {
-        $argument = 'argWithDefault=42';
-        $inputArgument = new InputArguments($argument);
+        $inputArgument = new InputArguments('?testOptionalArg=42');
 
-        $this->assertEquals('argWithDefault', $inputArgument->name);
-        $this->assertTrue($inputArgument->required);
         $this->assertEquals(42, $inputArgument->defaultValue);
     }
 
-    public function testOptionalArgumentWithDefaultValue(): void
+    public function testOptionalArgumentIsDefaultNotNull(): void
     {
-        $argument = '?optionalArgWithDefault=99';
-        $inputArgument = new InputArguments($argument);
+        $inputArgument = new InputArguments('?testOptionalArg=42');
 
-        $this->assertEquals('optionalArgWithDefault', $inputArgument->name);
-        $this->assertFalse($inputArgument->required);
-        $this->assertEquals(99, $inputArgument->defaultValue);
+        $this->assertNotNull($inputArgument->defaultValue);
+    }
+
+    public function testOptionalArgumentWithoutDefaultValueThrowsException(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Необязательный аргумент должен иметь значение по умолчанию!');
+
+        new InputArguments('?testOptionalArg');
+    }
+
+    public function testArgumentNameParseAndSetCorrectly(): void
+    {
+        $inputArgument = new InputArguments('testArg');
+
+        $this->assertEquals('testArg', $inputArgument->name);
     }
 }

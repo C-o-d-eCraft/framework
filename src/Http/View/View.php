@@ -4,7 +4,6 @@ namespace Craft\Http\View;
 
 use Craft\Contracts\ViewInterface;
 use Craft\Http\Exceptions\HttpException;
-use InvalidArgumentException;
 
 class View implements ViewInterface
 {

@@ -2,7 +2,6 @@
 
 namespace Craft\Components\Logger\Observers;
 
-use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Components\Logger\StateProcessor\LogStorageDTO;
 use Craft\Contracts\ObserverInterface;
 

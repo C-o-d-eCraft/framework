@@ -2,10 +2,10 @@
 
 namespace Tests\Unit;
 
-use Craft\Contracts\ObserverInterface;
-use Craft\Components\EventDispatcher\EventDispatcher;
-use PHPUnit\Framework\MockObject\Exception;
 use Codeception\{Test\Unit};
+use Craft\Components\EventDispatcher\EventDispatcher;
+use Craft\Contracts\ObserverInterface;
+use PHPUnit\Framework\MockObject\Exception;
 
 class EventDispatcherTest extends Unit
 {

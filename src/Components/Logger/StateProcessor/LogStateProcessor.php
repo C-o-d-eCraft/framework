@@ -2,20 +2,11 @@
 
 namespace Craft\Components\Logger\StateProcessor;
 
-use Craft\Components\Logger\Observers\ObserverAttachContext;
-use Craft\Components\Logger\Observers\ObserverAttachExtras;
-use Craft\Components\Logger\Observers\ObserverDetachContext;
-use Craft\Components\Logger\Observers\ObserverFlushExtras;
-use Craft\Components\Logger\Observers\ObserverFlushContext;
 use Craft\Contracts\DebugTagStorageInterface;
 use Craft\Contracts\LogStateProcessorInterface;
-use Craft\Components\EventDispatcher\EventMessage;
-use Craft\Contracts\EventDispatcherInterface;
-use Craft\Contracts\ObserverInterface;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
-
 
 class LogStateProcessor implements LogStateProcessorInterface
 {

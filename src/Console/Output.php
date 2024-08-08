@@ -23,7 +23,7 @@ class Output implements OutputInterface
      */
     public function setMessage(string $message): void
     {
-        $this->message = $message;
+        $this->message .= $message;
     }
 
     /**
@@ -59,7 +59,7 @@ class Output implements OutputInterface
      */
     public function stdout(string $result): void
     {
-        fwrite(STDOUT, $result);
+        fwrite(STDOUT,PHP_EOL . $result);
     }
 
     /**
@@ -69,7 +69,7 @@ class Output implements OutputInterface
      */
     public function info(string $result): void
     {
-        $this->stdout("\033[34m" . $result . "\033[0m");
+        $this->setMessage("\033[34m" . $result . "\033[0m");
     }
 
     /**
@@ -79,7 +79,7 @@ class Output implements OutputInterface
      */
     public function warning(string $result): void
     {
-        $this->stdout("\033[38;5;214m" . $result . "\033[0m");
+        $this->setMessage("\033[38;5;214m" . $result . "\033[0m");
     }
 
     /**
@@ -89,7 +89,7 @@ class Output implements OutputInterface
      */
     public function success(string $result): void
     {
-        $this->stdout("\033[32m" . $result . "\033[0m");
+        $this->setMessage("\033[32m" . $result . "\033[0m");
     }
 
     /**
@@ -99,11 +99,11 @@ class Output implements OutputInterface
      */
     public function primary(string $result): void
     {
-        $this->stdout("\033[34m" . $result . "\033[0m");
+        $this->setMessage("\033[34m" . $result . "\033[0m");
     }
 
     public function error(string $result): void
     {
-        $this->stdout("\033[31m" . $result . "\033[0m");
+        $this->setMessage("\033[31m" . $result . "\033[0m");
     }
 }

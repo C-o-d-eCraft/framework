@@ -6,8 +6,6 @@ use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\HttpErrorHandler;
 use Craft\Components\ErrorHandler\MessageEnum;
 use Craft\Components\ErrorHandler\StatusCodeEnum;
-use Craft\Components\EventDispatcher\EventMessage;
-use Craft\Components\Logger\StateProcessor\LogContextEvent;
 use Craft\Contracts\ErrorHandlerInterface;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\HttpKernelInterface;

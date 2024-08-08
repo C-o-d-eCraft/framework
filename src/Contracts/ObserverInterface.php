@@ -2,9 +2,11 @@
 
 namespace Craft\Contracts;
 
-use Craft\Components\EventDispatcher\EventMessage;
-
 interface ObserverInterface
 {
-    public function update(EventMessage|null $message = null): void;
+    /**
+     * @param mixed|null $message
+     * @return void
+     */
+    public function update(mixed $message = null): void;
 }

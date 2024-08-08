@@ -2,12 +2,12 @@
 
 namespace Craft\Console\Plugins;
 
-use Craft\Components\EventDispatcher\EventMessage;
-use Craft\Contracts\ObserverInterface;
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\EventDispatcher\Event;
+use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\InputInterface;
+use Craft\Contracts\ObserverInterface;
 use Craft\Contracts\OutputInterface;
 use Craft\Contracts\PluginInterface;
 use ReflectionException;
