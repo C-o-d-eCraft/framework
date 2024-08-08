@@ -5,7 +5,6 @@ namespace Craft\Http\Message;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\StreamInterface;
 use Craft\Contracts\UriInterface;
-use Craft\Http\Exceptions\ForbiddenHttpException;
 
 class Request extends Message implements RequestInterface
 {

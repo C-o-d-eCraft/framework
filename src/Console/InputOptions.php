@@ -5,14 +5,11 @@ namespace Craft\Console;
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\EventDispatcher\Event;
 use Craft\Components\EventDispatcher\EventMessage;
-use Craft\Console\OptionsConfirm;
-use Craft\Contracts\CommandInterface;
 use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\InputOptionsInterface;
 use Craft\Contracts\ObserverInterface;
-use LogicException;
 
 class InputOptions implements InputOptionsInterface, ObserverInterface
 {

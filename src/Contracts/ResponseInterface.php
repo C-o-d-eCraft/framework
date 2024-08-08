@@ -51,5 +51,8 @@ interface ResponseInterface extends MessageInterface
      */
     public function getReasonPhrase(): string;
 
+    /**
+     * @return mixed
+     */
     public function send();
 }

@@ -3,7 +3,6 @@
 namespace Craft\Components\Logger;
 
 use Craft\Components\Logger\StateProcessor\LogStateProcessor;
-use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\LoggerInterface;
 
 class StdoutLogger implements LoggerInterface

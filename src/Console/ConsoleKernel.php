@@ -6,7 +6,6 @@ use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
 use Craft\Components\EventDispatcher\Event;
 use Craft\Components\EventDispatcher\EventMessage;
-use Craft\Console\Plugins\SaveFilePlugin;
 use Craft\Contracts\CommandInterface;
 use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
@@ -100,7 +99,7 @@ class ConsoleKernel implements ConsoleKernelInterface
 
             $this->container->make($commandClass)->execute($this->input, $this->output);
 
-            if($this->input->outputToFile() === true) {
+            if ($this->input->outputToFile() === true) {
                 $this->eventDispatcher->trigger(Event::AFTER_EXECUTE);
             }
 

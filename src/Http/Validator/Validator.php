@@ -2,8 +2,8 @@
 
 namespace Craft\Http\Validator;
 
-use InvalidArgumentException;
 use Craft\Http\Validator\Rules\ValidationRuleInterface;
+use InvalidArgumentException;
 
 class Validator
 {

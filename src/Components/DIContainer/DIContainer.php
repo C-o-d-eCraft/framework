@@ -5,11 +5,10 @@ namespace Craft\Components\DIContainer;
 use Craft\Contracts\ContainerInterface;
 use Exception;
 use InvalidArgumentException;
+use LogicException;
 use ReflectionClass;
 use ReflectionException;
-use ReflectionFunction;
 use ReflectionMethod;
-use LogicException;
 
 class DIContainer implements ContainerInterface
 {
@@ -103,6 +102,7 @@ class DIContainer implements ContainerInterface
             }
 
             $dependencyInterface = $parameter->getType()->getName();
+            
             $dependencies[] = $this->make($dependencyInterface);
         }
 
@@ -146,23 +146,26 @@ class DIContainer implements ContainerInterface
             $reflection = new ReflectionMethod($handler, $method);
             $parameters = $reflection->getParameters();
             $resolvedArgs = $this->resolveArguments($parameters);
+            
             $args = array_merge($resolvedArgs, $args);
+            
             return $reflection->invokeArgs($handler, $args);
         }
 
         if (is_string($handler) && class_exists($handler)) {
             $instance = $this->make($handler);
+            
             $reflection = new ReflectionMethod($instance, $method);
             $parameters = $reflection->getParameters();
             $resolvedArgs = $this->resolveArguments($parameters);
+            
             $args = array_merge($resolvedArgs, $args);
+            
             return $reflection->invokeArgs($instance, $args);
         }
 
         throw new InvalidArgumentException('Невозможно выполнить вызов: некорректный обработчик или класс');
     }
-
-
 
     /**
      * @param array $parameters
@@ -192,8 +195,7 @@ class DIContainer implements ContainerInterface
 
         return $arguments;
     }
-
-
+    
     /**
      * Проверяет наличие контракта в конфигурации.
      *

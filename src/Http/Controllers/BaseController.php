@@ -2,7 +2,6 @@
 
 namespace Craft\Http\Controllers;
 
-
 use Craft\Components\ErrorHandler\StatusCodeEnum;
 use Craft\Http\Exceptions\HttpException;
 use Craft\Http\ResponseTypes\JsonResponse;
@@ -26,6 +25,7 @@ abstract class BaseController
         $response = new JsonResponse();
         $response->setJsonBody($data);
         $response->setStatusCode($statusCode);
+        
         return $response;
     }
 
@@ -154,4 +154,3 @@ abstract class BaseController
         throw new HttpException(StatusCodeEnum::FORBIDDEN, 'DELETE method "actionDeleteItem" not implemented');
     }
 }
-

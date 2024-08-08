@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use Codeception\{Test\Unit};
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Contracts\HttpKernelInterface;
 use Craft\Contracts\RequestInterface;
@@ -9,7 +10,6 @@ use Craft\Contracts\ResponseInterface;
 use Craft\Http\Factory\RequestFactory;
 use PHPUnit\Framework\MockObject\Exception;
 use ReflectionException;
-use Codeception\{Test\Unit};
 
 class DIContainerTest extends Unit
 {

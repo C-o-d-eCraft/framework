@@ -2,11 +2,11 @@
 
 namespace Tests\Unit;
 
+use Craft\Components\DIContainer\DIContainer;
 use Craft\Console\Plugins\SaveFilePlugin;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\OutputInterface;
-use Craft\Components\DIContainer\DIContainer;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 

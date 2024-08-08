@@ -3,6 +3,9 @@
 namespace Craft\Http\Route;
 
 use Craft\Components\DIContainer\DIContainer;
+use Craft\Components\Logger\StateProcessor\LogContextEvent;
+use Craft\Contracts\EventDispatcherInterface;
+use Craft\Contracts\EventMessageInterface;
 use Craft\Contracts\MiddlewareInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ResponseInterface;
@@ -10,9 +13,6 @@ use Craft\Contracts\RouterInterface;
 use Craft\Contracts\RoutesCollectionInterface;
 use Craft\Http\Exceptions\HttpException;
 use Craft\Http\Exceptions\NotFoundHttpException;
-use Craft\Contracts\EventMessageInterface;
-use Craft\Contracts\EventDispatcherInterface;
-use Craft\Components\Logger\StateProcessor\LogContextEvent;
 use ReflectionException;
 
 readonly class Router implements RouterInterface
