@@ -1,18 +1,17 @@
 <?php
 
-namespace Craft\Components\Logger\DebugTag;
+namespace Craft\Components\DebugTag;
 
 use Craft\Contracts\DebugTagGeneratorInterface;
 use Craft\Contracts\DebugTagStorageInterface;
 
 class DebugTagGenerator implements DebugTagGeneratorInterface
 {
-    private string $mode;
-
-    public function __construct(private DebugTagStorageInterface $tagStorage, private string $indexName)
-    {
-        $this->mode = empty($_SERVER['argv']) ? 'web' : 'cli';
-    }
+    public function __construct(
+        private DebugTagStorageInterface $tagStorage,
+        private string $indexName,
+        private string $mode = 'web')
+    { }
 
     /**
      * @param  Application $app
