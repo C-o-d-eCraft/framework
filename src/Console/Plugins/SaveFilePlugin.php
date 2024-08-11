@@ -3,10 +3,9 @@
 namespace Craft\Console\Plugins;
 
 use Craft\Components\DIContainer\DIContainer;
-use Craft\Components\EventDispatcher\Event;
+use Craft\Console\Events;
 use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Contracts\EventDispatcherInterface;
-use Craft\Contracts\InputInterface;
 use Craft\Contracts\ObserverInterface;
 use Craft\Contracts\OutputInterface;
 use Craft\Contracts\PluginInterface;
@@ -15,26 +14,9 @@ use RuntimeException;
 class SaveFilePlugin implements PluginInterface, ObserverInterface
 {
     /**
-     * @var EventDispatcherInterface
-     */
-    private EventDispatcherInterface $eventDispatcher;
-
-    /**
-     * @var InputInterface
-     */
-    private InputInterface $input;
-
-    /**
-     * @var OutputInterface
-     */
-    private OutputInterface $output;
-
-    /**
      * @var string
      */
     private static string $pluginName = '--save-file';
-
-    private string $filePath;
 
     /**
      * @var string
@@ -45,13 +27,11 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      * @param DIContainer $container
      * @throws ReflectionException
      */
-    public function __construct(private readonly DIContainer $container, string $filePath = null)
-    {
-        $this->eventDispatcher = $this->container->make(EventDispatcherInterface::class);
-        $this->input = $this->container->make(InputInterface::class);
-        $this->output = $this->container->make(OutputInterface::class);
-        $this->filePath = $filePath ?? dirname(__DIR__, 6) . '/runtime/console-output';
-    }
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly OutputInterface $output,
+        private string $filePath = PROJECT_ROOT . '/runtime/console-output')
+    { }
 
     /**
      * @return string
@@ -74,7 +54,7 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      */
     public function init(): void
     {
-        $this->eventDispatcher->attach(Event::AFTER_EXECUTE, $this);
+        $this->eventDispatcher->attach(Events::AFTER_EXECUTE, $this);
     }
 
     /**
@@ -104,5 +84,10 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
     {
         $regex = '/\e\[[0-9;]*m/';
         return preg_replace($regex, '', $text);
+    }
+
+    public function outputToFile(): bool
+    {
+        return in_array('--save-file',$this->options);
     }
 }
