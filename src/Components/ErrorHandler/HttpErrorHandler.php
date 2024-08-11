@@ -2,6 +2,7 @@
 
 namespace Craft\Components\ErrorHandler;
 
+use Craft\Components\DebugTag\DebugTagStorage;
 use Craft\Contracts\ErrorHandlerInterface;
 use Craft\Contracts\LoggerInterface;
 use Craft\Contracts\RequestInterface;
@@ -13,6 +14,7 @@ class HttpErrorHandler implements ErrorHandlerInterface
     public function __construct(
         private ViewInterface $view,
         private LoggerInterface $logger,
+        private DebugTagStorage $debugTagStorage,
         private readonly RequestInterface $request,
         private ?string $environmentMode = null,
         private ?string $customErrorViewPath = null,
@@ -52,9 +54,9 @@ class HttpErrorHandler implements ErrorHandlerInterface
         }
 
         $params = [
+            'xdebugTag' => $this->debugTagStorage->getTag(),
             'statusCode' => $statusCode ?? $exception->getCode(),
-            'reasonPhrase' => $reasonPhrase ?? $exception->getMessage(),
-            'environmentMode' => $this->environmentMode
+            'reasonPhrase' => $reasonPhrase ?? $exception->getMessage()
         ];
 
         $params = $this->checkEnvironmentMode($params, $exception);
@@ -65,6 +67,7 @@ class HttpErrorHandler implements ErrorHandlerInterface
     public function getJsonErrorBody(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
     {
         $params = [
+            'xdebugTag' => $this->debugTagStorage->getTag(),
             'statusCode' => $statusCode ?? $exception->getCode(),
             'reasonPhrase' => $reasonPhrase ?? $exception->getMessage(),
         ];
@@ -78,7 +81,6 @@ class HttpErrorHandler implements ErrorHandlerInterface
     {
         if ($this->environmentMode === 'development') {
             $params = array_merge($params, [
-                'xdebugTag' => defined('X_DEBUG_TAG') ? X_DEBUG_TAG : null,
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
                 'stackTrace' => explode(PHP_EOL, $exception->getTraceAsString()),

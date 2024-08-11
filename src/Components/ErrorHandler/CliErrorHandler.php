@@ -2,11 +2,13 @@
 
 namespace Craft\Components\ErrorHandler;
 
+use Craft\Contracts\ErrorHandlerInterface;
+use Craft\Components\DebugTag\DebugTagStorage;
 use Throwable;
 
-class CliErrorHandler
+class CliErrorHandler implements ErrorHandlerInterface
 {
-    public function __construct(private ?string $environmentMode = null) { }
+    public function __construct(private DebugTagStorage $debugTagStorage) { }
 
     /**
      * @param Throwable $exception
@@ -19,16 +21,14 @@ class CliErrorHandler
         $params = [
             'reasonPhrase' => $reasonPhrase ?? $exception->getMessage(),
         ];
-
-        if ($this->environmentMode === 'development') {
-            $params = array_merge($params, [
-                'xdebugTag' => defined('X_DEBUG_TAG') ? X_DEBUG_TAG : null,
-                'file' => $exception->getFile(),
-                'line' => $exception->getLine(),
-                'stackTrace' => $exception->getTraceAsString(),
-            ]);
-        }
-
+        
+        $params = array_merge($params, [
+            'xdebugTag' => $this->debugTagStorage->getTag(),
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
+            'stackTrace' => $exception->getTraceAsString(),
+        ]);
+        
         $message = "Сообщение об ошибке:" . PHP_EOL . implode(PHP_EOL, array_map(
                 fn($key, $value) => "$key: $value",
                 array_keys($params),
