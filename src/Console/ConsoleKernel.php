@@ -4,7 +4,7 @@ namespace Craft\Console;
 
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
-use Craft\Components\EventDispatcher\Event;
+use Craft\Console\Events;
 use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Contracts\CommandInterface;
 use Craft\Contracts\ConsoleKernelInterface;
@@ -91,19 +91,19 @@ class ConsoleKernel implements ConsoleKernelInterface
 
             $commandArguments = $this->parseCommandArguments($commandClass::getCommandName());
 
-            $this->eventDispatcher->trigger(Event::BEFORE_RUN, new EventMessage(['commandArguments' => $commandArguments]));
+            $this->eventDispatcher->trigger(Events::BEFORE_RUN, new EventMessage(['commandArguments' => $commandArguments]));
 
             $this->comparisonArguments($commandArguments);
 
-            $this->eventDispatcher->trigger(Event::BEFORE_EXECUTE);
+            $this->eventDispatcher->trigger(Events::BEFORE_EXECUTE);
 
             $this->container->make($commandClass)->execute($this->input, $this->output);
 
             if ($this->input->outputToFile() === true) {
-                $this->eventDispatcher->trigger(Event::AFTER_EXECUTE);
+                $this->eventDispatcher->trigger(Events::AFTER_EXECUTE);
             }
 
-                $this->output->stdout($this->output->getMessage());
+            $this->output->stdout($this->output->getMessage());
 
             return $this->output->getStatusCode();
         } catch (Throwable $e) {
