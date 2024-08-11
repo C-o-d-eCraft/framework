@@ -49,14 +49,16 @@ class Query implements QueryInterface
             foreach ($condition as $key => $value) {
                 if ($value instanceof self === true) {
                     $this->where[] = "$key = (" . $value->build() . ")";
+                    continue;
                 }
-                if ($value instanceof self === false) {
-                    $this->where[] = "$key = " . (is_numeric($value) ? $value : "'" . addslashes((string) $value) . "'");
-                }
+
+                $this->where[] = "$key = " . (is_numeric($value) ? $value : "'" . addslashes((string) $value) . "'");
             }
-        } else {
-            $this->where[] = $condition;
+
+            return $this;
         }
+
+        $this->where[] = $condition;
 
         return $this;
     }
