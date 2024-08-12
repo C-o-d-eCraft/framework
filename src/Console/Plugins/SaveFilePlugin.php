@@ -2,15 +2,13 @@
 
 namespace Craft\Console\Plugins;
 
-use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\EventDispatcher\Event;
 use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Contracts\EventDispatcherInterface;
-use Craft\Contracts\InputInterface;
+use Craft\Contracts\FileSystemInterface;
 use Craft\Contracts\ObserverInterface;
 use Craft\Contracts\OutputInterface;
 use Craft\Contracts\PluginInterface;
-use RuntimeException;
 
 class SaveFilePlugin implements PluginInterface, ObserverInterface
 {
@@ -20,14 +18,14 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
     private EventDispatcherInterface $eventDispatcher;
 
     /**
-     * @var InputInterface
-     */
-    private InputInterface $input;
-
-    /**
      * @var OutputInterface
      */
     private OutputInterface $output;
+
+    /**
+     * @var FileSystemInterface
+     */
+    private FileSystemInterface $fileSystem;
 
     /**
      * @var string
@@ -42,15 +40,19 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
     private static string $description = 'Сохранить вывод команды в файл';
 
     /**
-     * @param DIContainer $container
-     * @throws ReflectionException
+     * @param EventDispatcherInterface $eventDispatcher
+     * @param OutputInterface $output
+     * @param FileSystemInterface $fileSystem
      */
-    public function __construct(private readonly DIContainer $container, string $filePath = null)
+    public function __construct(
+        EventDispatcherInterface $eventDispatcher,
+        OutputInterface          $output,
+        FileSystemInterface      $fileSystem)
     {
-        $this->eventDispatcher = $this->container->make(EventDispatcherInterface::class);
-        $this->input = $this->container->make(InputInterface::class);
-        $this->output = $this->container->make(OutputInterface::class);
-        $this->filePath = $filePath ?? dirname(__DIR__, 6) . '/runtime/console-output';
+        $this->eventDispatcher = $eventDispatcher;
+        $this->output = $output;
+        $this->fileSystem = $fileSystem;
+        $this->filePath = $this->fileSystem->getDirName();
     }
 
     /**
@@ -87,22 +89,9 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
             mkdir($this->filePath);
         }
 
-        $clearMessage = $this->removeAnsiEscapeSequences($this->output->getMessage());
         $fileName = $this->filePath . '/' . date('Y-m-d H:i:s') . '.log';
 
-        if ($this->filePutContents($fileName, $clearMessage, FILE_APPEND) === false) {
-            throw new RuntimeException(sprintf('Ошибка чтения файла "%s"', $fileName));
-        }
+        $this->fileSystem->put($fileName, $this->output->getMessage(), FILE_APPEND);
     }
 
-    protected function filePutContents(string $fileName, string $data, int $flags): bool
-    {
-        return file_put_contents($fileName, $data, $flags) !== false;
-    }
-
-    public function removeAnsiEscapeSequences(string $text): string
-    {
-        $regex = '/\e\[[0-9;]*m/';
-        return preg_replace($regex, '', $text);
-    }
 }
