@@ -81,19 +81,19 @@ class QueryBuilder implements DataBaseConnectionInterface
     {
         $set = [];
         $params = [];
-        
+
         foreach ($data as $key => $value) {
             $set[] = "$key = :$key";
             $params[":$key"] = $value;
         }
 
         $where = [];
-        
+
         foreach ($condition as $key => $value) {
-            if ($value instanceof Query  === true) {
+            if ($value instanceof Query === true) {
                 $where[] = "$key = (" . $value->build() . ")";
             }
-            if ($value instanceof Query  === false) {
+            if ($value instanceof Query === false) {
                 $where[] = "$key = :cond_$key";
                 $params[":cond_$key"] = $value;
             }
@@ -118,7 +118,6 @@ class QueryBuilder implements DataBaseConnectionInterface
     {
         $keys = array_keys($data);
         $fields = implode(', ', $keys);
-        $placeholders = ':' . implode(', :', $keys);
 
         $params = [];
 
@@ -157,10 +156,11 @@ class QueryBuilder implements DataBaseConnectionInterface
         foreach ($condition as $key => $value) {
             if ($value instanceof Query) {
                 $where[] = "$key = (" . $value->build() . ")";
-            } else {
-                $where[] = "$key = :$key";
-                $params[":$key"] = $value;
+                continue;
             }
+
+            $where[] = "$key = :$key";
+            $params[":$key"] = $value;
         }
 
         $sql = "DELETE FROM $table WHERE " . implode(' AND ', $where);
@@ -184,19 +184,24 @@ class QueryBuilder implements DataBaseConnectionInterface
         $values = [];
 
         foreach ($params as $key => $value) {
-            if (is_string($key)) {
-                $keys[] = '/:' . $key . '/';
-            } else {
-                $keys[] = '/[?]/';
-            }
+            $keys[] = is_string($key) ? '/:' . $key . '/' : '/[?]/';
 
             if (is_numeric($value)) {
                 $values[] = $value;
-            } elseif (is_bool($value)) {
+                continue;
+            }
+
+            if (is_bool($value)) {
                 $values[] = $value ? 'TRUE' : 'FALSE';
-            } elseif (is_null($value)) {
+                continue;
+            }
+
+            if (is_null($value)) {
                 $values[] = 'NULL';
-            } elseif (is_string($value)) {
+                continue;
+            }
+
+            if (is_string($value)) {
                 $values[] = "'" . addslashes($value) . "'";
             }
         }

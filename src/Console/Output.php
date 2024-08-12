@@ -59,7 +59,7 @@ class Output implements OutputInterface
      */
     public function stdout(string $result): void
     {
-        fwrite(STDOUT,PHP_EOL . $result);
+        fwrite(STDOUT, PHP_EOL . $result);
     }
 
     /**

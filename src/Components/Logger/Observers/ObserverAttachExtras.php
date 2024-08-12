@@ -7,7 +7,9 @@ use Craft\Contracts\ObserverInterface;
 
 class ObserverAttachExtras implements ObserverInterface
 {
-    public function __construct(private LogStorageDTO $storage) { }
+    public function __construct(private LogStorageDTO $storage)
+    {
+    }
 
     /**
      * @param mixed|null $message
@@ -18,7 +20,7 @@ class ObserverAttachExtras implements ObserverInterface
         if ($message === null) {
             return;
         }
-        
+
         if ($this->storage->extras === null) {
             $this->storage->extras = [];
         }

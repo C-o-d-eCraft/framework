@@ -15,8 +15,7 @@ class DIContainerTest extends Unit
 {
     private function createContainerSpy(array $config = []): DIContainer
     {
-        return new class($config) extends DIContainer
-        {
+        return new class($config) extends DIContainer {
             public function __construct($config)
             {
                 parent::__construct($config);
@@ -31,7 +30,7 @@ class DIContainerTest extends Unit
 
         $this->assertInstanceOf(DIContainer::class, $container);
     }
-    
+
     public function testCloneThrowsException(): void
     {
         $this->expectException(\LogicException::class);

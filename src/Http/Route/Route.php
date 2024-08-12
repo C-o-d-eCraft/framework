@@ -12,10 +12,12 @@ class Route
      * @param array $middlewares
      */
     public function __construct(
-        public string $method,
-        public string $route,
+        public string       $method,
+        public string       $route,
         public string|array $controllerAction,
-        public array $params = [],
-        public array $middlewares = []
-    ) { }
+        public array        $params = [],
+        public array        $middlewares = []
+    )
+    {
+    }
 }

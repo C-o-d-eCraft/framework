@@ -269,7 +269,7 @@ class Response extends Message implements ResponseInterface
 
         if (($this->body instanceof StreamInterface) === false) {
             echo 'StatusCode: ' . $this->getStatusCode();
-            
+
             return;
         }
 

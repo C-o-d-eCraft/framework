@@ -41,11 +41,11 @@ class Request extends Message implements RequestInterface
      * @param string $protocolVersion
      */
     public function __construct(
-        string $method,
-        UriInterface $uri,
-        array $headers,
+        string          $method,
+        UriInterface    $uri,
+        array           $headers,
         StreamInterface $body,
-        string $protocolVersion = 'HTTP/1.1',
+        string          $protocolVersion = 'HTTP/1.1',
     )
     {
         $this->method = $method;
@@ -88,7 +88,7 @@ class Request extends Message implements RequestInterface
      */
     public function withMethod(string $method): static
     {
-        $request =clone $this;
+        $request = clone $this;
         $request->method = $method;
 
         return $request;
@@ -114,7 +114,7 @@ class Request extends Message implements RequestInterface
         $request->uri = $uri;
 
         if ($preserveHost === false) {
-            $request =$request->withHeader('Host', $uri->getHost());
+            $request = $request->withHeader('Host', $uri->getHost());
         }
 
         return $request;
@@ -270,7 +270,7 @@ class Request extends Message implements RequestInterface
      */
     public function getBodyContents(): array
     {
-        return array_merge((array) json_decode($this->body->getContents()), $_POST);
+        return array_merge((array)json_decode($this->body->getContents()), $_POST);
     }
 
     public function getParams(): array

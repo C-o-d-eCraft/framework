@@ -68,10 +68,10 @@ class Uri implements UriInterface
         string $host = '',
         string $path = '',
         string $query = '',
-        array $queryParams = [],
-        array $pathVariables = [],
+        array  $queryParams = [],
+        array  $pathVariables = [],
         string $fragment = '',
-        ?int $port = null,
+        ?int   $port = null,
     )
     {
         $this->uri = $uri;

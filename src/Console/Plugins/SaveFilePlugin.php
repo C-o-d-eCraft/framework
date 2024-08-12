@@ -2,8 +2,8 @@
 
 namespace Craft\Console\Plugins;
 
-use Craft\Components\EventDispatcher\Event;
 use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Console\Events;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\FileSystemInterface;
 use Craft\Contracts\ObserverInterface;
@@ -31,8 +31,6 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      * @var string
      */
     private static string $pluginName = '--save-file';
-
-    private string $filePath;
 
     /**
      * @var string
@@ -76,7 +74,7 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      */
     public function init(): void
     {
-        $this->eventDispatcher->attach(Event::AFTER_EXECUTE, $this);
+        $this->eventDispatcher->attach(Events::AFTER_EXECUTE, $this);
     }
 
     /**

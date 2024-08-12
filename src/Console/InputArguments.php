@@ -47,7 +47,7 @@ class InputArguments
                 throw new \InvalidArgumentException('Необязательный аргумент должен иметь значение по умолчанию!');
             }
 
-            $this->defaultValue = (int) substr($argument, $equalsPosition + 1);
+            $this->defaultValue = (int)substr($argument, $equalsPosition + 1);
             $argument = substr($argument, 0, $equalsPosition);
         }
 

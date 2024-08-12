@@ -1,8 +1,8 @@
 <?php
 
-namespace Craft\Components\EventDispatcher;
+namespace Craft\Console;
 
-class Event
+class Events
 {
     /**
      * @param string $message
@@ -28,4 +28,6 @@ class Event
      * @param string $message
      */
     const OPTION_CONFIRMED = 'option_confirmed';
+    
+    const FILE_SAVED = 'file_saved';
 }

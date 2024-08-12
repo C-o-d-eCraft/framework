@@ -30,11 +30,13 @@ class HttpKernel implements HttpKernelInterface
         private ErrorHandlerInterface     $errorHandler,
         private EventDispatcherInterface  $eventDispatcher,
         private DIContainer               $container,
-    ) { }
+    )
+    {
+    }
 
     /**
      * @param RequestInterface $request
-     * 
+     *
      * @return ResponseInterface
      */
     public function handle(RequestInterface $request): ResponseInterface
@@ -49,15 +51,15 @@ class HttpKernel implements HttpKernelInterface
             $this->response = $this->router->dispatch($this->request);
 
             if ($this->response instanceof JsonResponse) {
-                $this->response->withHeader('Content-Type','application/json');
+                $this->response->withHeader('Content-Type', 'application/json');
             }
 
             if ($this->response instanceof TextResponse) {
-                $this->response->withHeader('Content-Type','text/plain');
+                $this->response->withHeader('Content-Type', 'text/plain');
             }
 
             if ($this->response instanceof HtmlResponse) {
-                $this->response->withHeader('Content-Type','text/html');
+                $this->response->withHeader('Content-Type', 'text/html');
             }
         } catch (HttpException $e) {
             $this->response->withStatus($e->getCode());
@@ -78,12 +80,12 @@ class HttpKernel implements HttpKernelInterface
 
             $this->response->setBody(new Stream($errorsView));
         } finally {
-            if(isset($errorsView) === true) {
+            if (isset($errorsView) === true) {
                 $this->response->setStatusCode((json_decode($errorsView, true)['statusCode']) ?? StatusCodeEnum::INTERNAL_SERVER_ERROR);
             }
 
-            if (isset($this->request->getHeaders()['CONTENT-TYPE']) && $this->request->getHeaders()['CONTENT-TYPE'] === 'application/json'){
-                $this->response->withHeader('Content-Type','application/json');
+            if (isset($this->request->getHeaders()['CONTENT-TYPE']) && $this->request->getHeaders()['CONTENT-TYPE'] === 'application/json') {
+                $this->response->withHeader('Content-Type', 'application/json');
             }
         }
 

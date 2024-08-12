@@ -4,7 +4,6 @@ namespace Craft\Console;
 
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
-use Craft\Components\EventDispatcher\Event;
 use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Contracts\CommandInterface;
 use Craft\Contracts\ConsoleKernelInterface;
@@ -28,13 +27,15 @@ class ConsoleKernel implements ConsoleKernelInterface
      * @param InputOptionsInterface $inputOptions
      */
     public function __construct(
-        private readonly DIContainer      $container,
-        private InputInterface            $input,
-        private OutputInterface           $output,
-        private readonly EventDispatcherInterface  $eventDispatcher,
-        private readonly CliErrorHandler  $errorHandler,
-        private InputOptionsInterface     $inputOptions
-    ) { }
+        private readonly DIContainer              $container,
+        private InputInterface                    $input,
+        private OutputInterface                   $output,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CliErrorHandler          $errorHandler,
+        private InputOptionsInterface             $inputOptions
+    )
+    {
+    }
 
     /**
      * @param array $commandNameSpaces
@@ -75,7 +76,7 @@ class ConsoleKernel implements ConsoleKernelInterface
             $calledCommandName = $this->input->getCommandNameSpace();
             $commandMap = $this->inputOptions->getCommandMap();
             $plugins = $this->inputOptions->getPlugins();
-            
+
             foreach ($plugins as $plugin) {
                 $plugin = $this->container->make($plugin);
                 $plugin->init();
@@ -91,19 +92,19 @@ class ConsoleKernel implements ConsoleKernelInterface
 
             $commandArguments = $this->parseCommandArguments($commandClass::getCommandName());
 
-            $this->eventDispatcher->trigger(Event::BEFORE_RUN, new EventMessage(['commandArguments' => $commandArguments]));
+            $this->eventDispatcher->trigger(Events::BEFORE_RUN, new EventMessage(['commandArguments' => $commandArguments]));
 
             $this->comparisonArguments($commandArguments);
 
-            $this->eventDispatcher->trigger(Event::BEFORE_EXECUTE);
+            $this->eventDispatcher->trigger(Events::BEFORE_EXECUTE);
 
             $this->container->make($commandClass)->execute($this->input, $this->output);
 
             if ($this->input->outputToFile() === true) {
-                $this->eventDispatcher->trigger(Event::AFTER_EXECUTE);
+                $this->eventDispatcher->trigger(Events::AFTER_EXECUTE);
             }
 
-                $this->output->stdout($this->output->getMessage());
+            $this->output->stdout($this->output->getMessage());
 
             return $this->output->getStatusCode();
         } catch (Throwable $e) {
@@ -170,7 +171,7 @@ class ConsoleKernel implements ConsoleKernelInterface
             }
 
             $enteredArguments[$paramName] = $paramsValue;
-            $argumentIndex ++;
+            $argumentIndex++;
         }
 
         $this->input->setArguments($enteredArguments);

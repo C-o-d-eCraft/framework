@@ -12,6 +12,7 @@
             margin: 0;
             padding: 0;
         }
+
         .container {
             max-width: 800px;
             margin: 50px auto;
@@ -20,9 +21,11 @@
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
+
         h1 {
             color: #f00;
         }
+
         .details {
             margin-top: 20px;
             padding: 10px;
@@ -30,9 +33,11 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+
         .details p {
             margin: 5px 0;
         }
+
         .details pre {
             white-space: pre-wrap;
             background-color: #fff;

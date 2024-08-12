@@ -7,7 +7,9 @@ use Craft\Contracts\ObserverInterface;
 
 class ObserverFlushContext implements ObserverInterface
 {
-    public function __construct(private LogStorageDTO $storage) { }
+    public function __construct(private LogStorageDTO $storage)
+    {
+    }
 
     /**
      * @param mixed|null $message

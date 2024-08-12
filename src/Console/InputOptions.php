@@ -3,7 +3,6 @@
 namespace Craft\Console;
 
 use Craft\Components\DIContainer\DIContainer;
-use Craft\Components\EventDispatcher\Event;
 use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
@@ -14,13 +13,15 @@ use Craft\Contracts\ObserverInterface;
 class InputOptions implements InputOptionsInterface, ObserverInterface
 {
     public function __construct(
-        private readonly DIContainer               $container,
-        private readonly InputInterface            $input,
-        private readonly EventDispatcherInterface  $eventDispatcher,
-        private array                              $plugins = [],
-        private array                              $options = [],
-        private array                              $commandMap = [],
-    ) { }
+        private readonly DIContainer              $container,
+        private readonly InputInterface           $input,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private array                             $plugins = [],
+        private array                             $options = [],
+        private array                             $commandMap = [],
+    )
+    {
+    }
 
     public function getOptions(): array
     {
@@ -56,10 +57,10 @@ class InputOptions implements InputOptionsInterface, ObserverInterface
 
         $optionsConfirm = $this->container->make(OptionsConfirm::class);
 
-        $this->eventDispatcher->attach(Event::OPTIONS_CONFIRM, $optionsConfirm);
-        $this->eventDispatcher->attach(Event::OPTION_CONFIRMED, $this->container->make(ConsoleKernelInterface::class));
+        $this->eventDispatcher->attach(Events::OPTIONS_CONFIRM, $optionsConfirm);
+        $this->eventDispatcher->attach(Events::OPTION_CONFIRMED, $this->container->make(ConsoleKernelInterface::class));
 
-        $this->eventDispatcher->trigger(Event::OPTIONS_CONFIRM, new EventMessage([
+        $this->eventDispatcher->trigger(Events::OPTIONS_CONFIRM, new EventMessage([
             'options' => $options,
             'commandMap' => $this->commandMap,
             'plugins' => $this->plugins,
