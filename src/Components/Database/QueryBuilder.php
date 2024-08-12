@@ -81,19 +81,19 @@ class QueryBuilder implements DataBaseConnectionInterface
     {
         $set = [];
         $params = [];
-        
+
         foreach ($data as $key => $value) {
             $set[] = "$key = :$key";
             $params[":$key"] = $value;
         }
 
         $where = [];
-        
+
         foreach ($condition as $key => $value) {
-            if ($value instanceof Query  === true) {
+            if ($value instanceof Query === true) {
                 $where[] = "$key = (" . $value->build() . ")";
             }
-            if ($value instanceof Query  === false) {
+            if ($value instanceof Query === false) {
                 $where[] = "$key = :cond_$key";
                 $params[":cond_$key"] = $value;
             }

@@ -22,7 +22,7 @@ class Query implements QueryInterface
     public function select(array|string ...$fields): self
     {
         $this->select = is_array($fields[0]) ? $fields[0] : $fields;
-        
+
         return $this;
     }
 
@@ -52,7 +52,7 @@ class Query implements QueryInterface
                     continue;
                 }
 
-                $this->where[] = "$key = " . (is_numeric($value) ? $value : "'" . addslashes((string) $value) . "'");
+                $this->where[] = "$key = " . (is_numeric($value) ? $value : "'" . addslashes((string)$value) . "'");
             }
 
             return $this;
@@ -71,8 +71,8 @@ class Query implements QueryInterface
      */
     public function whereIn(string $column, array $values): self
     {
-        $escapedValues = array_map(function($value) {
-            return is_numeric($value) ? $value : "'" . addslashes((string) $value) . "'";
+        $escapedValues = array_map(function ($value) {
+            return is_numeric($value) ? $value : "'" . addslashes((string)$value) . "'";
         }, $values);
 
         $this->where[] = "$column IN (" . implode(', ', $escapedValues) . ")";

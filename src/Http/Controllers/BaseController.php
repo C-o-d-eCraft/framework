@@ -25,7 +25,7 @@ abstract class BaseController
         $response = new JsonResponse();
         $response->setJsonBody($data);
         $response->setStatusCode($statusCode);
-        
+
         return $response;
     }
 

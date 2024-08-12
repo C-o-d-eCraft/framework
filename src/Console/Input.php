@@ -84,6 +84,6 @@ class Input implements InputInterface
 
     public function outputToFile(): bool
     {
-        return in_array('--save-file',$this->options);
+        return in_array('--save-file', $this->options);
     }
 }

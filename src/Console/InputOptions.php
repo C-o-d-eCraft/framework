@@ -3,7 +3,6 @@
 namespace Craft\Console;
 
 use Craft\Components\DIContainer\DIContainer;
-use Craft\Console\Events;
 use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
@@ -14,13 +13,15 @@ use Craft\Contracts\ObserverInterface;
 class InputOptions implements InputOptionsInterface, ObserverInterface
 {
     public function __construct(
-        private readonly DIContainer               $container,
-        private readonly InputInterface            $input,
-        private readonly EventDispatcherInterface  $eventDispatcher,
-        private array                              $plugins = [],
-        private array                              $options = [],
-        private array                              $commandMap = [],
-    ) { }
+        private readonly DIContainer              $container,
+        private readonly InputInterface           $input,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private array                             $plugins = [],
+        private array                             $options = [],
+        private array                             $commandMap = [],
+    )
+    {
+    }
 
     public function getOptions(): array
     {

@@ -12,10 +12,11 @@ use PHPUnit\Framework\TestCase;
 class InputOptionsTest extends TestCase
 {
     private function createInputOptions(
-        ?DIContainer $container = null,
-        ?InputInterface $input = null,
+        ?DIContainer              $container = null,
+        ?InputInterface           $input = null,
         ?EventDispatcherInterface $eventDispatcher = null,
-    ): InputOptions {
+    ): InputOptions
+    {
         return new InputOptions(
             $container ?: $this->createMock(DIContainer::class),
             $input ?: $this->createMock(InputInterface::class),

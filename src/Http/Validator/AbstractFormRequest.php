@@ -42,7 +42,7 @@ abstract class AbstractFormRequest
     public function getErrors(): array
     {
         $this->errors = array_merge($this->errors, $this->validator->errors);
-        
+
         return $this->errors;
     }
 
