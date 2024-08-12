@@ -9,17 +9,19 @@ use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ViewInterface;
 use Throwable;
 
-class HttpErrorHandler implements ErrorHandlerInterface 
+class HttpErrorHandler implements ErrorHandlerInterface
 {
     public function __construct(
-        private ViewInterface $view,
-        private LoggerInterface $logger,
-        private DebugTagStorage $debugTagStorage,
+        private ViewInterface             $view,
+        private LoggerInterface           $logger,
+        private DebugTagStorage           $debugTagStorage,
         private readonly RequestInterface $request,
-        private ?string $environmentMode = null,
-        private ?string $customErrorViewPath = null,
-        private ?string $customErrorViewName = null
-    ) { }
+        private ?string                   $environmentMode = null,
+        private ?string                   $customErrorViewPath = null,
+        private ?string                   $customErrorViewName = null
+    )
+    {
+    }
 
     /**
      * @param Throwable $exception

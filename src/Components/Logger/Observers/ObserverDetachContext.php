@@ -7,7 +7,9 @@ use Craft\Contracts\ObserverInterface;
 
 class ObserverDetachContext implements ObserverInterface
 {
-    public function __construct(private LogStorageDTO $storage) { }
+    public function __construct(private LogStorageDTO $storage)
+    {
+    }
 
     /**
      * @param mixed|null $message

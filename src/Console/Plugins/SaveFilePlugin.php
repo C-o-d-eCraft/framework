@@ -3,8 +3,8 @@
 namespace Craft\Console\Plugins;
 
 use Craft\Components\DIContainer\DIContainer;
-use Craft\Console\Events;
 use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Console\Events;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\ObserverInterface;
 use Craft\Contracts\OutputInterface;
@@ -29,9 +29,10 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly OutputInterface $output,
-        private string $filePath = PROJECT_ROOT . '/runtime/console-output')
-    { }
+        private readonly OutputInterface          $output,
+        private string                            $filePath = PROJECT_ROOT . '/runtime/console-output')
+    {
+    }
 
     /**
      * @return string
@@ -88,6 +89,6 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
 
     public function outputToFile(): bool
     {
-        return in_array('--save-file',$this->options);
+        return in_array('--save-file', $this->options);
     }
 }

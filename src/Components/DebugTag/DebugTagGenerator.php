@@ -9,12 +9,13 @@ class DebugTagGenerator implements DebugTagGeneratorInterface
 {
     public function __construct(
         private DebugTagStorageInterface $tagStorage,
-        private string $indexName,
-        private string $mode = 'web')
-    { }
+        private string                   $indexName,
+        private string                   $mode = 'web')
+    {
+    }
 
     /**
-     * @param  Application $app
+     * @param Application $app
      * @return void
      */
     public function init(): void

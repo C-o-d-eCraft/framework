@@ -4,7 +4,6 @@ namespace Craft\Console;
 
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
-use Craft\Console\Events;
 use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Contracts\CommandInterface;
 use Craft\Contracts\ConsoleKernelInterface;
@@ -28,13 +27,15 @@ class ConsoleKernel implements ConsoleKernelInterface
      * @param InputOptionsInterface $inputOptions
      */
     public function __construct(
-        private readonly DIContainer      $container,
-        private InputInterface            $input,
-        private OutputInterface           $output,
-        private readonly EventDispatcherInterface  $eventDispatcher,
-        private readonly CliErrorHandler  $errorHandler,
-        private InputOptionsInterface     $inputOptions
-    ) { }
+        private readonly DIContainer              $container,
+        private InputInterface                    $input,
+        private OutputInterface                   $output,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CliErrorHandler          $errorHandler,
+        private InputOptionsInterface             $inputOptions
+    )
+    {
+    }
 
     /**
      * @param array $commandNameSpaces
@@ -75,7 +76,7 @@ class ConsoleKernel implements ConsoleKernelInterface
             $calledCommandName = $this->input->getCommandNameSpace();
             $commandMap = $this->inputOptions->getCommandMap();
             $plugins = $this->inputOptions->getPlugins();
-            
+
             foreach ($plugins as $plugin) {
                 $plugin = $this->container->make($plugin);
                 $plugin->init();
@@ -170,7 +171,7 @@ class ConsoleKernel implements ConsoleKernelInterface
             }
 
             $enteredArguments[$paramName] = $paramsValue;
-            $argumentIndex ++;
+            $argumentIndex++;
         }
 
         $this->input->setArguments($enteredArguments);

@@ -29,7 +29,7 @@ class LogStateProcessor implements LogStateProcessorInterface
      */
     private function setUpDefaults(): void
     {
-        $this->storage->action_type = empty($_SERVER['argv']) ? 'web' : 'cli';
+        $this->storage->actionType = empty($_SERVER['argv']) ? 'web' : 'cli';
     }
 
     /**
@@ -44,7 +44,7 @@ class LogStateProcessor implements LogStateProcessorInterface
     {
         $this->validateSetUp();
 
-        $this->storage->x_debug_tag = $this->tagStorage->getTag();
+        $this->storage->xDebugTag = $this->tagStorage->getTag();
 
         $this->storage->message = $message;
 
