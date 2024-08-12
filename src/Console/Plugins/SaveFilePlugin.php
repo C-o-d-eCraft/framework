@@ -27,6 +27,8 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      */
     private FileSystemInterface $fileSystem;
 
+    private string $filePath;
+
     /**
      * @var string
      */
