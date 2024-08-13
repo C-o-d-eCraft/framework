@@ -2,7 +2,7 @@
 
 namespace Craft\Http\Controllers;
 
-use Craft\Components\ErrorHandler\StatusCodeEnum;
+use Craft\Http\Exceptions\ForbiddenHttpException;
 use Craft\Http\Exceptions\HttpException;
 use Craft\Http\ResponseTypes\JsonResponse;
 
@@ -46,37 +46,6 @@ abstract class BaseController
     }
 
     /**
-     * Возвращает успешный ответ 200 OK.
-     *
-     * @param mixed $data Данные для ответа.
-     * @return JsonResponse
-     */
-    protected function okResponse(mixed $data): JsonResponse
-    {
-        return $this->jsonResponse($data, StatusCodeEnum::OK);
-    }
-
-    /**
-     * Возвращает успешный ответ 201 Created.
-     *
-     * @return JsonResponse
-     */
-    protected function createdResponse(): JsonResponse
-    {
-        return $this->jsonResponse([], StatusCodeEnum::CREATED);
-    }
-
-    /**
-     * Возвращает успешный ответ 204 No Content.
-     *
-     * @return JsonResponse
-     */
-    protected function noContentResponse(): JsonResponse
-    {
-        return $this->jsonResponse([], StatusCodeEnum::NO_CONTENT);
-    }
-
-    /**
      * Получить список (более 1 элемента)
      * Обработка GET запроса.
      * Должен быть реализован в дочернем классе.
@@ -86,7 +55,15 @@ abstract class BaseController
      */
     public function actionGetList(): JsonResponse
     {
-        throw new HttpException(StatusCodeEnum::FORBIDDEN, 'GET method "actionGetList" not implemented');
+        $this->getList();
+    }
+
+    /**
+     * @throws HttpException
+     */
+    protected function getList(): void
+    {
+        throw new ForbiddenHttpException('GET method "actionGetList" not implemented');
     }
 
     /**
@@ -97,9 +74,17 @@ abstract class BaseController
      * @return JsonResponse
      * @throws HttpException
      */
-    public function actionGetItem(): JsonResponse
+    public function actionGetItem(int $id): JsonResponse
     {
-        throw new HttpException(StatusCodeEnum::FORBIDDEN, 'GET method "actionGetItem"  not implemented');
+        $this->getItem();
+    }
+
+    /**
+     * @throws HttpException
+     */
+    protected function getItem(): HttpException
+    {
+        throw new ForbiddenHttpException('GET method "actionGetItem" not implemented');
     }
 
     /**
@@ -110,9 +95,17 @@ abstract class BaseController
      * @return JsonResponse
      * @throws HttpException
      */
-    public function actionCreateItem(): JsonResponse
+    public function actionCreate(): JsonResponse
     {
-        throw new HttpException(StatusCodeEnum::FORBIDDEN, 'POST method "actionCreateItem" not implemented');
+        $this->create();
+    }
+
+    /**
+     * @throws HttpException
+     */
+    protected function create(): HttpException
+    {
+        throw new ForbiddenHttpException('POST method "actionCreate" not implemented');
     }
 
     /**
@@ -123,9 +116,17 @@ abstract class BaseController
      * @return JsonResponse
      * @throws HttpException
      */
-    public function actionFullUpdateItem(): JsonResponse
+    public function actionPut(int $id): JsonResponse
     {
-        throw new HttpException(StatusCodeEnum::FORBIDDEN, 'PUT method "actionFullUpdateItem" not implemented');
+        $this->put();
+    }
+
+    /**
+     * @throws HttpException
+     */
+    protected function put(): void
+    {
+        throw new ForbiddenHttpException('PUT method "actionPut" not implemented');
     }
 
     /**
@@ -136,9 +137,17 @@ abstract class BaseController
      * @return JsonResponse
      * @throws HttpException
      */
-    public function actionPartialUpdateItem(): JsonResponse
+    public function actionPatch(int $id): JsonResponse
     {
-        throw new HttpException(StatusCodeEnum::FORBIDDEN, 'PATCH method "actionPartialUpdateItem" not implemented');
+        $this->patch();
+    }
+
+    /**
+     * @throws HttpException
+     */
+    protected function patch(): void
+    {
+        throw new ForbiddenHttpException('PATCH method "actionPatch" not implemented');
     }
 
     /**
@@ -149,8 +158,16 @@ abstract class BaseController
      * @return JsonResponse
      * @throws HttpException
      */
-    public function actionDeleteItem(): JsonResponse
+    public function actionDelete(int $id): JsonResponse
     {
-        throw new HttpException(StatusCodeEnum::FORBIDDEN, 'DELETE method "actionDeleteItem" not implemented');
+        $this->delete();
+    }
+
+    /**
+     * @throws HttpException
+     */
+    protected function delete(): void
+    {
+        throw new ForbiddenHttpException('DELETE method "actionDelete" not implemented');
     }
 }

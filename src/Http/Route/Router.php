@@ -51,8 +51,6 @@ readonly class Router implements RouterInterface
 
                 [$controllerNameSpace, $action] = explode('::', $route->controllerAction);
 
-                $controller = $this->container->make($controllerNameSpace);
-
                 $this->eventMessage->setMessage('Расчет стоимости сырья');
 
                 return $this->container->call($controllerNameSpace, $action, [$this->eventDispatcher->trigger(LogContextEvent::ATTACH_CONTEXT, $this->eventMessage)]);
