@@ -78,7 +78,7 @@ class ConsoleKernel implements ConsoleKernelInterface
             $commandMap = $this->inputOptions->getCommandMap();
             $plugins = $this->inputOptions->getPlugins();
 
-            if (empty($calledCommandName)) {
+            if (empty($calledCommandName) === true) {
                 $calledCommandName = ListCommand::getCommandName();
             }
 
