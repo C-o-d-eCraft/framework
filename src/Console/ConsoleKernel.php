@@ -5,6 +5,7 @@ namespace Craft\Console;
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
 use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Console\Command\ListCommand;
 use Craft\Contracts\CommandInterface;
 use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
@@ -76,6 +77,10 @@ class ConsoleKernel implements ConsoleKernelInterface
             $calledCommandName = $this->input->getCommandNameSpace();
             $commandMap = $this->inputOptions->getCommandMap();
             $plugins = $this->inputOptions->getPlugins();
+
+            if (empty($calledCommandName)) {
+                $calledCommandName = ListCommand::getCommandName();
+            }
 
             foreach ($plugins as $plugin) {
                 $plugin = $this->container->make($plugin);
