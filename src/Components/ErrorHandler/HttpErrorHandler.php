@@ -2,7 +2,7 @@
 
 namespace Craft\Components\ErrorHandler;
 
-use Craft\Components\DebugTag\DebugTagStorage;
+use Craft\Contracts\DebugTagStorageInterface;
 use Craft\Contracts\ErrorHandlerInterface;
 use Craft\Contracts\LoggerInterface;
 use Craft\Contracts\RequestInterface;
@@ -14,7 +14,7 @@ class HttpErrorHandler implements ErrorHandlerInterface
     public function __construct(
         private ViewInterface             $view,
         private LoggerInterface           $logger,
-        private DebugTagStorage           $debugTagStorage,
+        private DebugTagStorageInterface  $debugTagStorage,
         private readonly RequestInterface $request,
         private ?string                   $environmentMode = null,
         private ?string                   $customErrorViewPath = null,

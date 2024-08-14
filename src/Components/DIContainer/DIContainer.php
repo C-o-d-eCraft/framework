@@ -92,10 +92,6 @@ class DIContainer implements ContainerInterface
             return new $className();
         }
 
-        if (is_object($className) === true) {
-            return $className;
-        }
-
         $dependencies = [];
 
         foreach ($constructor->getParameters() as $parameter) {
