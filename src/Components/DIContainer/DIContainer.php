@@ -20,6 +20,7 @@ class DIContainer implements ContainerInterface
 
     protected function __construct(private readonly array $config = [])
     {
+        $this->registerSingletons();
     }
 
     /**
@@ -45,6 +46,15 @@ class DIContainer implements ContainerInterface
         }
 
         return self::$instance = new self($config);
+    }
+
+    private function registerSingletons(): void
+    {
+        if (empty($this->config['singletons'] === false)) {
+            foreach ($this->config['singletons'] as $contract) {
+                $this->singleton($contract);
+            }
+        }
     }
 
     /**
