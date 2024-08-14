@@ -27,8 +27,6 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      */
     private FileSystemInterface $fileSystem;
 
-    private string $filePath;
-
     /**
      * @var string
      */
@@ -52,7 +50,6 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
         $this->eventDispatcher = $eventDispatcher;
         $this->output = $output;
         $this->fileSystem = $fileSystem;
-        $this->filePath = $this->fileSystem->getDirName();
     }
 
     /**
@@ -85,11 +82,11 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      */
     public function update(mixed $message = null): void
     {
-        if (is_dir($this->filePath) === false) {
-            mkdir($this->filePath);
+        if (is_dir($this->fileSystem->getDirName()) === false) {
+            mkdir($this->fileSystem->getDirName());
         }
 
-        $fileName = $this->filePath . '/' . date('Y-m-d H:i:s') . '.log';
+        $fileName = $this->fileSystem->getDirName() . '/' . date('Y-m-d H:i:s');
 
         $this->fileSystem->put($fileName, $this->output->getMessage(), FILE_APPEND);
     }
