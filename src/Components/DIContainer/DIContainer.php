@@ -50,7 +50,7 @@ class DIContainer implements ContainerInterface
 
     private function registerSingletons(): void
     {
-        if (empty($this->config['singletons'] === false)) {
+        if (empty($this->config['singletons']) === false) {
             foreach ($this->config['singletons'] as $contract) {
                 $this->singleton($contract);
             }
