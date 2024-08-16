@@ -67,6 +67,16 @@ class Output implements OutputInterface
      *
      * @return void
      */
+    public function text(string $result): void
+    {
+        $this->setMessage($result);
+    }
+
+    /**
+     * @param string $result
+     *
+     * @return void
+     */
     public function info(string $result): void
     {
         $this->setMessage("\033[34m" . $result . "\033[0m");
