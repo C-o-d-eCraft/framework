@@ -76,7 +76,7 @@ class HttpKernel implements HttpKernelInterface
 
             $this->logger->critical($e);
 
-            $errorsView = $this->container->call(HttpErrorHandler::class, 'handle', [$e]);
+            $errorsView = $this->container->call($this->errorHandler, 'handle', [$e]);
 
             $this->response->setBody(new Stream($errorsView));
         } finally {

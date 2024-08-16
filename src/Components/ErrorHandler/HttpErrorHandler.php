@@ -41,10 +41,10 @@ class HttpErrorHandler implements ErrorHandlerInterface
         $requestContentType = $this->request->getHeaders()['CONTENT-TYPE'] ?? null;
 
         if ($requestContentType === 'application/json') {
-            return $this->getJsonErrorBody($exception, $exception->getCode() ?? null, $reasonPhrase);
+            return $this->getJsonErrorBody($exception, $statusCode, $reasonPhrase);
         }
 
-        return $this->getHttpErrorView($exception, $exception->getCode() ?? null, $reasonPhrase);
+        return $this->getHttpErrorView($exception, $statusCode, $reasonPhrase);
     }
 
     public function getHttpErrorView(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
@@ -58,12 +58,13 @@ class HttpErrorHandler implements ErrorHandlerInterface
         $params = [
             'xdebugTag' => $this->debugTagStorage->getTag(),
             'statusCode' => $statusCode ?? $exception->getCode(),
-            'reasonPhrase' => $reasonPhrase ?? $exception->getMessage()
+            'reasonPhrase' => $reasonPhrase ?? $exception->getMessage(),
+            'environmentMode' => $this->environmentMode,
         ];
 
-        $params = $this->checkEnvironmentMode($params, $exception);
+        $result = $this->checkEnvironmentMode($params, $exception);
 
-        return $this->view->render($baseViewName, $params);
+        return $this->view->render($baseViewName, $result);
     }
 
     public function getJsonErrorBody(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
@@ -74,9 +75,9 @@ class HttpErrorHandler implements ErrorHandlerInterface
             'reasonPhrase' => $reasonPhrase ?? $exception->getMessage(),
         ];
 
-        $params = $this->checkEnvironmentMode($params, $exception);
+        $result = $this->checkEnvironmentMode($params, $exception);
 
-        return json_encode($params);
+        return json_encode($result);
     }
 
     private function checkEnvironmentMode(array $params, Throwable $exception): array
