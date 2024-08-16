@@ -7,7 +7,7 @@ use Craft\Contracts\LogStateProcessorInterface;
 
 abstract class AbstractLogger implements LoggerInterface
 {
-    public function __construct(protected LogStateProcessorInterface $logStateProcessor)
+    public function __construct(private LogStateProcessorInterface $logStateProcessor)
     {}
     
     public function emergency(mixed $message): void

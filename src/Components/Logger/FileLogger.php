@@ -9,7 +9,7 @@ class FileLogger extends AbstractLogger
     private string $logFilePath = '';
     
     public function __construct(
-        protected LogStateProcessorInterface $logStateProcessor,
+        private LogStateProcessorInterface $logStateProcessor,
         private string $logDir = PROJECT_ROOT . 'runtime/app-logs',
         private string $logFileName = 'app-web.log',
         private string $loggingMode = 'daily'

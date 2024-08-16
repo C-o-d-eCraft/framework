@@ -6,7 +6,7 @@ use Craft\Contracts\LogStateProcessorInterface;
 
 class StdoutLogger extends AbstractLogger
 {
-    public function __construct(protected LogStateProcessorInterface $logStateProcessor)
+    public function __construct(private LogStateProcessorInterface $logStateProcessor)
     {
         parent::__construct($this->logStateProcessor);
     }
