@@ -3,11 +3,11 @@
 namespace Craft\Http\View;
 
 use Craft\Contracts\ViewInterface;
-use Craft\Http\Exceptions\HttpException;
+use Craft\Http\Exceptions\NotFoundHttpException;
 
 class View implements ViewInterface
 {
-    public function __construct(private ?string $basePath = PROJECT_SOURCE_ROOT . 'view/')
+    public function __construct(private string $basePath = PROJECT_SOURCE_ROOT . 'view/')
     {
     }
 
@@ -40,7 +40,7 @@ class View implements ViewInterface
         $viewFilePath = $this->basePath . DIRECTORY_SEPARATOR . $view . '.php';
 
         if (file_exists($viewFilePath) === false) {
-            throw new HttpException("Представление файла '$view' не найдено.");
+            throw new NotFoundHttpException("Представление файла '$view' не найдено.");
         }
 
         extract($params);
