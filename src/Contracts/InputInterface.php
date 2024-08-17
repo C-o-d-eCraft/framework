@@ -25,8 +25,4 @@ interface InputInterface
      */
     public function getOptions(): array;
 
-    /**
-     * @return bool
-     */
-    public function outputToFile(): bool;
 }

@@ -33,7 +33,7 @@ class ConsoleKernel implements ConsoleKernelInterface
         private OutputInterface                   $output,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CliErrorHandler          $errorHandler,
-        private InputOptionsInterface             $inputOptions
+        private readonly InputOptionsInterface    $inputOptions
     )
     {
     }
@@ -78,15 +78,9 @@ class ConsoleKernel implements ConsoleKernelInterface
         try {
             $calledCommandName = $this->input->getCommandNameSpace();
             $commandMap = $this->inputOptions->getCommandMap();
-            $plugins = $this->inputOptions->getPlugins();
 
             if (empty($calledCommandName) === true) {
                 $calledCommandName = ListCommand::getCommandName();
-            }
-
-            foreach ($plugins as $plugin) {
-                $plugin = $this->container->make($plugin);
-                $plugin->init();
             }
 
             $commandClass = $commandMap[$calledCommandName] ?? null;
@@ -96,6 +90,8 @@ class ConsoleKernel implements ConsoleKernelInterface
                     'Неизвестная команда.' . PHP_EOL . 'Для получения списка команд введите: ' . PHP_EOL . 'list' . PHP_EOL
                 );
             }
+
+            $this->initializePlugins();
 
             $commandArguments = $this->parseCommandArguments($commandClass::getCommandName());
 
@@ -107,11 +103,9 @@ class ConsoleKernel implements ConsoleKernelInterface
 
             $this->container->make($commandClass)->execute($this->input, $this->output);
 
-            if ($this->input->outputToFile() === true) {
-                $this->eventDispatcher->trigger(Events::AFTER_EXECUTE);
-            }
-
             $this->output->stdout($this->output->getMessage());
+
+            $this->eventDispatcher->trigger(Events::AFTER_EXECUTE);
 
             return $this->output->getStatusCode();
         } catch (Throwable $e) {
@@ -183,4 +177,26 @@ class ConsoleKernel implements ConsoleKernelInterface
 
         $this->input->setArguments($enteredArguments);
     }
+
+    /**
+     * Инициализирует плагины, которые были вызваны в команде
+     * @throws \ReflectionException
+     */
+    private function initializePlugins(): void
+    {
+        $plugins = $this->inputOptions->getPlugins();
+
+        if (empty($plugins) === true) {
+            return;
+        }
+
+        foreach ($plugins as $plugin) {
+            $plugin = $this->container->make($plugin);
+
+            if (in_array($plugin->getPluginName(), $this->input->getOptions())) {
+                $plugin->init();
+            }
+        }
+    }
+
 }
