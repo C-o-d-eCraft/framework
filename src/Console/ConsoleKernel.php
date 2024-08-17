@@ -46,6 +46,8 @@ class ConsoleKernel implements ConsoleKernelInterface
     {
         $commandMap = [];
 
+        $commandNameSpaces[] = ListCommand::class;
+
         foreach ($commandNameSpaces as $commandClass) {
             if (in_array(CommandInterface::class, class_implements($commandClass), true) === false) {
                 throw new LogicException("Класс {$commandClass} команды не соответствует интерфейсу " . CommandInterface::class);

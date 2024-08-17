@@ -13,21 +13,6 @@ use Craft\Contracts\PluginInterface;
 class SaveFilePlugin implements PluginInterface, ObserverInterface
 {
     /**
-     * @var EventDispatcherInterface
-     */
-    private EventDispatcherInterface $eventDispatcher;
-
-    /**
-     * @var OutputInterface
-     */
-    private OutputInterface $output;
-
-    /**
-     * @var FileSystemInterface
-     */
-    private FileSystemInterface $fileSystem;
-
-    /**
      * @var string
      */
     private static string $pluginName = '--save-file';
@@ -43,14 +28,10 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      * @param FileSystemInterface $fileSystem
      */
     public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        OutputInterface          $output,
-        FileSystemInterface      $fileSystem)
-    {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->output = $output;
-        $this->fileSystem = $fileSystem;
-    }
+        readonly private EventDispatcherInterface $eventDispatcher,
+        readonly private OutputInterface          $output,
+        readonly private FileSystemInterface      $fileSystem
+    ) {}
 
     /**
      * @return string
@@ -82,11 +63,11 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      */
     public function update(mixed $message = null): void
     {
-        if (is_dir($this->fileSystem->getDirName()) === false) {
-            mkdir($this->fileSystem->getDirName());
+        $path = $this->fileSystem->getAlias('runtime_path');
+        if (is_dir($path) === false) {
+            mkdir($path);
         }
-
-        $fileName = $this->fileSystem->getDirName() . '/' . date('Y-m-d H:i:s');
+        $fileName = $path . '/' . date('Y-m-d H:i:s');
 
         $this->fileSystem->put($fileName, $this->output->getMessage(), FILE_APPEND);
     }

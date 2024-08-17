@@ -8,17 +8,23 @@ use InvalidArgumentException;
 
 /**
  * Класс FileSystem предоставляет методы для работы с файловой системой,
- * включая запись, чтение, проверку существования файлов и создание директорий.
+ * запись, чтение, проверку существования файлов и создание директорий.
  */
 
 
 class FileSystem implements FileSystemInterface
 {
 
-    public function getDirName(): string
+    public array $aliasStorage;
+
+    public function __construct(array $config)
     {
-        $config = require 'config/file-system-config.php';
-        return $config['runtime_path'];
+        $this->aliasStorage = $config;
+    }
+
+    public function getAlias(string $name): string
+    {
+        return $this->aliasStorage[$name] ?? throw new InvalidArgumentException('Alias {$name} not exists');
     }
 
     /**
@@ -38,100 +44,6 @@ class FileSystem implements FileSystemInterface
 
         if ($result === false) {
             throw new RuntimeException("Не удалось записать данные в файл: $path");
-        }
-    }
-
-    /**
-     * Читает содержимое файла.
-     *
-     * @param string $path Путь к файлу.
-     *
-     * @return string Содержимое файла.
-     *
-     * @throws RuntimeException Если файл не удалось прочитать.
-     */
-    public function get(string $path): string
-    {
-        if (file_exists($path) === false) {
-            throw new InvalidArgumentException("Файл не существует: $path");
-        }
-
-        $content = file_get_contents($path);
-
-        if ($content === false) {
-            throw new RuntimeException("Не удалось прочитать файл: $path");
-        }
-
-        return $content;
-    }
-
-    /**
-     * Проверяет существование файла.
-     *
-     * @param string $path Путь к файлу.
-     *
-     * @return bool True, если файл существует, иначе false.
-     */
-    public function exists(string $path): bool
-    {
-        return file_exists($path);
-    }
-
-    /**
-     * Удаляет файл.
-     *
-     * @param string $path Путь к файлу.
-     *
-     * @return void
-     *
-     * @throws RuntimeException Если файл не удалось удалить.
-     */
-    public function delete(string $path): void
-    {
-        if (file_exists($path) === false) {
-            throw new InvalidArgumentException("Файл не существует: $path");
-        }
-
-        if (unlink($path) === false) {
-            throw new RuntimeException("Не удалось удалить файл: $path");
-        }
-    }
-
-    /**
-     * Создает директорию.
-     *
-     * @param string $path Путь к директории.
-     * @param int $mode Режим доступа к директории (по умолчанию 0777).
-     * @param bool $recursive Разрешить создание вложенных директорий (по умолчанию false).
-     *
-     * @return void
-     *
-     * @throws RuntimeException Если директорию не удалось создать.
-     */
-    public function makeDirectory(string $path, int $mode = 0777, bool $recursive = false): void
-    {
-        if (mkdir($path, $mode, $recursive) === false && is_dir($path) === false) {
-            throw new RuntimeException("Не удалось создать директорию: $path");
-        }
-    }
-
-    /**
-     * Удаляет директорию.
-     *
-     * @param string $path Путь к директории.
-     *
-     * @return void
-     *
-     * @throws RuntimeException Если директорию не удалось удалить.
-     */
-    public function removeDirectory(string $path): void
-    {
-        if (is_dir($path) === false) {
-            throw new InvalidArgumentException("Директория не существует: $path");
-        }
-
-        if (rmdir($path) === false) {
-            throw new RuntimeException("Не удалось удалить директорию: $path");
         }
     }
 
