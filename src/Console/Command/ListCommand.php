@@ -68,7 +68,9 @@ class ListCommand implements CommandInterface
         $formattedCommands = [];
 
         foreach ($this->inputOptions->getCommandMap() as $name => $command) {
-            $formattedCommands[] = " \033[32m $name \033[0m - {$command::getDescription()}" . PHP_EOL;
+            if ($name !== static::$commandName) {
+                $formattedCommands[] = " \033[32m $name \033[0m - {$command::getDescription()}" . PHP_EOL;
+            }
         }
 
 
