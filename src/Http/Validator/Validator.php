@@ -35,6 +35,7 @@ class Validator
             foreach ((array)$attributes as $attribute) {
                 $ruleName($this->data[$attribute] ?? null, $attribute);
             }
+
             return;
         }
 
@@ -70,6 +71,7 @@ class Validator
         foreach ($params as $key => $value) {
             $message = str_replace(":{$key}", $value, $message);
         }
+
         $this->errors[$attribute][] = $message;
     }
 

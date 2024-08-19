@@ -197,6 +197,7 @@ class DIContainer implements ContainerInterface
 
             if (is_callable($argument)) {
                 $arguments[] = $argument($this);
+
                 continue;
             }
 

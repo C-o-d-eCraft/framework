@@ -30,9 +30,7 @@ readonly class Router implements RouterInterface
         private RequestInterface          $request,
         private EventMessageInterface     $eventMessage,
         private EventDispatcherInterface  $eventDispatcher
-    )
-    {
-    }
+    ) { }
 
     /**
      * @return ResponseInterface

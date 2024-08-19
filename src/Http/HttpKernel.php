@@ -3,7 +3,6 @@
 namespace Craft\Http;
 
 use Craft\Components\DIContainer\DIContainer;
-use Craft\Components\ErrorHandler\HttpErrorHandler;
 use Craft\Components\ErrorHandler\MessageEnum;
 use Craft\Components\ErrorHandler\StatusCodeEnum;
 use Craft\Contracts\ErrorHandlerInterface;
@@ -30,9 +29,7 @@ class HttpKernel implements HttpKernelInterface
         private ErrorHandlerInterface     $errorHandler,
         private EventDispatcherInterface  $eventDispatcher,
         private DIContainer               $container,
-    )
-    {
-    }
+    ) { }
 
     /**
      * @param RequestInterface $request
@@ -44,6 +41,7 @@ class HttpKernel implements HttpKernelInterface
         if ($this->request->getMethod() === 'OPTIONS') {
             $this->response->withStatus(200);
             $this->addCorsHeaders();
+
             return $this->response;
         }
 

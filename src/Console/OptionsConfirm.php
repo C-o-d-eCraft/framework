@@ -11,9 +11,7 @@ readonly class OptionsConfirm implements ObserverInterface
     /**
      * @param EventDispatcherInterface $eventDispatcher
      */
-    public function __construct(private EventDispatcherInterface $eventDispatcher)
-    {
-    }
+    public function __construct(private EventDispatcherInterface $eventDispatcher) { }
 
     /**
      * @param EventMessage|null $message

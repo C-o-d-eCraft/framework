@@ -30,9 +30,9 @@ class HelpPlugin implements PluginInterface, ObserverInterface
      */
     public function __construct(
         readonly private EventDispatcherInterface $eventDispatcher,
-        private InputInterface                    $input,
-        readonly private OutputInterface          $output,
-    ) {}
+        private InputInterface $input,
+        readonly private OutputInterface $output,
+    ) { }
 
     /**
      * @return string
@@ -71,7 +71,7 @@ class HelpPlugin implements PluginInterface, ObserverInterface
             throw new InvalidArgumentException('Класс команды не был передан');
         }
 
-        if (in_array(self::$pluginName, $this->input->getOptions())) {
+        if (in_array(self::$pluginName, $this->input->getOptions()) === true) {
 
             $commandDescription = $commandClass::getDescription() ?? 'Для данной команды отсутствует описание';
 
@@ -80,5 +80,4 @@ class HelpPlugin implements PluginInterface, ObserverInterface
             throw new CommandInterruptedException('Опция не подразумевает выполнения команды, только вывод информации о ней');
         }
     }
-
 }

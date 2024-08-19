@@ -9,10 +9,9 @@ class DebugTagGenerator implements DebugTagGeneratorInterface
 {
     public function __construct(
         private DebugTagStorageInterface $tagStorage,
-        private string                   $indexName,
-        private string                   $mode = 'web')
-    {
-    }
+        private string $indexName,
+        private string $mode = 'web'
+    ) { }
 
     /**
      * @param Application $app
@@ -53,10 +52,11 @@ class DebugTagGenerator implements DebugTagGeneratorInterface
         $headers = [];
 
         foreach ($_SERVER as $name => $value) {
-            if (substr($name, 0, 5) == 'HTTP_') {
+            if (substr($name, 0, 5) === 'HTTP_') {
                 $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
             }
         }
+
         return $headers;
     }
 
@@ -67,7 +67,7 @@ class DebugTagGenerator implements DebugTagGeneratorInterface
     {
         $headers = $this->getHeaders();
 
-        if (isset($headers['X-Debug-Tag'])) {
+        if (isset($headers['X-Debug-Tag']) === true) {
             $this->tagStorage->setTag($headers['X-Debug-Tag']);
         }
     }
