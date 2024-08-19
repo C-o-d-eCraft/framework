@@ -6,6 +6,7 @@ use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
 use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Console\Command\ListCommand;
+use Craft\Console\Exceptions\CommandInterruptedException;
 use Craft\Contracts\CommandInterface;
 use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
@@ -95,7 +96,12 @@ class ConsoleKernel implements ConsoleKernelInterface
 
             $commandArguments = $this->parseCommandArguments($commandClass::getCommandName());
 
-            $this->eventDispatcher->trigger(Events::BEFORE_RUN, new EventMessage(['commandArguments' => $commandArguments]));
+            $this->eventDispatcher->trigger(
+                Events::BEFORE_RUN,
+                new EventMessage([
+                    'commandArguments' => $commandArguments,
+                    'commandClass' => $commandClass,
+                ]));
 
             $this->comparisonArguments($commandArguments);
 
@@ -108,6 +114,10 @@ class ConsoleKernel implements ConsoleKernelInterface
             $this->eventDispatcher->trigger(Events::AFTER_EXECUTE);
 
             return $this->output->getStatusCode();
+        } catch (CommandInterruptedException $e) {
+            $this->output->stdout($this->output->getMessage());
+
+            return 0;
         } catch (Throwable $e) {
             $message = $this->errorHandler->handle($e);
 
