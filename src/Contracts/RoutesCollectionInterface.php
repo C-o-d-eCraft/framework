@@ -25,7 +25,7 @@ interface RoutesCollectionInterface
      *
      * @return void
      */
-    public function get(string $route, string|callable|array $controllerAction, array $middleware = []): void;
+    public function get(string $route, string|callable $controllerAction, array $middleware = []): void;
 
     /**
      * @param string $route
