@@ -20,7 +20,7 @@ class SaveFilePluginTest extends TestCase
         $fileSystemStub = $this->createStub(FileSystemInterface::class);
 
         $fileSystemStub->method('put');
-        $fileSystemStub->method('getDirName')->willReturn('/var/www/html/runtime/console-output');
+        $fileSystemStub->method('getAlias')->willReturn('/var/www/html/runtime/console-output');
 
         $outputStub = $this->createStub(OutputInterface::class);
 
@@ -41,7 +41,7 @@ class SaveFilePluginTest extends TestCase
         $fileSystemStub = $this->createStub(FileSystemInterface::class);
 
         $fileSystemStub->method('put')->willThrowException(new RuntimeException('Не удалось записать данные в файл'));
-        $fileSystemStub->method('getDirName')->willReturn('/var/www/html/runtime/console-output');
+        $fileSystemStub->method('getAlias')->willReturn('/var/www/html/runtime/console-output');
 
         $outputStub = $this->createStub(OutputInterface::class);
 

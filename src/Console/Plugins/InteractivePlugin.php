@@ -25,8 +25,9 @@ class InteractivePlugin implements PluginInterface, ObserverInterface
     private static string $description = 'Интерактивный режим';
 
     /**
-     * @param DIContainer $container
-     * @throws ReflectionException
+     * @param EventDispatcherInterface $eventDispatcher
+     * @param InputInterface $input
+     * @param OutputInterface $output
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,

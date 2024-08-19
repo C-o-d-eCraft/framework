@@ -6,6 +6,7 @@ use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
 use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Console\Command\ListCommand;
+use Craft\Console\Exceptions\CommandInterruptedException;
 use Craft\Contracts\CommandInterface;
 use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
@@ -33,7 +34,7 @@ class ConsoleKernel implements ConsoleKernelInterface
         private OutputInterface                   $output,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CliErrorHandler          $errorHandler,
-        private InputOptionsInterface             $inputOptions
+        private readonly InputOptionsInterface    $inputOptions
     )
     {
     }
@@ -45,6 +46,8 @@ class ConsoleKernel implements ConsoleKernelInterface
     public function registerCommandNamespaces(array $commandNameSpaces): void
     {
         $commandMap = [];
+
+        $commandNameSpaces[] = ListCommand::class;
 
         foreach ($commandNameSpaces as $commandClass) {
             if (in_array(CommandInterface::class, class_implements($commandClass), true) === false) {
@@ -76,15 +79,9 @@ class ConsoleKernel implements ConsoleKernelInterface
         try {
             $calledCommandName = $this->input->getCommandNameSpace();
             $commandMap = $this->inputOptions->getCommandMap();
-            $plugins = $this->inputOptions->getPlugins();
 
             if (empty($calledCommandName) === true) {
                 $calledCommandName = ListCommand::getCommandName();
-            }
-
-            foreach ($plugins as $plugin) {
-                $plugin = $this->container->make($plugin);
-                $plugin->init();
             }
 
             $commandClass = $commandMap[$calledCommandName] ?? null;
@@ -95,9 +92,16 @@ class ConsoleKernel implements ConsoleKernelInterface
                 );
             }
 
+            $this->initializePlugins();
+
             $commandArguments = $this->parseCommandArguments($commandClass::getCommandName());
 
-            $this->eventDispatcher->trigger(Events::BEFORE_RUN, new EventMessage(['commandArguments' => $commandArguments]));
+            $this->eventDispatcher->trigger(
+                Events::BEFORE_RUN,
+                new EventMessage([
+                    'commandArguments' => $commandArguments,
+                    'commandClass' => $commandClass,
+                ]));
 
             $this->comparisonArguments($commandArguments);
 
@@ -105,13 +109,15 @@ class ConsoleKernel implements ConsoleKernelInterface
 
             $this->container->make($commandClass)->execute($this->input, $this->output);
 
-            if ($this->input->outputToFile() === true) {
-                $this->eventDispatcher->trigger(Events::AFTER_EXECUTE);
-            }
-
             $this->output->stdout($this->output->getMessage());
 
+            $this->eventDispatcher->trigger(Events::AFTER_EXECUTE);
+
             return $this->output->getStatusCode();
+        } catch (CommandInterruptedException $e) {
+            $this->output->stdout($this->output->getMessage());
+
+            return 0;
         } catch (Throwable $e) {
             $message = $this->errorHandler->handle($e);
 
@@ -181,4 +187,26 @@ class ConsoleKernel implements ConsoleKernelInterface
 
         $this->input->setArguments($enteredArguments);
     }
+
+    /**
+     * Инициализирует плагины, которые были вызваны в команде
+     * @throws \ReflectionException
+     */
+    private function initializePlugins(): void
+    {
+        $plugins = $this->inputOptions->getPlugins();
+
+        if (empty($plugins) === true) {
+            return;
+        }
+
+        foreach ($plugins as $plugin) {
+            $plugin = $this->container->make($plugin);
+
+            if (in_array($plugin->getPluginName(), $this->input->getOptions())) {
+                $plugin->init();
+            }
+        }
+    }
+
 }
