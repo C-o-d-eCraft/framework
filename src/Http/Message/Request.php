@@ -5,6 +5,8 @@ namespace Craft\Http\Message;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\StreamInterface;
 use Craft\Contracts\UriInterface;
+use Craft\Http\Processors\AuthHeaderProcessor;
+use Craft\Http\Processors\FormDataProcessor;
 
 class Request extends Message implements RequestInterface
 {
@@ -276,16 +278,11 @@ class Request extends Message implements RequestInterface
     {
         $params = array_merge($this->getBodyContents(), $this->getQueryParams(), $this->getPathVariables());
 
-        if (isset($this->getHeaders()['X-BASE-AUTH']) === true) {
-            $params['token'] = $this->getHeaders()['X-BASE-AUTH'];
-        }
+        $authHeaderProcessor = new AuthHeaderProcessor();
+        $params = $authHeaderProcessor->processAuthHeader($this->headers, $params);
 
-        if (isset($params['formData']) && $params['formData'] instanceof \stdClass) {
-            $formDataArray = json_decode(json_encode($params['formData']), true);
-            $params['formData'] = $formDataArray;
-
-            $params = array_merge($params, $formDataArray);
-        }
+        $formDataProcessor = new FormDataProcessor();
+        $params = $formDataProcessor->processFormData($params);
 
         return $params;
     }
