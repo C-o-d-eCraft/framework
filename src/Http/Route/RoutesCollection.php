@@ -128,7 +128,7 @@ class RoutesCollection implements RoutesCollectionInterface
             $params[] = $parsedParam;
         }
 
-        $this->routes[] = new Route($method, $routePath, $controllerAction, $params, $this->mergeMiddlewares($middleware));
+        $this->routes[] = new Route($method, $routePath, $controllerAction, $this->mergeMiddlewares($middleware));
     }
 
     /**

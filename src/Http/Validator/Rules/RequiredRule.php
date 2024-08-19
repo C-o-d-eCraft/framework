@@ -14,7 +14,7 @@ class RequiredRule implements ValidationRuleInterface
      * @param Validator $validator
      * @return void
      */
-    public function validate(string|array $attribute, mixed $value, array $params, Validator $validator): void
+    public function validate(string|array $attributes, mixed $value, array $params, Validator $validator): void
     {
         if (is_array($attributes) === false) {
             $attributes = [$attributes];

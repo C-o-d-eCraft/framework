@@ -12,7 +12,7 @@ class AuthMiddleware implements MiddlewareInterface
 
     public function process(RequestInterface $request): void
     {
-        $authHeader = $request->getHeaders()[$this->headerName] ?? null;
+        $authHeaderValue = $request->getHeaders()[$this->headerName] ?? null;
 
         if ($authHeaderValue === null) {
             throw new NotAuthorizedHttpException();

@@ -47,7 +47,7 @@ readonly class Router implements RouterInterface
             if ($this->handleRoute($route, $path, $method)) {
                 $this->processMiddlewares($route->middlewares);
 
-                [$controllerNameSpace, $action] = explode('::', $route->controllerAction);
+                [$controllerNameSpace, $action] = explode('::', $route->handler);
 
                 $this->eventMessage->setMessage('Расчет стоимости сырья');
 
