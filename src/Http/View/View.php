@@ -7,7 +7,7 @@ use Craft\Http\Exceptions\NotFoundHttpException;
 
 class View implements ViewInterface
 {
-    public function __construct(private string $basePath = PROJECT_SOURCE_ROOT . 'view/')
+    public function __construct(private string $basePath = PROJECT_ROOT . 'src/view/')
     {
     }
 
