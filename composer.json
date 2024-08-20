@@ -23,7 +23,9 @@
     },
     "require": {
         "php": "^8.2",
-        "ext-pdo": "*"
+        "ext-pdo": "*",
+        "ext-pcntl": "*",
+        "ext-posix": "*"
     },
     "require-dev": {
         "symfony/var-dumper": "^7.0",
