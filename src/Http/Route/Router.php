@@ -6,7 +6,6 @@ use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\Logger\StateProcessor\LogContextEvent;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\EventMessageInterface;
-use Craft\Contracts\MiddlewareInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ResponseInterface;
 use Craft\Contracts\RouterInterface;
@@ -26,13 +25,11 @@ readonly class Router implements RouterInterface
     public function __construct(
         private DIContainer               $container,
         private RoutesCollectionInterface $routesCollection,
-        private MiddlewareInterface       $middleware,
         private RequestInterface          $request,
         private EventMessageInterface     $eventMessage,
-        private EventDispatcherInterface  $eventDispatcher
-    )
-    {
-    }
+        private EventDispatcherInterface  $eventDispatcher,
+        private ResponseInterface $response
+    ) { }
 
     /**
      * @return ResponseInterface
@@ -49,7 +46,7 @@ readonly class Router implements RouterInterface
             if ($this->handleRoute($route, $path, $method)) {
                 $this->processMiddlewares($route->middlewares);
 
-                [$controllerNameSpace, $action] = explode('::', $route->controllerAction);
+                [$controllerNameSpace, $action] = explode('::', $route->handler);
 
                 $this->eventMessage->setMessage('Расчет стоимости сырья');
 
@@ -104,6 +101,18 @@ readonly class Router implements RouterInterface
 
         foreach ($middlewares as $middleware) {
             $middlewareInstance = $this->container->make($middleware);
+
+            if ($middlewareInstance instanceof \Craft\Http\Middlewares\CorsMiddleware) {
+                $middlewareInstance->process($this->response);
+
+                continue;
+            }
+
+            if ($middlewareInstance instanceof \Craft\Http\Middlewares\OptionsMiddleware) {
+                $middlewareInstance->process($this->request, $this->response);
+
+                continue;
+            }
 
             $middlewareInstance->process($this->request);
         }

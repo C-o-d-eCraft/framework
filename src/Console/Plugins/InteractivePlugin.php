@@ -2,7 +2,6 @@
 
 namespace Craft\Console\Plugins;
 
-use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Console\Events;
 use Craft\Contracts\EventDispatcherInterface;
@@ -10,7 +9,6 @@ use Craft\Contracts\InputInterface;
 use Craft\Contracts\ObserverInterface;
 use Craft\Contracts\OutputInterface;
 use Craft\Contracts\PluginInterface;
-use ReflectionException;
 
 class InteractivePlugin implements PluginInterface, ObserverInterface
 {
@@ -31,10 +29,9 @@ class InteractivePlugin implements PluginInterface, ObserverInterface
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly InputInterface           $input,
-        private readonly OutputInterface          $output)
-    {
-    }
+        private readonly InputInterface $input,
+        private readonly OutputInterface $output
+    ) { }
 
     /**
      * @return string

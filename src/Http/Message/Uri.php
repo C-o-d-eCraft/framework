@@ -72,8 +72,7 @@ class Uri implements UriInterface
         array  $pathVariables = [],
         string $fragment = '',
         ?int   $port = null,
-    )
-    {
+    ) {
         $this->uri = $uri;
         $this->scheme = $scheme;
         $this->path = $path;

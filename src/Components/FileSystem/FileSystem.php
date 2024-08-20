@@ -3,18 +3,15 @@
 namespace Craft\Components\FileSystem;
 
 use Craft\Contracts\FileSystemInterface;
-use RuntimeException;
 use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * Класс FileSystem предоставляет методы для работы с файловой системой,
  * запись, чтение, проверку существования файлов и создание директорий.
  */
-
-
 class FileSystem implements FileSystemInterface
 {
-
     public array $aliasStorage;
 
     public function __construct(array $config)
@@ -46,5 +43,4 @@ class FileSystem implements FileSystemInterface
             throw new RuntimeException("Не удалось записать данные в файл: $path");
         }
     }
-
 }

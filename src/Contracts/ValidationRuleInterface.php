@@ -1,6 +1,6 @@
 <?php
 
-namespace Craft\Http\Validator\Rules;
+namespace Craft\Contracts;
 
 use Craft\Http\Validator\Validator;
 

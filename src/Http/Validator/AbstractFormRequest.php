@@ -54,6 +54,7 @@ abstract class AbstractFormRequest
                 $errorMessages[] = $errorMessage;
             }
         }
+
         return implode(' ', $errorMessages);
     }
 }

@@ -29,15 +29,13 @@ class ConsoleKernel implements ConsoleKernelInterface
      * @param InputOptionsInterface $inputOptions
      */
     public function __construct(
-        private readonly DIContainer              $container,
-        private InputInterface                    $input,
-        private OutputInterface                   $output,
+        private readonly DIContainer $container,
+        private InputInterface  $input,
+        private OutputInterface   $output,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly CliErrorHandler          $errorHandler,
-        private readonly InputOptionsInterface    $inputOptions
-    )
-    {
-    }
+        private readonly CliErrorHandler $errorHandler,
+        private readonly InputOptionsInterface $inputOptions
+    ) { }
 
     /**
      * @param array $commandNameSpaces
@@ -208,5 +206,4 @@ class ConsoleKernel implements ConsoleKernelInterface
             }
         }
     }
-
 }

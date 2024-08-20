@@ -19,9 +19,7 @@ class InputOptions implements InputOptionsInterface, ObserverInterface
         private array                             $plugins = [],
         private array                             $options = [],
         private array                             $commandMap = [],
-    )
-    {
-    }
+    ) { }
 
     public function getOptions(): array
     {
