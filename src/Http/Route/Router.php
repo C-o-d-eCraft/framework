@@ -29,7 +29,8 @@ readonly class Router implements RouterInterface
         private MiddlewareInterface       $middleware,
         private RequestInterface          $request,
         private EventMessageInterface     $eventMessage,
-        private EventDispatcherInterface  $eventDispatcher
+        private EventDispatcherInterface  $eventDispatcher,
+        private ResponseInterface $response
     ) { }
 
     /**
@@ -102,6 +103,12 @@ readonly class Router implements RouterInterface
 
         foreach ($middlewares as $middleware) {
             $middlewareInstance = $this->container->make($middleware);
+
+            if ($middlewareInstance instanceof \Craft\Http\Middlewares\CorsMiddleware) {
+                $middlewareInstance->process($this->response);
+
+                continue;
+            }
 
             $middlewareInstance->process($this->request);
         }

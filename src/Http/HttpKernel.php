@@ -40,7 +40,6 @@ class HttpKernel implements HttpKernelInterface
     {
         if ($this->request->getMethod() === 'OPTIONS') {
             $this->response->withStatus(200);
-            $this->addCorsHeaders();
 
             return $this->response;
         }
@@ -87,16 +86,6 @@ class HttpKernel implements HttpKernelInterface
             }
         }
 
-        $this->addCorsHeaders();
-
         return $this->response;
-    }
-
-    private function addCorsHeaders(): void
-    {
-        $this->response->withHeader('Access-Control-Allow-Origin', '*');
-        $this->response->withHeader('Access-Control-Allow-Methods', '*');
-        $this->response->withHeader('Access-Control-Allow-Headers', '*');
-        $this->response->withHeader('Access-Control-Allow-Credentials', 'true');
     }
 }

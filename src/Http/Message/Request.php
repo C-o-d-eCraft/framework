@@ -278,12 +278,8 @@ class Request extends Message implements RequestInterface
     {
         $params = array_merge($this->getBodyContents(), $this->getQueryParams(), $this->getPathVariables());
 
-        $authHeaderProcessor = new AuthHeaderProcessor();
-        $params = $authHeaderProcessor->processAuthHeader($this->headers, $params);
-
         $formDataProcessor = new FormDataProcessor();
-        $params = $formDataProcessor->processFormData($params);
-
-        return $params;
+        
+        return $formDataProcessor->processFormData($this->headers, $params);
     }
 }
