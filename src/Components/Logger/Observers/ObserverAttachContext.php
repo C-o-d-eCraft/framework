@@ -7,9 +7,7 @@ use Craft\Contracts\ObserverInterface;
 
 class ObserverAttachContext implements ObserverInterface
 {
-    public function __construct(private LogStorageDTO $storage)
-    {
-    }
+    public function __construct(private LogStorageDTO $storage) { }
 
     /**
      * @param mixed $message
@@ -25,6 +23,7 @@ class ObserverAttachContext implements ObserverInterface
 
         if ($this->storage->context === null) {
             $this->storage->context = $newContext;
+
             return;
         }
 

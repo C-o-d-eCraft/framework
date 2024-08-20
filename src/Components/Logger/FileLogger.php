@@ -13,8 +13,7 @@ class FileLogger extends AbstractLogger
         private string $logDir = PROJECT_ROOT . 'runtime/app-logs',
         private string $logFileName = 'app-web.log',
         private string $loggingMode = 'daily'
-    )
-    {
+    ) {
         parent::__construct($this->logStateProcessor);
 
         if (is_dir($logDir) === false) {

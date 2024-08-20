@@ -45,20 +45,21 @@ class Query implements QueryInterface
      */
     public function where(array|string $condition): self
     {
-        if (is_array($condition) === true) {
-            foreach ($condition as $key => $value) {
-                if ($value instanceof self === true) {
-                    $this->where[] = "$key = (" . $value->build() . ")";
-                    continue;
-                }
-
-                $this->where[] = "$key = " . (is_numeric($value) ? $value : "'" . addslashes((string)$value) . "'");
-            }
+        if (is_array($condition) === false) {
+            $this->where[] = $condition;
 
             return $this;
         }
 
-        $this->where[] = $condition;
+        foreach ($condition as $key => $value) {
+            if ($value instanceof self === true) {
+                $this->where[] = "$key = (" . $value->build() . ")";
+
+                continue;
+            }
+
+            $this->where[] = "$key = " . (is_numeric($value) ? $value : "'" . addslashes((string)$value) . "'");
+        }
 
         return $this;
     }

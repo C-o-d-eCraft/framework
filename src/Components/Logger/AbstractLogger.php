@@ -7,8 +7,7 @@ use Craft\Contracts\LogStateProcessorInterface;
 
 abstract class AbstractLogger implements LoggerInterface
 {
-    public function __construct(private LogStateProcessorInterface $logStateProcessor)
-    {}
+    public function __construct(private LogStateProcessorInterface $logStateProcessor) { }
     
     public function emergency(mixed $message): void
     {
@@ -59,6 +58,7 @@ abstract class AbstractLogger implements LoggerInterface
     protected function formatMessage(string $level, mixed $message): string
     {
         $loggingState = $this->logStateProcessor->process($level, $message);
+
         return json_encode((array)$loggingState, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
 

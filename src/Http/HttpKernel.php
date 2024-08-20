@@ -3,7 +3,6 @@
 namespace Craft\Http;
 
 use Craft\Components\DIContainer\DIContainer;
-use Craft\Components\ErrorHandler\HttpErrorHandler;
 use Craft\Components\ErrorHandler\MessageEnum;
 use Craft\Components\ErrorHandler\StatusCodeEnum;
 use Craft\Contracts\ErrorHandlerInterface;
@@ -23,16 +22,13 @@ use Throwable;
 class HttpKernel implements HttpKernelInterface
 {
     public function __construct(
-        private readonly RequestInterface $request,
         private ResponseInterface         $response,
         private readonly RouterInterface  $router,
         private LoggerInterface           $logger,
         private ErrorHandlerInterface     $errorHandler,
         private EventDispatcherInterface  $eventDispatcher,
         private DIContainer               $container,
-    )
-    {
-    }
+    ) { }
 
     /**
      * @param RequestInterface $request
@@ -41,14 +37,8 @@ class HttpKernel implements HttpKernelInterface
      */
     public function handle(RequestInterface $request): ResponseInterface
     {
-        if ($this->request->getMethod() === 'OPTIONS') {
-            $this->response->withStatus(200);
-            $this->addCorsHeaders();
-            return $this->response;
-        }
-
         try {
-            $this->response = $this->router->dispatch($this->request);
+            $this->response = $this->router->dispatch($request);
 
             if ($this->response instanceof JsonResponse) {
                 $this->response->withHeader('Content-Type', 'application/json');
@@ -84,21 +74,11 @@ class HttpKernel implements HttpKernelInterface
                 $this->response->setStatusCode((json_decode($errorsView, true)['statusCode']) ?? StatusCodeEnum::INTERNAL_SERVER_ERROR);
             }
 
-            if (isset($this->request->getHeaders()['CONTENT-TYPE']) && $this->request->getHeaders()['CONTENT-TYPE'] === 'application/json') {
+            if (isset($request->getHeaders()['CONTENT-TYPE']) && $request->getHeaders()['CONTENT-TYPE'] === 'application/json') {
                 $this->response->withHeader('Content-Type', 'application/json');
             }
         }
 
-        $this->addCorsHeaders();
-
         return $this->response;
-    }
-
-    private function addCorsHeaders(): void
-    {
-        $this->response->withHeader('Access-Control-Allow-Origin', '*');
-        $this->response->withHeader('Access-Control-Allow-Methods', '*');
-        $this->response->withHeader('Access-Control-Allow-Headers', '*');
-        $this->response->withHeader('Access-Control-Allow-Credentials', 'true');
     }
 }

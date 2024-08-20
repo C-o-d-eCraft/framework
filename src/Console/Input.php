@@ -75,6 +75,7 @@ class Input implements InputInterface
         foreach ($this->argv as $item) {
             if (str_starts_with($item, '--')) {
                 $this->options[] = $item;
+
                 continue;
             }
 

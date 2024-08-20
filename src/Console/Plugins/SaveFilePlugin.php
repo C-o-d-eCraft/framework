@@ -29,9 +29,9 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      */
     public function __construct(
         readonly private EventDispatcherInterface $eventDispatcher,
-        readonly private OutputInterface          $output,
-        readonly private FileSystemInterface      $fileSystem
-    ) {}
+        readonly private OutputInterface $output,
+        readonly private FileSystemInterface $fileSystem
+    ) { }
 
     /**
      * @return string
@@ -64,12 +64,13 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
     public function update(mixed $message = null): void
     {
         $path = $this->fileSystem->getAlias('runtime_path');
+
         if (is_dir($path) === false) {
             mkdir($path);
         }
+
         $fileName = $path . '/' . date('Y-m-d H:i:s');
 
         $this->fileSystem->put($fileName, $this->output->getMessage(), FILE_APPEND);
     }
-
 }

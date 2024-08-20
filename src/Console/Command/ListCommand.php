@@ -60,6 +60,7 @@ class ListCommand implements CommandInterface
         foreach ($this->inputOptions->getPlugins() as $plugin) {
             $formattedOptions[] = "   \033[32m {$plugin::getPluginName()} \033[0m - {$plugin::getDescription()}" . PHP_EOL;
         }
+
         $output->text(implode("", $formattedOptions)  . PHP_EOL);
         $output->success(" Вызов:" . PHP_EOL);
         $output->text("   команда [аргументы] [опции]" . PHP_EOL . PHP_EOL);
@@ -72,7 +73,6 @@ class ListCommand implements CommandInterface
                 $formattedCommands[] = " \033[32m $name \033[0m - {$command::getDescription()}" . PHP_EOL;
             }
         }
-
 
         $output->text(implode("", $formattedCommands) . PHP_EOL);
         $output->setMessage('');

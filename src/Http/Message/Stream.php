@@ -89,6 +89,7 @@ class Stream implements StreamInterface
     {
         if ($this->closed === false) {
             $stat = fstat($this->resource);
+
             return $stat['size'] ?? null;
         }
 

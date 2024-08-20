@@ -38,7 +38,7 @@ class RoutesCollection implements RoutesCollectionInterface
      *
      * @return void
      */
-    public function get(string $route, string|callable|array $controllerAction, array $middleware = []): void
+    public function get(string $route, string|callable $controllerAction, array $middleware = []): void
     {
         $this->addRoute('GET', $route, $controllerAction, $middleware);
     }
@@ -114,7 +114,7 @@ class RoutesCollection implements RoutesCollectionInterface
      *
      * @return void
      */
-    private function addRoute(string $method, string $route, string|callable|array $controllerAction, array $middleware = []): void
+    private function addRoute(string $method, string $route, string|callable $controllerAction, array $middleware = []): void
     {
         $params = [];
 
@@ -128,7 +128,7 @@ class RoutesCollection implements RoutesCollectionInterface
             $params[] = $parsedParam;
         }
 
-        $this->routes[] = new Route($method, $routePath, $controllerAction, $params, $this->mergeMiddlewares($middleware));
+        $this->routes[] = new Route($method, $routePath, $controllerAction, $this->mergeMiddlewares($middleware));
     }
 
     /**

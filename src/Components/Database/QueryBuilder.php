@@ -93,6 +93,7 @@ class QueryBuilder implements DataBaseConnectionInterface
             if ($value instanceof Query === true) {
                 $where[] = "$key = (" . $value->build() . ")";
             }
+
             if ($value instanceof Query === false) {
                 $where[] = "$key = :cond_$key";
                 $params[":cond_$key"] = $value;
@@ -125,9 +126,11 @@ class QueryBuilder implements DataBaseConnectionInterface
             if ($value instanceof Query === true) {
                 $params[$key] = '(' . $value->build() . ')';
             }
+
             if ($value instanceof Query === false && is_string($value) === false) {
                 $params[$key] = $value;
             }
+
             if ($value instanceof Query === false && is_string($value) === true) {
                 $params[$key] = "'" . $value . "'";
             }
@@ -156,6 +159,7 @@ class QueryBuilder implements DataBaseConnectionInterface
         foreach ($condition as $key => $value) {
             if ($value instanceof Query) {
                 $where[] = "$key = (" . $value->build() . ")";
+
                 continue;
             }
 
@@ -188,16 +192,19 @@ class QueryBuilder implements DataBaseConnectionInterface
 
             if (is_numeric($value)) {
                 $values[] = $value;
+
                 continue;
             }
 
             if (is_bool($value)) {
                 $values[] = $value ? 'TRUE' : 'FALSE';
+
                 continue;
             }
 
             if (is_null($value)) {
                 $values[] = 'NULL';
+
                 continue;
             }
 

@@ -3,6 +3,7 @@
 namespace Craft\Http\Validator\Rules;
 
 use Craft\Http\Validator\Validator;
+use Craft\Contracts\ValidationRuleInterface;
 
 class InArrayRule implements ValidationRuleInterface
 {

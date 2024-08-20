@@ -5,6 +5,8 @@ namespace Craft\Http\Message;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\StreamInterface;
 use Craft\Contracts\UriInterface;
+use Craft\Http\Processors\AuthHeaderProcessor;
+use Craft\Http\Processors\FormDataProcessor;
 
 class Request extends Message implements RequestInterface
 {
@@ -46,8 +48,7 @@ class Request extends Message implements RequestInterface
         array           $headers,
         StreamInterface $body,
         string          $protocolVersion = 'HTTP/1.1',
-    )
-    {
+    ) {
         $this->method = $method;
         $this->uri = $uri;
         $this->headers = $headers;
@@ -196,7 +197,6 @@ class Request extends Message implements RequestInterface
     public function withHeader(string $name, array|string $value): static
     {
         $request = clone $this;
-
         $request->headers[$name] = is_array($value) ? $value : [$value];
 
         return $request;
@@ -246,6 +246,7 @@ class Request extends Message implements RequestInterface
     {
         $request = clone $this;
         $request->body = $body;
+
         return $request;
     }
 
@@ -277,19 +278,8 @@ class Request extends Message implements RequestInterface
     {
         $params = array_merge($this->getBodyContents(), $this->getQueryParams(), $this->getPathVariables());
 
-        if (isset($this->getHeaders()['X-BASE-AUTH']) === true) {
-
-            $params['token'] = $this->getHeaders()['X-BASE-AUTH'];
-        }
-
-
-        if (isset($params['formData']) && $params['formData'] instanceof \stdClass) {
-            $formDataArray = json_decode(json_encode($params['formData']), true);
-            $params['formData'] = $formDataArray;
-
-            $params = array_merge($params, $formDataArray);
-        }
-
-        return $params;
+        $formDataProcessor = new FormDataProcessor();
+        
+        return $formDataProcessor->processFormData($this->headers, $params);
     }
 }
