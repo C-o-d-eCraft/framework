@@ -81,26 +81,25 @@ class DetachPlugin implements PluginInterface, ObserverInterface
             return;
         }
 
-        $this->output->info("Перевод выполнения команды в фоновый режим... " . PHP_EOL);
+        $this->output->stdout("Перевод выполнения команды в фоновый режим... ");
 
         $parentPid = posix_getpid();
 
-        $this->output->info("Родительский процесс PID: $parentPid" . PHP_EOL);
+        $this->output->stdout("Родительский процесс PID: $parentPid");
 
         $pid = pcntl_fork();
 
         if ($pid == -1) {
-            throw new LogicException('Не удалось создать фоновый процесс');
+            $error = 'Не удалось создать фоновый процесс';
+
+            $this->output->error($error);
+            throw new LogicException($error);
         }
 
         if ($pid > 0) {
-            $this->output->info("Фоновый процесс запущен с PID: $pid" . PHP_EOL);
+            $this->output->success("Фоновый процесс запущен PID:" . $pid);
 
-            $this->output->info("Родительский процесс убит, PID: $parentPid");
-
-            posix_kill($parentPid, 0);
-
-            throw new CommandInterruptedException('Команда переведена в фоновый режим' . PHP_EOL);
+            throw new CommandInterruptedException('Команда переведена в фоновый режим');
         }
 
         posix_setsid();
