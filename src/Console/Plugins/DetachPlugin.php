@@ -77,11 +77,15 @@ class DetachPlugin implements PluginInterface, ObserverInterface
      */
     public function update(mixed $message = null): void
     {
-        if (!in_array(self::$pluginName, $this->input->getOptions())) {
+        if (in_array(self::$pluginName, $this->input->getOptions()) === false) {
             return;
         }
 
-        $this->output->info("Перевод выполнения команды в фоновый режим...");
+        $this->output->info("Перевод выполнения команды в фоновый режим... " . PHP_EOL);
+
+        $parentPid = posix_getpid();
+
+        $this->output->info("Родительский процесс PID: $parentPid" . PHP_EOL);
 
         $pid = pcntl_fork();
 
@@ -90,12 +94,15 @@ class DetachPlugin implements PluginInterface, ObserverInterface
         }
 
         if ($pid > 0) {
-            // Родительский процесс завершает работу
-            $this->output->info("Фоновый процесс запущен с PID: $pid");
-            throw new CommandInterruptedException('Команда переведена в фоновый режим');
+            $this->output->info("Фоновый процесс запущен с PID: $pid" . PHP_EOL);
+
+            $this->output->info("Родительский процесс убит, PID: $parentPid");
+
+            posix_kill($parentPid, 0);
+
+            throw new CommandInterruptedException('Команда переведена в фоновый режим' . PHP_EOL);
         }
 
-        // Дочерний процесс продолжает выполнение команды в фоне
-        posix_setsid(); // Создаем новую сессию, чтобы процесс не зависел от терминала
+        posix_setsid();
     }
 }
