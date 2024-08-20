@@ -2,11 +2,11 @@
 
 namespace Craft\Http\Middlewares;
 
-use Craft\Contracts\MiddlewareInterface;
+use Craft\Contracts\AuthMiddlewareInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Http\Exceptions\NotAuthorizedHttpException;
 
-class AuthMiddleware implements MiddlewareInterface
+class AuthMiddleware implements AuthMiddlewareInterface
 {
     public function __construct(private string $headerName = 'X-BASE-AUTH') { }
 

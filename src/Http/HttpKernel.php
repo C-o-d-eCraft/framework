@@ -22,7 +22,6 @@ use Throwable;
 class HttpKernel implements HttpKernelInterface
 {
     public function __construct(
-        private readonly RequestInterface $request,
         private ResponseInterface         $response,
         private readonly RouterInterface  $router,
         private LoggerInterface           $logger,
@@ -38,14 +37,8 @@ class HttpKernel implements HttpKernelInterface
      */
     public function handle(RequestInterface $request): ResponseInterface
     {
-        if ($this->request->getMethod() === 'OPTIONS') {
-            $this->response->withStatus(200);
-
-            return $this->response;
-        }
-
         try {
-            $this->response = $this->router->dispatch($this->request);
+            $this->response = $this->router->dispatch($request);
 
             if ($this->response instanceof JsonResponse) {
                 $this->response->withHeader('Content-Type', 'application/json');
@@ -81,7 +74,7 @@ class HttpKernel implements HttpKernelInterface
                 $this->response->setStatusCode((json_decode($errorsView, true)['statusCode']) ?? StatusCodeEnum::INTERNAL_SERVER_ERROR);
             }
 
-            if (isset($this->request->getHeaders()['CONTENT-TYPE']) && $this->request->getHeaders()['CONTENT-TYPE'] === 'application/json') {
+            if (isset($request->getHeaders()['CONTENT-TYPE']) && $request->getHeaders()['CONTENT-TYPE'] === 'application/json') {
                 $this->response->withHeader('Content-Type', 'application/json');
             }
         }

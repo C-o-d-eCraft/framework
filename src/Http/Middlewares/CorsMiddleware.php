@@ -2,10 +2,10 @@
 
 namespace Craft\Http\Middlewares;
 
-use Craft\Contracts\MiddlewareInterface;
+use Craft\Contracts\CorsMiddlewareInterface;
 use Craft\Contracts\ResponseInterface;
 
-class CorsMiddleware
+class CorsMiddleware implements CorsMiddlewareInterface
 {
     public function process(ResponseInterface $response): void
     {

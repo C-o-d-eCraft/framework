@@ -2,7 +2,7 @@
 
 namespace Craft\Contracts;
 
-interface MiddlewareInterface
+interface AuthMiddlewareInterface
 {
     /**
      * @param RequestInterface $request
