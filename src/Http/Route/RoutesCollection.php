@@ -23,7 +23,6 @@ class RoutesCollection implements RoutesCollectionInterface
      * @param string $route
      * @param string|callable $controllerAction
      * @param array $middleware
-     *
      * @return void
      */
     public function post(string $route, string|callable $controllerAction, array $middleware = []): void
@@ -35,7 +34,6 @@ class RoutesCollection implements RoutesCollectionInterface
      * @param string $route
      * @param string|callable|array $controllerAction
      * @param array $middleware
-     *
      * @return void
      */
     public function get(string $route, string|callable $controllerAction, array $middleware = []): void
@@ -47,7 +45,6 @@ class RoutesCollection implements RoutesCollectionInterface
      * @param string $route
      * @param string|callable $controllerAction
      * @param array $middleware
-     *
      * @return void
      */
     public function delete(string $route, string|callable $controllerAction, array $middleware = []): void
@@ -59,7 +56,6 @@ class RoutesCollection implements RoutesCollectionInterface
      * @param string $route
      * @param string|callable $controllerAction
      * @param array $middleware
-     *
      * @return void
      */
     public function put(string $route, string|callable $controllerAction, array $middleware = []): void
@@ -71,7 +67,6 @@ class RoutesCollection implements RoutesCollectionInterface
      * @param string $route
      * @param string|callable $controllerAction
      * @param array $middleware
-     *
      * @return void
      */
     public function patch(string $route, string|callable $controllerAction, array $middleware = []): void
@@ -83,7 +78,6 @@ class RoutesCollection implements RoutesCollectionInterface
      * @param string $prefix
      * @param callable $callback
      * @param array $middleware
-     *
      * @return void
      */
     public function group(string $prefix, callable $callback, array $middleware = []): void
@@ -97,24 +91,30 @@ class RoutesCollection implements RoutesCollectionInterface
         array_pop($this->groupPrefixes);
     }
 
+    /**
+     * @param string $prefix
+     * @param string $controller
+     * @param array $middleware
+     * @return void
+     */
     public function addResource(string $prefix, string $controller, array $middleware = []): void
     {
-        $this->get($prefix, "$controller::actionGet", $middleware);
-        $this->post($prefix, "$controller::actionPost", $middleware);
-        $this->delete($prefix, "$controller::actionDelete", $middleware);
-        $this->put($prefix, "$controller::actionPut", $middleware);
-        $this->patch($prefix, "$controller::actionPatch", $middleware);
+        $this->get($prefix, $controller . '::actionGetList', $middleware);
+        $this->post($prefix, $controller . '::actionCreate', $middleware);
+        $this->get($prefix . '/{id}', $controller . '::actionGetItem', $middleware);
+        $this->put($prefix . '/{id}', $controller . '::actionUpdate', $middleware);
+        $this->patch($prefix . '/{id}', $controller . '::actionPatch', $middleware);
+        $this->delete($prefix . '/{id}', $controller . '::actionDelete', $middleware);
     }
 
     /**
      * @param string $method
      * @param string $route
-     * @param string|callable $controllerAction
+     * @param string|callable $handler
      * @param array $middleware
-     *
      * @return void
      */
-    private function addRoute(string $method, string $route, string|callable $controllerAction, array $middleware = []): void
+    private function addRoute(string $method, string $route, string|callable $handler, array $middleware = []): void
     {
         $params = [];
 
@@ -128,12 +128,11 @@ class RoutesCollection implements RoutesCollectionInterface
             $params[] = $parsedParam;
         }
 
-        $this->routes[] = new Route($method, $routePath, $controllerAction, $this->mergeMiddlewares($middleware));
+        $this->routes[] = new Route($method, $routePath, $handler, $this->mergeMiddlewares($middleware));
     }
 
     /**
      * @param string $argument
-     *
      * @return array|null
      */
     private function parseParams(string $argument): ?array
@@ -165,11 +164,19 @@ class RoutesCollection implements RoutesCollectionInterface
         return $param;
     }
 
+    /**
+     * @param array $middleware
+     * @return void
+     */
     public function addGlobalMiddleware(array $middleware): void
     {
         $this->globalMiddlewares = array_merge($this->globalMiddlewares, $middleware);
     }
 
+    /**
+     * @param array $middlewares
+     * @return array
+     */
     private function mergeMiddlewares(array $middlewares = []): array
     {
         $allMiddlewares = array_merge($this->globalMiddlewares, ...$this->groupMiddlewares);
@@ -178,6 +185,10 @@ class RoutesCollection implements RoutesCollectionInterface
         return array_values(array_unique($allMiddlewares));
     }
 
+    /**
+     * @param string $route
+     * @return string
+     */
     private function applyGroupPrefixes(string $route): string
     {
         return '/' . trim(implode('/', array_merge($this->groupPrefixes, [$route])), '/');
