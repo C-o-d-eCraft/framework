@@ -14,6 +14,7 @@
   - Исправил ResourceController
 - Реализовано:
   - Класс для работы с файловой системой
+  - Плагины Detach, Help
 
 ## [ [0.3.4](https://github.com/C-o-d-eCraft/framework/releases/tag/0.3.4) ] - 08.08.2024
 - Реализовано:
