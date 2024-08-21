@@ -8,4 +8,6 @@ interface EventMessageInterface
      * @return void
      */
     function setMessage(mixed $message): void;
+
+    function getMessage(): mixed;
 }

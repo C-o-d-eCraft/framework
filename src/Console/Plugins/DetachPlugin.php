@@ -10,6 +10,7 @@ use Craft\Contracts\InputInterface;
 use Craft\Contracts\ObserverInterface;
 use Craft\Contracts\OutputInterface;
 use Craft\Contracts\PluginInterface;
+use Craft\Contracts\UnixProcessServiceInterface;
 use LogicException;
 
 /**
@@ -31,11 +32,13 @@ class DetachPlugin implements PluginInterface, ObserverInterface
      * @param EventDispatcherInterface $eventDispatcher Диспетчер событий.
      * @param InputInterface $input Входные данные.
      * @param OutputInterface $output Выходные данные.
+     * @param UnixProcessServiceInterface $unixProcessService
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        private InputInterface $input,
+        private readonly InputInterface $input,
         private readonly OutputInterface $output,
+        private readonly UnixProcessServiceInterface $unixProcessService,
     ) {}
 
     /**
@@ -83,13 +86,13 @@ class DetachPlugin implements PluginInterface, ObserverInterface
 
         $this->output->stdout("Перевод выполнения команды в фоновый режим... ");
 
-        $parentPid = posix_getpid();
+        $parentPid = $this->unixProcessService->getpid();
 
         $this->output->stdout("Родительский процесс PID: $parentPid");
 
-        $pid = pcntl_fork();
+        $pid = $this->unixProcessService->fork();
 
-        if ($pid == -1) {
+        if ($pid === -1) {
             $error = 'Не удалось создать фоновый процесс';
 
             $this->output->error($error);
@@ -102,6 +105,6 @@ class DetachPlugin implements PluginInterface, ObserverInterface
             throw new CommandInterruptedException('Команда переведена в фоновый режим');
         }
 
-        posix_setsid();
+        $this->unixProcessService->setsid();
     }
 }
