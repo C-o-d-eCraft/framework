@@ -141,24 +141,30 @@ class RoutesCollection implements RoutesCollectionInterface
             return null;
         }
 
+        $parts = explode(':', $argument);
+        $paramName = $parts[0];
+        $specifiers = $parts[1] ?? '';
+
         $param = [
-            'required' => true,
-            'name' => $argument,
-            'type' => 'string'
+            'required' => false,
+            'name' => $paramName,
+            'type' => '',
         ];
 
-        if (str_contains($argument, '?')) {
-            $param['required'] = false;
-            $argument = str_replace('?', '', $argument);
-        }
+        if (empty($specifiers) === false) {
+            $specifiersArray = explode('|', $specifiers);
 
-        if (preg_match('/([^|]+)\|type:(\w+)/', $argument, $matches)) {
-            $param['name'] = $matches[1];
-            $param['type'] = $matches[2];
-        }
-
-        if (preg_match('/\|default:(\d+)/', $argument, $defaultMatches)) {
-            $param['defaultValue'] = $defaultMatches[1];
+            foreach ($specifiersArray as $specifier) {
+                if ($specifier === 'required') {
+                    $param['required'] = true;
+                }
+                if (preg_match('/type:(\w+)/', $specifier, $matches)) {
+                    $param['type'] = $matches[1];
+                }
+                if (preg_match('/default:(\S+)/', $specifier, $matches)) {
+                    $param['defaultValue'] = $matches[1];
+                }
+            }
         }
 
         return $param;
