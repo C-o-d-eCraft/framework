@@ -26,11 +26,12 @@ class HelpPlugin implements PluginInterface, ObserverInterface
 
     /**
      * @param EventDispatcherInterface $eventDispatcher
+     * @param InputInterface $input
      * @param OutputInterface $output
      */
     public function __construct(
         readonly private EventDispatcherInterface $eventDispatcher,
-        private InputInterface $input,
+        readonly private InputInterface $input,
         readonly private OutputInterface $output,
     ) { }
 
