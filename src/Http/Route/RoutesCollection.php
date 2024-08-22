@@ -116,58 +116,9 @@ class RoutesCollection implements RoutesCollectionInterface
      */
     private function addRoute(string $method, string $route, string|callable $handler, array $middleware = []): void
     {
-        $params = [];
-
         $routePath = $this->applyGroupPrefixes($route);
 
-        $routeParams = explode('?{', $routePath)[1] ?? '';
-        $cleanParams = explode('}{', rtrim($routeParams, '}'));
-
-        foreach ($cleanParams as $param) {
-            $parsedParam = $this->parseParams($param);
-            $params[] = $parsedParam;
-        }
-
         $this->routes[] = new Route($method, $routePath, $handler, $this->mergeMiddlewares($middleware));
-    }
-
-    /**
-     * @param string $argument
-     * @return array|null
-     */
-    private function parseParams(string $argument): ?array
-    {
-        if ($argument === '') {
-            return null;
-        }
-
-        $parts = explode(':', $argument);
-        $paramName = $parts[0];
-        $specifiers = $parts[1] ?? '';
-
-        $param = [
-            'required' => false,
-            'name' => $paramName,
-            'type' => '',
-        ];
-
-        if (empty($specifiers) === false) {
-            $specifiersArray = explode('|', $specifiers);
-
-            foreach ($specifiersArray as $specifier) {
-                if ($specifier === 'required') {
-                    $param['required'] = true;
-                }
-                if (preg_match('/type:(\w+)/', $specifier, $matches)) {
-                    $param['type'] = $matches[1];
-                }
-                if (preg_match('/default:(\S+)/', $specifier, $matches)) {
-                    $param['defaultValue'] = $matches[1];
-                }
-            }
-        }
-
-        return $param;
     }
 
     /**
