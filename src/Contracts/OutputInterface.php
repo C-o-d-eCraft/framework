@@ -7,11 +7,11 @@ interface OutputInterface
     /**
      * Выводит результат в консоль
      *
-     * @param string $result
+     * @param string|null $result
      *
      * @return void
      */
-    public function stdout(string $result): void;
+    public function stdout(?string $result = null): void;
 
     /**
      * Выводит информационное сообщение в консоль

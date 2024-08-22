@@ -38,4 +38,28 @@ class UnixProcessService implements UnixProcessServiceInterface
     {
         return posix_setsid();
     }
+
+    /**
+     * Закрыть файловые дескрипторы stdin, stdout и stderr для дочернего процесса
+     *
+     * @return void
+     */
+    public function descriptionClose(): void
+    {
+        fclose(STDIN);
+        fclose(STDOUT);
+        fclose(STDERR);
+    }
+
+    /**
+     * Закрыть файловые дескрипторы stdin, stdout и stderr для дочернего процесса
+     *
+     * @return void
+     */
+    public function descriptionOpenDevNull(): void
+    {
+        fopen('/dev/null', 'r');
+        fopen('/dev/null', 'a');
+        fopen('/dev/null', 'a');
+    }
 }

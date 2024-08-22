@@ -5,6 +5,7 @@ namespace Craft\Console\Plugins;
 use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Console\Events;
 use Craft\Console\Exceptions\CommandInterruptedException;
+use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\ObserverInterface;
@@ -33,6 +34,7 @@ class HelpPlugin implements PluginInterface, ObserverInterface
         readonly private EventDispatcherInterface $eventDispatcher,
         readonly private InputInterface $input,
         readonly private OutputInterface $output,
+        private readonly ConsoleKernelInterface $consoleKernel,
     ) { }
 
     /**
@@ -62,7 +64,6 @@ class HelpPlugin implements PluginInterface, ObserverInterface
     /**
      * @param EventMessage|null $message
      * @return void
-     * @throws CommandInterruptedException
      */
     public function update(mixed $message = null): void
     {
@@ -78,7 +79,9 @@ class HelpPlugin implements PluginInterface, ObserverInterface
 
             $this->output->info($commandDescription . PHP_EOL);
 
-            throw new CommandInterruptedException('Опция не подразумевает выполнения команды, только вывод информации о ней');
+            $this->output->stdout();
+
+            $this->consoleKernel->terminate(0);
         }
     }
 }

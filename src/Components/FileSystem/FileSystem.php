@@ -21,7 +21,7 @@ class FileSystem implements FileSystemInterface
 
     public function getAlias(string $name): string
     {
-        return $this->aliasStorage[$name] ?? throw new InvalidArgumentException('Alias {$name} not exists');
+        return $this->aliasStorage[$name] ?? throw new InvalidArgumentException("Путь {$name} не найден");
     }
 
     /**
