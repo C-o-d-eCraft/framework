@@ -142,11 +142,15 @@ readonly class Router implements RouterInterface
         $specifiers = explode('|', trim($paramSpecifiers, ':'));
 
         foreach ($specifiers as $specifier) {
-            if ($specifier === 'integer' && is_integer($value) === true) {
+            if ($specifier === 'integer' && ctype_digit($value) === false) {
                 return true;
             }
 
-            if ($specifier === 'required' && empty($value) === false) {
+            if ($specifier === 'string' && is_string($value) === false) {
+                return true;
+            }
+
+            if ($specifier === 'required' && empty($value) === true) {
                 return true;
             }
         }
