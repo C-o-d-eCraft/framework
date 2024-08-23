@@ -273,13 +273,4 @@ class Request extends Message implements RequestInterface
     {
         return array_merge((array)json_decode($this->body->getContents()), $_POST);
     }
-
-    public function getParams(): array
-    {
-        $params = array_merge($this->getBodyContents(), $this->getQueryParams(), $this->getPathVariables());
-
-        $formDataProcessor = new FormDataProcessor();
-        
-        return $formDataProcessor->processFormData($this->headers, $params);
-    }
 }

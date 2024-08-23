@@ -3,6 +3,8 @@
 namespace Craft\Http\Route;
 
 use Craft\Components\DIContainer\DIContainer;
+use Craft\Contracts\CorsMiddlewareInterface;
+use Craft\Contracts\OptionsMiddlewareInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ResponseInterface;
 use Craft\Contracts\RouterInterface;
@@ -142,7 +144,7 @@ readonly class Router implements RouterInterface
         $specifiers = explode('|', trim($paramSpecifiers, ':'));
 
         foreach ($specifiers as $specifier) {
-            if ($specifier === 'integer' && ctype_digit($value) === false) {
+            if ($specifier === 'integer' && is_numeric($value) === false) {
                 return true;
             }
 
@@ -158,6 +160,7 @@ readonly class Router implements RouterInterface
         return false;
     }
 
+    // TODO prepareParams
     /**
      * @param array $middlewares
      *
@@ -173,13 +176,13 @@ readonly class Router implements RouterInterface
         foreach ($middlewares as $middleware) {
             $middlewareInstance = $this->container->make($middleware);
 
-            if ($middlewareInstance instanceof \Craft\Http\Middlewares\CorsMiddleware) {
+            if ($middlewareInstance instanceof CorsMiddlewareInterface) {
                 $middlewareInstance->process($this->response);
 
                 continue;
             }
 
-            if ($middlewareInstance instanceof \Craft\Http\Middlewares\OptionsMiddleware) {
+            if ($middlewareInstance instanceof OptionsMiddlewareInterface) {
                 $middlewareInstance->process($this->request, $this->response);
 
                 continue;

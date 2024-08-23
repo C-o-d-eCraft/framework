@@ -2,6 +2,7 @@
 
 namespace Craft\Http\Controllers;
 
+use Craft\Contracts\ResourceControllerInterface;
 use Craft\Http\Exceptions\ForbiddenHttpException;
 use Craft\Http\ResponseTypes\CreateResponse;
 use Craft\Http\ResponseTypes\JsonResponse;
@@ -10,7 +11,7 @@ use Craft\Http\ResponseTypes\UpdateResponse;
 use Craft\Http\ResponseTypes\DeleteResponse;
 use Craft\Http\Validator\AbstractFormRequest;
 
-abstract class ResourceController
+abstract class ResourceController implements ResourceControllerInterface
 {
     /**
      * @return array

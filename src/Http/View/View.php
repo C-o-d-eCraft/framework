@@ -41,7 +41,7 @@ class View implements ViewInterface
         $viewFilePath = $this->basePath . DIRECTORY_SEPARATOR . $view . '.php';
 
         if (file_exists($viewFilePath) === false) {
-            throw new ViewNotFoundException("Представление файла '$view' не найдено.");
+            throw new ViewNotFoundException($viewFilePath);
         }
 
         extract($params);
