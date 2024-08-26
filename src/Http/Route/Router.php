@@ -3,13 +3,13 @@
 namespace Craft\Http\Route;
 
 use Craft\Components\DIContainer\DIContainer;
-use Craft\Components\Logger\StateProcessor\LogContextEvent;
-use Craft\Contracts\EventDispatcherInterface;
-use Craft\Contracts\EventMessageInterface;
+use Craft\Contracts\CorsMiddlewareInterface;
+use Craft\Contracts\OptionsMiddlewareInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ResponseInterface;
 use Craft\Contracts\RouterInterface;
 use Craft\Contracts\RoutesCollectionInterface;
+use Craft\Http\Exceptions\BadRequestHttpException;
 use Craft\Http\Exceptions\HttpException;
 use Craft\Http\Exceptions\NotFoundHttpException;
 use ReflectionException;
@@ -26,8 +26,6 @@ readonly class Router implements RouterInterface
         private DIContainer               $container,
         private RoutesCollectionInterface $routesCollection,
         private RequestInterface          $request,
-        private EventMessageInterface     $eventMessage,
-        private EventDispatcherInterface  $eventDispatcher,
         private ResponseInterface $response
     ) { }
 
@@ -43,43 +41,33 @@ readonly class Router implements RouterInterface
         $path = $this->request->getUri()->getPath();
 
         foreach ($this->routesCollection->getRoutes() as $route) {
-            if ($this->handleRoute($route, $path, $method)) {
+            $params = [];
+
+            if ($this->handleRoute($route, $path, $method, $params)) {
                 $this->processMiddlewares($route->middlewares);
 
                 [$controllerNameSpace, $action] = explode('::', $route->handler);
 
-                $this->eventMessage->setMessage('Расчет стоимости сырья');
-
-                return $this->container->call($controllerNameSpace, $action, [$this->eventDispatcher->trigger(LogContextEvent::ATTACH_CONTEXT, $this->eventMessage)]);
+                return $this->container->call($controllerNameSpace, $action, $params);
             }
         }
 
         throw new NotFoundHttpException("Страница не найдена для $method запроса по пути $path");
     }
 
-    private function handleRoute(Route $route, string $path, string $method): bool
+    /**
+     * @param Route $route
+     * @param string $path
+     * @param string $method
+     * @param array $params
+     * @return bool
+     */
+    private function handleRoute(Route $route, string $path, string $method, array &$params = []): bool
     {
-        $cleanPath = preg_replace('/\/\d+(?=\/|$)/', '', $path);
-        $cleanRoute = preg_replace('/\/\{\w+\}(?=\/|$)/', '', $route->route);
+        $routePattern = $this->buildRoutePattern($route->route);
 
-        $cleanPathSegments = explode('/', trim($path, '/'));
-        $cleanRouteSegments = explode('/', trim($route->route, '/'));
-
-        if (count($cleanPathSegments) !== count($cleanRouteSegments)) {
-            return false;
-        }
-
-        if (strcmp($cleanPath, $cleanRoute) === 0 && $route->method === $method) {
-            preg_match_all('/\/(\d+)(?=\/|$)/', $path, $numberMatches);
-            $numbers = $numberMatches[1];
-
-            preg_match_all('/\{(\w+)\}/', $route->route, $keyMatches);
-            $keys = $keyMatches[1];
-
-            if (count($keys) === count($numbers)) {
-                $params = array_combine($keys, $numbers);
-                $this->request->getUri()->addPathVariables($params);
-            }
+        if (preg_match($routePattern, $path, $matches) && $route->method === $method) {
+            $params = $this->extractParams($route->route, $matches);
 
             return true;
         }
@@ -88,6 +76,92 @@ readonly class Router implements RouterInterface
     }
 
     /**
+     * @param string $route
+     * @return string
+     */
+    private function buildRoutePattern(string $route): string
+    {
+        return '@^' . preg_replace_callback('/\{(\w+)(:[^}]+)?\}/', function ($matches) {
+                $paramPattern = $matches[2] ?? '';
+
+                return '(' . ($this->convertParamPattern($paramPattern) ?: '\w+') . ')';
+
+            }, $route) . '$@';
+    }
+
+    /**
+     * @param string $pattern
+     * @return string
+     */
+    private function convertParamPattern(string $pattern): string
+    {
+        $specifiers = explode('|', trim($pattern, ':'));
+
+        $regexParts = array_map(function ($specifier) {
+            return match ($specifier) {
+                'integer' => '\d+',
+                'required' => '.+',
+                default => '\w+',
+            };
+        }, $specifiers);
+
+        return implode('|', $regexParts);
+    }
+
+    /**
+     * @param string $route
+     * @param array $matches
+     * @return array
+     * @throws BadRequestHttpException
+     */
+    private function extractParams(string $route, array $matches): array
+    {
+        preg_match_all('/\{(\w+)(:[^}]+)?\}/', $route, $paramNames);
+
+        $params = [];
+        foreach ($paramNames[1] as $index => $name) {
+            $paramSpecifiers = $paramNames[2][$index] ?? '';
+
+            $value = $matches[$index + 1];
+
+            if ($this->isValueInvalid($value, $paramSpecifiers)) {
+                throw new BadRequestHttpException("Некорректный параметр '$name'");
+            }
+
+            $params[$name] = $value;
+        }
+
+        return $params;
+    }
+
+    /**
+     * @param string $value
+     * @param string $paramSpecifiers
+     * @return bool
+     */
+    private function isValueInvalid(string $value, string $paramSpecifiers): bool
+    {
+        $specifiers = explode('|', trim($paramSpecifiers, ':'));
+
+        foreach ($specifiers as $specifier) {
+            if ($specifier === 'integer' && is_numeric($value) === false) {
+                return true;
+            }
+
+            if ($specifier === 'string' && is_string($value) === false) {
+                return true;
+            }
+
+            if ($specifier === 'required' && empty($value) === true) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // TODO prepareParams
+    /**
      * @param array $middlewares
      *
      * @return void
@@ -95,20 +169,20 @@ readonly class Router implements RouterInterface
      */
     private function processMiddlewares(array $middlewares): void
     {
-        if (empty($middlewares)) {
+        if (empty($middlewares) === true) {
             return;
         }
 
         foreach ($middlewares as $middleware) {
             $middlewareInstance = $this->container->make($middleware);
 
-            if ($middlewareInstance instanceof \Craft\Http\Middlewares\CorsMiddleware) {
+            if ($middlewareInstance instanceof CorsMiddlewareInterface) {
                 $middlewareInstance->process($this->response);
 
                 continue;
             }
 
-            if ($middlewareInstance instanceof \Craft\Http\Middlewares\OptionsMiddleware) {
+            if ($middlewareInstance instanceof OptionsMiddlewareInterface) {
                 $middlewareInstance->process($this->request, $this->response);
 
                 continue;

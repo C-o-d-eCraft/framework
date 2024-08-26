@@ -2,51 +2,17 @@
 
 namespace Craft\Http\Controllers;
 
+use Craft\Contracts\ResourceControllerInterface;
 use Craft\Http\Exceptions\ForbiddenHttpException;
-use Craft\Http\Exceptions\HttpException;
+use Craft\Http\ResponseTypes\CreateResponse;
 use Craft\Http\ResponseTypes\JsonResponse;
+use Craft\Http\ResponseTypes\PatchResponse;
+use Craft\Http\ResponseTypes\UpdateResponse;
+use Craft\Http\ResponseTypes\DeleteResponse;
 use Craft\Http\Validator\AbstractFormRequest;
 
-/**
- * Базовый абстрактный класс контроллера.
- * Содержит базовые методы для обработки запросов и возвращения стандартных статус-кодов.
- * Дочерние классы должны реализовать методы для обработки GET, POST, PUT, PATCH и DELETE запросов.
- */
-abstract class ResourceController
+abstract class ResourceController implements ResourceControllerInterface
 {
-    /**
-     * Создает JSON ответ.
-     *
-     * @param mixed $data Данные для JSON ответа.
-     * @param int $statusCode Статус-код HTTP ответа.
-     * @return JsonResponse
-     */
-    protected function setJsonResponse(mixed $data, int $statusCode): JsonResponse
-    {
-        $response = new JsonResponse();
-
-        $response->setJsonBody($data);
-        $response->setStatusCode($statusCode);
-
-        return $response;
-    }
-
-    /**
-     * Возвращает ответ при выбросе HttpException
-     *
-     * @param HttpException $httpException Исключение
-     * @param array $data Данные для ответа.
-     * @return JsonResponse
-     */
-    protected function setHttpExceptionResponse(HttpException $httpException, array $data = []): JsonResponse
-    {
-        return $this->setJsonResponse([
-            'cause' => $httpException->getMessage(),
-            'type' => $httpException->getType(),
-            'data' => $data,
-        ], $httpException->getCode());
-    }
-
     /**
      * @return array
      * @throws ForbiddenHttpException
@@ -60,9 +26,9 @@ abstract class ResourceController
      * @return array
      * @throws ForbiddenHttpException
      */
-    public function actionGetList(): array
+    public function actionGetList(): JsonResponse
     {
-        $this->getList();
+        return new JsonResponse($this->getList());
     }
 
     /**
@@ -78,9 +44,9 @@ abstract class ResourceController
      * @return array
      * @throws ForbiddenHttpException
      */
-    public function actionGetItem(): array
+    public function actionGetItem(): JsonResponse
     {
-        $this->getItem();
+        return new JsonResponse($this->getItem());
     }
 
     /**
@@ -99,7 +65,7 @@ abstract class ResourceController
      */
     public function actionCreate(): CreateResponse
     {
-        $form = $formRequestFactory->create($this->forms[self::CREATE]);
+        $form = $this->formRequestFactory->create($this->forms[self::CREATE]);
 
         $form->validate();
 
@@ -118,7 +84,7 @@ abstract class ResourceController
      * @return array
      * @throws ForbiddenHttpException
      */
-    protected function update(string|int $id, AbstractFormRequest $form): array
+    protected function update(string|int $id, AbstractFormRequest $form): void
     {
         throw new ForbiddenHttpException();
     }
@@ -130,7 +96,7 @@ abstract class ResourceController
      */
     public function actionUpdate(string|int $id): UpdateResponse
     {
-        $form = $formRequestFactory->create($this->forms[self::UPDATE]);
+        $form = $this->formRequestFactory->create($this->forms[self::UPDATE]);
 
         $form->validate();
 
@@ -161,7 +127,7 @@ abstract class ResourceController
      */
     public function actionPatch(string|int $id): PatchResponse
     {
-        $form = $formRequestFactory->create($this->forms[self::PATCH]);
+        $form = $this->formRequestFactory->create($this->forms[self::PATCH]);
 
         $form->setSkipEmptyValues();
 

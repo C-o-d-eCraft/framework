@@ -4,8 +4,8 @@ namespace Craft\Http\Exceptions;
 
 class ViewNotFoundException extends \Exception
 {
-    public function __construct(string $message = 'Представление не найдено!', int $statusCode = 404)
+    public function __construct(string $filePath)
     {
-        parent::__construct($message, $statusCode);
+        parent::__construct("Представление файла '$filePath' не найдено.");
     }
 }

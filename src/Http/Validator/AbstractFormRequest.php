@@ -13,7 +13,7 @@ abstract class AbstractFormRequest
 
     public function __construct(RequestInterface $request)
     {
-        $this->data = $request->getParams();
+        $this->data = $request->getBodyContents();
 
         $this->validator = new Validator($this->data);
     }
