@@ -44,11 +44,14 @@ readonly class Router implements RouterInterface
             $params = [];
 
             if ($this->handleRoute($route, $path, $method, $params)) {
-                $this->processMiddlewares($route->middlewares);
+                [$controllerClass, $action] = explode('::', $route->handler);
 
-                [$controllerNameSpace, $action] = explode('::', $route->handler);
+                $handler = function (RequestInterface $request, ResponseInterface $response) use ($controllerClass, $action, $params) {
+                    $controller = $this->container->make($controllerClass);
+                    return $controller->$action($request, $response, ...array_values($params));
+                };
 
-                return $this->container->call($controllerNameSpace, $action, $params);
+                return $this->processMiddlewares($route->middlewares, $handler);
             }
         }
 
@@ -167,28 +170,19 @@ readonly class Router implements RouterInterface
      * @return void
      * @throws ReflectionException
      */
-    private function processMiddlewares(array $middlewares): void
+    private function processMiddlewares(array $middlewares, callable $handler): ResponseInterface
     {
-        if (empty($middlewares) === true) {
-            return;
-        }
+        $pipeline = array_reduce(
+            array_reverse($middlewares),
+            function ($next, $middleware) {
+                return function (RequestInterface $request, ResponseInterface $response) use ($middleware, $next) {
+                    $middlewareInstance = $this->container->make($middleware);
+                    return $middlewareInstance->process($request, $response, $next);
+                };
+            },
+            $handler
+        );
 
-        foreach ($middlewares as $middleware) {
-            $middlewareInstance = $this->container->make($middleware);
-
-            if ($middlewareInstance instanceof CorsMiddlewareInterface) {
-                $middlewareInstance->process($this->response);
-
-                continue;
-            }
-
-            if ($middlewareInstance instanceof OptionsMiddlewareInterface) {
-                $middlewareInstance->process($this->request, $this->response);
-
-                continue;
-            }
-
-            $middlewareInstance->process($this->request);
-        }
+        return $pipeline($this->request, $this->response);
     }
 }

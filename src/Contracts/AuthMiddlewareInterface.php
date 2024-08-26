@@ -9,5 +9,5 @@ interface AuthMiddlewareInterface
      *
      * @return void
      */
-    public function process(RequestInterface $request): void;
+    public function process(RequestInterface $request, ResponseInterface $response, callable $next): ResponseInterface;
 }

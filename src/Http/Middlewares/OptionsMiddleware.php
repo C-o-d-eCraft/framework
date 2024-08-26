@@ -8,10 +8,12 @@ use Craft\Contracts\ResponseInterface;
 
 class OptionsMiddleware implements OptionsMiddlewareInterface
 {
-    public function process(RequestInterface $request, ResponseInterface $response): void
+    public function process(RequestInterface $request, ResponseInterface $response, callable $next): ResponseInterface
     {
         if ($request->getMethod() === 'OPTIONS') {
-            $response->withStatus(200);
+            return $response->withStatus(200);
         }
+
+        return $next($request, $response);
     }
 }

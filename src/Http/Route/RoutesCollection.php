@@ -101,9 +101,9 @@ class RoutesCollection implements RoutesCollectionInterface
      */
     public function addResource(string $prefix, string $controller, array $middleware = []): void
     {
-        if (($controller instanceof ResourceControllerInterface) === false) {
-            throw new BadRequestHttpException("Ресурс $controller не соответствует контракту " . ResourceControllerInterface::class);
-        }
+//        if (($controller instanceof ResourceControllerInterface) === false) {
+//            throw new BadRequestHttpException("Ресурс $controller не соответствует контракту " . ResourceControllerInterface::class);
+//        }
 
         $this->get($prefix, $controller . '::actionGetList', $middleware);
         $this->post($prefix, $controller . '::actionCreate', $middleware);
