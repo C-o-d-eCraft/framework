@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
 use Craft\Components\EventDispatcher\EventDispatcher;
+use Craft\Console\Command\AbstractCommand;
 use Craft\Console\ConsoleKernel;
 use Craft\Console\Input;
 use Craft\Console\InputArguments;
@@ -38,7 +39,7 @@ class ConsoleKernelTest extends TestCase
 
     private function createCommandSpy(): CommandInterface
     {
-        return new class() implements CommandInterface {
+        return new class() extends AbstractCommand {
             public static function getCommandName(): string
             {
                 return 'testCommand';

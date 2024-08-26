@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use Craft\Console\Exceptions\CommandInterruptedException;
 use Craft\Console\Plugins\DetachPlugin;
+use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\OutputInterface;
@@ -22,12 +22,13 @@ class DetachPluginTest extends TestCase
         $inputStub = $this->createStub(InputInterface::class);
         $outputStub = $this->createStub(OutputInterface::class);
         $unixProcessService = $this->createStub(UnixProcessServiceInterface::class);
+        $consoleKernelStub = $this->createStub(ConsoleKernelInterface::class);
+        $consoleKernelStub->expects($this->once())->method('terminate')->with(0);
 
         $inputStub->method('getOptions')->willReturn(['--detach']);
-        $plugin = new DetachPlugin($eventDispatcherStub, $inputStub, $outputStub, $unixProcessService);
+        $plugin = new DetachPlugin($eventDispatcherStub, $inputStub, $outputStub, $unixProcessService, $consoleKernelStub);
         $unixProcessService->method('fork')->willReturn(2);
 
-        $this->expectException(CommandInterruptedException::class);
         $plugin->update();
     }
 
@@ -40,9 +41,10 @@ class DetachPluginTest extends TestCase
         $inputStub = $this->createStub(InputInterface::class);
         $outputStub = $this->createStub(OutputInterface::class);
         $unixProcessService = $this->createStub(UnixProcessServiceInterface::class);
+        $consoleKernelStub = $this->createStub(ConsoleKernelInterface::class);
 
         $inputStub->method('getOptions')->willReturn(['--detach']);
-        $plugin = new DetachPlugin($eventDispatcherStub, $inputStub, $outputStub, $unixProcessService);
+        $plugin = new DetachPlugin($eventDispatcherStub, $inputStub, $outputStub, $unixProcessService, $consoleKernelStub);
         $unixProcessService->method('fork')->willReturn(-1);
 
         $this->expectException(LogicException::class);

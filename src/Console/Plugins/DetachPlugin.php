@@ -5,6 +5,7 @@ namespace Craft\Console\Plugins;
 use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Console\Events;
 use Craft\Console\Exceptions\CommandInterruptedException;
+use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\ObserverInterface;
@@ -39,6 +40,7 @@ class DetachPlugin implements PluginInterface, ObserverInterface
         private readonly InputInterface $input,
         private readonly OutputInterface $output,
         private readonly UnixProcessServiceInterface $unixProcessService,
+        private readonly ConsoleKernelInterface $consoleKernel,
     ) {}
 
     /**
@@ -76,7 +78,6 @@ class DetachPlugin implements PluginInterface, ObserverInterface
      *
      * @param EventMessage|null $message Сообщение события (необязательно).
      * @return void
-     * @throws CommandInterruptedException Если команда переведена в фоновый режим.
      */
     public function update(mixed $message = null): void
     {
@@ -100,11 +101,14 @@ class DetachPlugin implements PluginInterface, ObserverInterface
         }
 
         if ($pid > 0) {
-            $this->output->success("Фоновый процесс запущен PID:" . $pid);
+            $this->output->success("Фоновый процесс запущен PID:" . $pid . PHP_EOL);
 
-            throw new CommandInterruptedException('Команда переведена в фоновый режим');
+            $this->output->stdout();
+            $this->consoleKernel->terminate(0);
         }
 
         $this->unixProcessService->setsid();
+        $this->unixProcessService->descriptionClose();
+        $this->unixProcessService->descriptionOpenDevNull();
     }
 }

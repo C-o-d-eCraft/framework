@@ -15,6 +15,11 @@ interface CommandInterface
     public static function getDescription(): string;
 
     /**
+     * @return array
+     */
+    public static function getFullCommandInfo(): array;
+
+    /**
      * @param InputInterface $input
      * @param OutputInterface $output
      *

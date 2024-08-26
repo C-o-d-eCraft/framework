@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use Craft\Console\Exceptions\CommandInterruptedException;
 use Craft\Console\Plugins\HelpPlugin;
+use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\EventMessageInterface;
 use Craft\Contracts\InputInterface;
@@ -22,8 +22,9 @@ class HelpPluginTest extends TestCase
         $eventDispatcherStub = $this->createStub(EventDispatcherInterface::class);
         $inputStub = $this->createStub(InputInterface::class);
         $outputStub = $this->createStub(OutputInterface::class);
+        $consoleKernelStub = $this->createStub(ConsoleKernelInterface::class);
 
-        $plugin = new HelpPlugin($eventDispatcherStub, $inputStub, $outputStub);
+        $plugin = new HelpPlugin($eventDispatcherStub, $inputStub, $outputStub, $consoleKernelStub);
         $messageStub = $this->createStub(EventMessageInterface::class);
         $messageStub->method('getMessage')->willReturn(['commandClass' => null]);
 
@@ -42,21 +43,28 @@ class HelpPluginTest extends TestCase
         $inputStub->method('getOptions')->willReturn(['--help']);
 
         $outputStub = $this->createStub(OutputInterface::class);
-        $outputStub->expects($this->once())->method('info')->with('Test Command Description' . PHP_EOL);
+        $outputStub->expects($this->once())->method('success')->with('Вызов:' . PHP_EOL);
+
+
+        $consoleKernelStub = $this->createStub(ConsoleKernelInterface::class);
+        $consoleKernelStub->expects($this->once())->method('terminate')->with(0);
 
         $commandClass = new class {
-            public static function getDescription(): string
+            public static function getFullCommandInfo(): array
             {
-                return 'Test Command Description';
+                return [
+                    'commandName' => 'calculator:calculate-modes',
+                    'description' => 'Описание команды',
+                    'arguments' => [],
+                ];
             }
         };
 
         $messageStub = $this->createStub(EventMessageInterface::class);
         $messageStub->method('getMessage')->willReturn(['commandClass' => $commandClass]);
-        $plugin = new HelpPlugin($eventDispatcherStub, $inputStub, $outputStub);
 
-        $this->expectException(CommandInterruptedException::class);
-        $this->expectExceptionMessage('Опция не подразумевает выполнения команды, только вывод информации о ней');
+        $plugin = new HelpPlugin($eventDispatcherStub, $inputStub, $outputStub, $consoleKernelStub);
+
         $plugin->update($messageStub);
     }
 }

@@ -5,6 +5,7 @@ namespace Craft\Console\Plugins;
 use Craft\Components\EventDispatcher\EventMessage;
 use Craft\Console\Events;
 use Craft\Console\Exceptions\CommandInterruptedException;
+use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\ObserverInterface;
@@ -33,6 +34,7 @@ class HelpPlugin implements PluginInterface, ObserverInterface
         readonly private EventDispatcherInterface $eventDispatcher,
         readonly private InputInterface $input,
         readonly private OutputInterface $output,
+        private readonly ConsoleKernelInterface $consoleKernel,
     ) { }
 
     /**
@@ -62,7 +64,6 @@ class HelpPlugin implements PluginInterface, ObserverInterface
     /**
      * @param EventMessage|null $message
      * @return void
-     * @throws CommandInterruptedException
      */
     public function update(mixed $message = null): void
     {
@@ -74,11 +75,40 @@ class HelpPlugin implements PluginInterface, ObserverInterface
 
         if (in_array(self::$pluginName, $this->input->getOptions()) === true) {
 
-            $commandDescription = $commandClass::getDescription() ?? 'Для данной команды отсутствует описание';
+            $commandDescription = $commandClass::getFullCommandInfo() ?? 'Для данной команды отсутствует описание';
 
-            $this->output->info($commandDescription . PHP_EOL);
+            $this->writeMessage($commandDescription);
 
-            throw new CommandInterruptedException('Опция не подразумевает выполнения команды, только вывод информации о ней');
+            $this->consoleKernel->terminate(0);
         }
+    }
+
+    private function writeMessage(array $description): void
+    {
+        $this->output->success('Вызов:' . PHP_EOL);
+        $this->output->text($description['commandName'] . ' ');
+
+        if ($description['arguments'] !== []) {
+            foreach ($description['arguments'] as $argument) {
+               $this->output->text('[' . $argument['name'] . '] ');
+            }
+        }
+
+        $this->output->text('[опции]' . PHP_EOL . PHP_EOL);
+        $this->output->info('Назначение:' . PHP_EOL);
+        $this->output->text($description['description'] . PHP_EOL . PHP_EOL);
+
+        if ($description['arguments'] !== []) {
+            $this->output->info('Аргументы:' . PHP_EOL);
+            foreach ($description['arguments'] as $argument) {
+                $this->output->success($argument['name'] . ' ');
+                $this->output->text($argument['info']);
+                $this->output->text($argument['required'] === true ? ', обязательный параметр' : ', не обязательный параметр,');
+                $this->output->text($argument['defaultValue'] === null ? '' : 'значение по умолчанию: ' . $argument['defaultValue']);
+                $this->output->text(PHP_EOL);
+            }
+        }
+
+        $this->output->stdout();
     }
 }

@@ -112,10 +112,7 @@ class ConsoleKernel implements ConsoleKernelInterface
             $this->eventDispatcher->trigger(Events::AFTER_EXECUTE);
 
             return $this->output->getStatusCode();
-        } catch (CommandInterruptedException $e) {
-            $this->output->stdout($this->output->getMessage());
 
-            return 0;
         } catch (Throwable $e) {
             $message = $this->errorHandler->handle($e);
 

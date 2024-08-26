@@ -9,4 +9,8 @@ interface UnixProcessServiceInterface
     public function getPid(): int;
 
     public function setSid(): int;
+
+    public function descriptionClose(): void;
+
+    public function descriptionOpenDevNull(): void;
 }
