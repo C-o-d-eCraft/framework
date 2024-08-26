@@ -14,6 +14,15 @@ interface OutputInterface
     public function stdout(?string $result = null): void;
 
     /**
+     * Выводит результат в консоль
+     *
+     * @param string $result
+     *
+     * @return void
+     */
+    public function text(string $result): void;
+
+    /**
      * Выводит информационное сообщение в консоль
      *
      * @param string $result

@@ -15,15 +15,9 @@ interface CommandInterface
     public static function getDescription(): string;
 
     /**
-     * - argumentName: (string) Имя аргумента команды.
-     * - required: (bool) Указывает, является ли аргумент обязательным.
-     * - defaultValue: (mixed) Значение по умолчанию для необязательного аргумента.
-     * - comment: (string) Описание аргумента.
-     *
-     * @return array Ассоциативный массив с параметрами команды.
+     * @return array
      */
-    public static function getCommandParam(): array;
-
+    public static function getFullCommandInfo(): array;
 
     /**
      * @param InputInterface $input

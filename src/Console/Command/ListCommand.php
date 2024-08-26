@@ -2,17 +2,16 @@
 
 namespace Craft\Console\Command;
 
-use Craft\Contracts\CommandInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\InputOptionsInterface;
 use Craft\Contracts\OutputInterface;
 
-class ListCommand implements CommandInterface
+class ListCommand extends AbstractCommand
 {
     /**
      * @var string
      */
-    private static string $commandName = 'list';
+    protected static string $commandName = 'list';
 
     /**
      * @var string
@@ -23,22 +22,6 @@ class ListCommand implements CommandInterface
      * @param InputOptionsInterface $inputOptions
      */
     public function __construct(private readonly InputOptionsInterface $inputOptions) { }
-
-    /**
-     * @return string
-     */
-    public static function getCommandName(): string
-    {
-        return self::$commandName;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getDescription(): string
-    {
-        return self::$description;
-    }
 
     /**
      * @param InputInterface $input
