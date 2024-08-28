@@ -8,5 +8,5 @@ interface CorsMiddlewareInterface
      * @param ResponseInterface $response
      * @return void
      */
-    public function process(ResponseInterface $response): void;
+    public function process(RequestInterface $request, ResponseInterface $response, callable $next): ResponseInterface;
 }

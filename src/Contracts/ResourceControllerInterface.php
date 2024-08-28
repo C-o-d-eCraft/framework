@@ -4,10 +4,10 @@ namespace Craft\Contracts;
 
 use Craft\Http\Exceptions\ForbiddenHttpException;
 use Craft\Http\ResponseTypes\CreateResponse;
+use Craft\Http\ResponseTypes\DeleteResponse;
 use Craft\Http\ResponseTypes\JsonResponse;
 use Craft\Http\ResponseTypes\PatchResponse;
 use Craft\Http\ResponseTypes\UpdateResponse;
-use Craft\Http\ResponseTypes\DeleteResponse;
 use Craft\Http\Validator\AbstractFormRequest;
 
 interface ResourceControllerInterface

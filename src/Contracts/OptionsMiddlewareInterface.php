@@ -9,5 +9,5 @@ interface OptionsMiddlewareInterface
      * @param ResponseInterface $response
      * @return void
      */
-    public function process(RequestInterface $request, ResponseInterface $response): void;
+    public function process(RequestInterface $request, ResponseInterface $response, callable $next): ResponseInterface;
 }
