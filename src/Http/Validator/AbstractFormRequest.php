@@ -3,19 +3,17 @@
 namespace Craft\Http\Validator;
 
 use Craft\Contracts\RequestInterface;
-use InvalidArgumentException;
+use Craft\Http\Exceptions\BadRequestHttpException;
+use Craft\Contracts\FormDataExtractorInterface;
 
 abstract class AbstractFormRequest
 {
-    public array $data = [];
     public array $errors = [];
     protected Validator $validator;
 
-    public function __construct(RequestInterface $request)
+    public function __construct(array $formData)
     {
-        $this->data = $request->getBodyContents();
-
-        $this->validator = new Validator($this->data);
+        $this->validator = new Validator($formData);
     }
 
     abstract public function rules(): array;
@@ -25,12 +23,13 @@ abstract class AbstractFormRequest
         foreach ($this->rules() as $rule) {
             try {
                 $this->validator->apply($rule);
-            } catch (InvalidArgumentException $e) {
+            } catch (BadRequestHttpException $e) {
                 $this->addError($rule[0], $e->getMessage());
             }
         }
+
         if (empty($this->getErrors()) === false) {
-            throw new InvalidArgumentException($this->getErrorsAsString(), 400);
+            throw new BadRequestHttpException($this->getErrorsAsString());
         }
     }
 
@@ -49,6 +48,7 @@ abstract class AbstractFormRequest
     public function getErrorsAsString(): string
     {
         $errorMessages = [];
+
         foreach ($this->getErrors() as $attributeErrors) {
             foreach ($attributeErrors as $errorMessage) {
                 $errorMessages[] = $errorMessage;
