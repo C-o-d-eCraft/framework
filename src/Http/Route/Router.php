@@ -48,6 +48,7 @@ readonly class Router implements RouterInterface
 
                 $handler = function (RequestInterface $request, ResponseInterface $response) use ($controllerClass, $action, $params) {
                     $controller = $this->container->make($controllerClass);
+
                     return $controller->$action($request, $response, ...array_values($params));
                 };
 
@@ -84,13 +85,15 @@ readonly class Router implements RouterInterface
      */
     private function buildRoutePattern(string $route): string
     {
-        return '@^' . preg_replace_callback('/\{(\w+)(:[^}]+)?\}/', function ($matches) {
-                $paramPattern = $matches[2] ?? '';
+        $pattern = preg_replace_callback('/\{(\w+)(:[^}]+)?\}/', function ($matches) {
+            $paramPattern = $matches[2] ?? '';
 
-                return '(' . ($this->convertParamPattern($paramPattern) ?: '\w+') . ')';
+            return '(' . ($this->convertParamPattern($paramPattern) ?: '\w+') . ')';
+        }, $route);
 
-            }, $route) . '$@';
+        return '#^' . $pattern . '$#';
     }
+
 
     /**
      * @param string $pattern
@@ -163,7 +166,6 @@ readonly class Router implements RouterInterface
         return false;
     }
 
-    // TODO prepareParams
     /**
      * @param array $middlewares
      *
@@ -172,17 +174,18 @@ readonly class Router implements RouterInterface
      */
     private function processMiddlewares(array $middlewares, callable $handler): ResponseInterface
     {
-        $pipeline = array_reduce(
+        $chain = array_reduce(
             array_reverse($middlewares),
             function ($next, $middleware) {
                 return function (RequestInterface $request, ResponseInterface $response) use ($middleware, $next) {
                     $middlewareInstance = $this->container->make($middleware);
+
                     return $middlewareInstance->process($request, $response, $next);
                 };
             },
             $handler
         );
 
-        return $pipeline($this->request, $this->response);
+        return $chain($this->request, $this->response);
     }
 }
