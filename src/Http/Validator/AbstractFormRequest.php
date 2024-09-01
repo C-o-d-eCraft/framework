@@ -2,9 +2,7 @@
 
 namespace Craft\Http\Validator;
 
-use Craft\Contracts\RequestInterface;
 use Craft\Http\Exceptions\BadRequestHttpException;
-use Craft\Contracts\FormDataExtractorInterface;
 
 abstract class AbstractFormRequest
 {

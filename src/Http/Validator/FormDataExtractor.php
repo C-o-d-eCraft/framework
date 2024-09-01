@@ -7,8 +7,6 @@ use Craft\Contracts\FormDataExtractorInterface;
 class FormDataExtractor implements FormDataExtractorInterface
 {
     /**
-     * Ищем массив с нужными ключами на первом уровне.
-     *
      * @param array $data
      * @param array $requiredKeys
      * @return array
@@ -29,8 +27,6 @@ class FormDataExtractor implements FormDataExtractorInterface
     }
 
     /**
-     * Проверяем, есть ли все нужные ключи в массиве.
-     *
      * @param array $data
      * @param array $requiredKeys
      * @return bool

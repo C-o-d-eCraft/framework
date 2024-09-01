@@ -2,9 +2,8 @@
 
 namespace Craft\Http\Validator\Rules;
 
-use Craft\Http\Validator\Validator;
 use Craft\Contracts\ValidationRuleInterface;
-
+use Craft\Http\Validator\Validator;
 
 class IntegerRule implements ValidationRuleInterface
 {
