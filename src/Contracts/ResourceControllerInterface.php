@@ -13,49 +13,22 @@ use Craft\Http\Validator\AbstractFormRequest;
 interface ResourceControllerInterface
 {
     /**
-     * @return array
-     * @throws ForbiddenHttpException
-     */
-    public function getList(): array;
-
-    /**
      * @return JsonResponse
      * @throws ForbiddenHttpException
      */
     public function actionGetList(): JsonResponse;
 
     /**
-     * @return array
-     * @throws ForbiddenHttpException
-     */
-    public function getItem(): array;
-
-    /**
      * @return JsonResponse
      * @throws ForbiddenHttpException
      */
-    public function actionGetItem(): JsonResponse;
-
-    /**
-     * @param AbstractFormRequest $form
-     * @return void
-     * @throws ForbiddenHttpException
-     */
-    public function create(AbstractFormRequest $form): void;
+    public function actionGetItem(string|int $id): JsonResponse;
 
     /**
      * @return CreateResponse
      * @throws ForbiddenHttpException
      */
-    public function actionCreate(): CreateResponse;
-
-    /**
-     * @param string|int $id
-     * @param AbstractFormRequest $form
-     * @return void
-     * @throws ForbiddenHttpException
-     */
-    public function update(string|int $id, AbstractFormRequest $form): void;
+    public function actionCreate(AbstractFormRequest $form): CreateResponse;
 
     /**
      * @param string|int $id
@@ -66,25 +39,10 @@ interface ResourceControllerInterface
 
     /**
      * @param string|int $id
-     * @param AbstractFormRequest $form
-     * @return void
-     * @throws ForbiddenHttpException
-     */
-    public function patch(string|int $id, AbstractFormRequest $form): void;
-
-    /**
-     * @param string|int $id
      * @return PatchResponse
      * @throws ForbiddenHttpException
      */
     public function actionPatch(string|int $id): PatchResponse;
-
-    /**
-     * @param string|int $id
-     * @return void
-     * @throws ForbiddenHttpException
-     */
-    public function delete(string|int $id): void;
 
     /**
      * @param string|int $id

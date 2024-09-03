@@ -8,11 +8,11 @@ use Craft\Http\Message\Stream;
 class JsonResponse extends Response
 {
     /**
-     * @param array $result
+     * @param array $data
      * @return void
      */
-    public function setJsonBody(array $result): void
+    public function setJsonBody(array $data): void
     {
-        $this->body = new Stream(json_encode($result));
+        $this->body = new Stream(json_encode($data));
     }
 }

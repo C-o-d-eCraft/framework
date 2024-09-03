@@ -26,7 +26,7 @@ readonly class Router implements RouterInterface
         private DIContainer               $container,
         private RoutesCollectionInterface $routesCollection,
         private RequestInterface          $request,
-        private ResponseInterface $response
+        private ResponseInterface         $response
     ) { }
 
     /**
@@ -49,7 +49,7 @@ readonly class Router implements RouterInterface
                 $handler = function (RequestInterface $request, ResponseInterface $response) use ($controllerClass, $action, $params) {
                     $controller = $this->container->make($controllerClass);
 
-                    return $controller->$action($request, $response, ...array_values($params));
+                    return $controller->$action(...array_values($params));
                 };
 
                 return $this->processMiddlewares($route->middlewares, $handler);
@@ -72,8 +72,6 @@ readonly class Router implements RouterInterface
 
         if (preg_match($routePattern, $path, $matches) && $route->method === $method) {
             $params = $this->extractParams($route->route, $matches);
-            
-            $this->request->getUri()->addPathVariables($params);
 
             return true;
         }
@@ -95,8 +93,7 @@ readonly class Router implements RouterInterface
 
         return '#^' . $pattern . '$#';
     }
-
-
+    
     /**
      * @param string $pattern
      * @return string

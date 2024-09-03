@@ -2,17 +2,24 @@
 
 namespace Craft\Http\Controllers;
 
+use Craft\Contracts\FormRequestFactoryInterface;
 use Craft\Contracts\ResourceControllerInterface;
 use Craft\Http\Exceptions\ForbiddenHttpException;
 use Craft\Http\ResponseTypes\CreateResponse;
+use Craft\Http\ResponseTypes\DeleteResponse;
 use Craft\Http\ResponseTypes\JsonResponse;
 use Craft\Http\ResponseTypes\PatchResponse;
 use Craft\Http\ResponseTypes\UpdateResponse;
-use Craft\Http\ResponseTypes\DeleteResponse;
 use Craft\Http\Validator\AbstractFormRequest;
 
 abstract class ResourceController implements ResourceControllerInterface
 {
+    protected const CREATE = 'create';
+    protected const UPDATE = 'update';
+    protected const PATCH = 'patch';
+
+    public function __construct(private FormRequestFactoryInterface $formRequestFactory, private array $forms) { }
+
     /**
      * @return array
      * @throws ForbiddenHttpException
@@ -23,38 +30,43 @@ abstract class ResourceController implements ResourceControllerInterface
     }
 
     /**
-     * @return array
+     * @return JsonResponse
      * @throws ForbiddenHttpException
      */
     public function actionGetList(): JsonResponse
     {
-        return new JsonResponse($this->getList());
+        $response = new JsonResponse();
+
+        return $response->setJsonBody($this->getList());
     }
 
     /**
+     * @param string|int $id
      * @return array
      * @throws ForbiddenHttpException
      */
-    protected function getItem(): array
+    protected function getItem(string|int $id): array
     {
         throw new ForbiddenHttpException();
     }
 
     /**
-     * @return array
+     * @param string|int $id
+     * @return JsonResponse
      * @throws ForbiddenHttpException
      */
-    public function actionGetItem(): JsonResponse
+    public function actionGetItem(string|int $id): JsonResponse
     {
-        return new JsonResponse($this->getItem());
+        $response = new JsonResponse();
+
+        return $response->setJsonBody($this->getItem($id));
     }
 
     /**
-     * @param AbstractFormRequest $form
      * @return void
      * @throws ForbiddenHttpException
      */
-    protected function create(AbstractFormRequest $form): void
+    protected function create(): void
     {
         throw new ForbiddenHttpException();
     }
@@ -63,10 +75,10 @@ abstract class ResourceController implements ResourceControllerInterface
      * @return CreateResponse
      * @throws ForbiddenHttpException
      */
-    public function actionCreate(): CreateResponse
+    public function actionCreate(AbstractFormRequest $form): CreateResponse
     {
         $form = $this->formRequestFactory->create($this->forms[self::CREATE]);
-
+        
         $form->validate();
 
         if (empty($form->getErrors()) === false) {
