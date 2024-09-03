@@ -72,6 +72,8 @@ readonly class Router implements RouterInterface
 
         if (preg_match($routePattern, $path, $matches) && $route->method === $method) {
             $params = $this->extractParams($route->route, $matches);
+            
+            $this->request->getUri()->addPathVariables($params);
 
             return true;
         }
