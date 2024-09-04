@@ -2,12 +2,12 @@
 
 namespace Craft\Http\ResponseTypes;
 
-use Craft\Http\ResponseTypes\JsonResponse;
+use Craft\Http\Message\Response;
 
-class DeleteResponse extends JsonResponse
+class DeleteResponse extends Response
 {
-    public function __construct(public int $statusCode = 204)
+    public function __construct(int $statusCode = 204)
     {
-        $this->setStatusCode($this->statusCode);
+        $this->statusCode = $statusCode;
     }
 }
