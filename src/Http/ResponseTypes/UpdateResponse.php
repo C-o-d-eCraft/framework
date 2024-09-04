@@ -2,7 +2,7 @@
 
 namespace Craft\Http\ResponseTypes;
 
-use Craft\Http\ResponseTypes\JsonResponse;
+use Craft\Http\Message\Response;
 
-class UpdateResponse extends JsonResponse
+class UpdateResponse extends Response
 { }
