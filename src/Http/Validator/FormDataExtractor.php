@@ -11,7 +11,7 @@ class FormDataExtractor implements FormDataExtractorInterface
      * @param array $requiredKeys
      * @return array
      */
-    public function extract(array $data, array $requiredKeys): array
+    public function extract(array $data, array $requiredKeys = []): array
     {
         foreach ($data as $key => $value) {
             if (is_array($value) === false) {

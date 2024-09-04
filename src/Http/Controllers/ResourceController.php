@@ -35,9 +35,7 @@ abstract class ResourceController implements ResourceControllerInterface
      */
     public function actionGetList(): JsonResponse
     {
-        $response = new JsonResponse();
-
-        return $response->setJsonBody($this->getList());
+        return new JsonResponse($this->getList());
     }
 
     /**
@@ -57,9 +55,7 @@ abstract class ResourceController implements ResourceControllerInterface
      */
     public function actionGetItem(string|int $id): JsonResponse
     {
-        $response = new JsonResponse();
-
-        return $response->setJsonBody($this->getItem($id));
+        return new JsonResponse($this->getItem($id));
     }
 
     /**
