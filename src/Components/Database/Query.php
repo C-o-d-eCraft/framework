@@ -58,7 +58,13 @@ class Query implements QueryInterface
                 continue;
             }
 
-            $this->where[] = "$key = " . (is_numeric($value) ? $value : "'" . addslashes((string)$value) . "'");
+            if ($value === null) {
+                $this->where[] = "$key IS NULL";
+            }
+
+            if ($value !== null) {
+                $this->where[] = "$key = " . (is_numeric($value) ? $value : "'" . addslashes((string)$value) . "'");
+            }
         }
 
         return $this;
