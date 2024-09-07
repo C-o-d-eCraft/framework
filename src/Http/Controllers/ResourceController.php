@@ -104,6 +104,8 @@ abstract class ResourceController implements ResourceControllerInterface
      */
     public function actionUpdate(string|int $id): UpdateResponse
     {
+        $this->validateResourceExists($id);
+
         $form = $this->formRequestFactory->create($this->forms[self::UPDATE]);
 
         $form->validate();
@@ -135,6 +137,8 @@ abstract class ResourceController implements ResourceControllerInterface
      */
     public function actionPatch(string|int $id): PatchResponse
     {
+        $this->validateResourceExists($id);
+
         $form = $this->formRequestFactory->create($this->forms[self::PATCH]);
 
         $form->setSkipEmptyValues();
@@ -170,5 +174,14 @@ abstract class ResourceController implements ResourceControllerInterface
         $this->delete($id);
 
         return new DeleteResponse();
+    }
+
+    /**
+     * @param string|int $id
+     * @return void
+     */
+    protected function validateResourceExists(string|int $id): void
+    {
+        // ...
     }
 }
