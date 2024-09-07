@@ -4,5 +4,9 @@ namespace Craft\Contracts;
 
 interface FormDataExtractorInterface
 {
-    public function extract(array $data, array $requiredKeys = []): array;
+    /**
+     * @param array $data
+     * @return array
+     */
+    public function extract(array $data): array;
 }

@@ -10,6 +10,7 @@ abstract class AbstractFormRequest
     public array $errors = [];
     protected Validator $validator;
     private array $skipEmptyRuleValues = [];
+    private bool $isSkipEmptyValues = false;
 
     public function __construct()
     {
@@ -30,7 +31,7 @@ abstract class AbstractFormRequest
         foreach ($this->rules() as $rule) {
             $attributes = (array)$rule[0];
 
-            if ($this->shouldSkipRule($attributes) === true) {
+            if ($this->isSkipEmptyValues === true && $this->shouldSkipRule($attributes) === true) {
                 continue;
             }
 
@@ -89,6 +90,7 @@ abstract class AbstractFormRequest
      */
     public function setSkipEmptyValues(): void
     {
+        $this->isSkipEmptyValues = true;
         $allKeys = [];
 
         foreach ($this->rules() as $rule) {
