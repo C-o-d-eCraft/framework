@@ -3,8 +3,6 @@
 namespace Craft\Http\Route;
 
 use Craft\Components\DIContainer\DIContainer;
-use Craft\Contracts\CorsMiddlewareInterface;
-use Craft\Contracts\OptionsMiddlewareInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ResponseInterface;
 use Craft\Contracts\RouterInterface;
