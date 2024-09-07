@@ -28,7 +28,7 @@ interface ResourceControllerInterface
      * @return CreateResponse
      * @throws ForbiddenHttpException
      */
-    public function actionCreate(AbstractFormRequest $form): CreateResponse;
+    public function actionCreate(): CreateResponse;
 
     /**
      * @param string|int $id

@@ -62,7 +62,7 @@ abstract class ResourceController implements ResourceControllerInterface
      * @return void
      * @throws ForbiddenHttpException
      */
-    protected function create(): void
+    protected function create(AbstractFormRequest $form): void
     {
         throw new ForbiddenHttpException();
     }
@@ -71,7 +71,7 @@ abstract class ResourceController implements ResourceControllerInterface
      * @return CreateResponse
      * @throws ForbiddenHttpException
      */
-    public function actionCreate(AbstractFormRequest $form): CreateResponse
+    public function actionCreate(): CreateResponse
     {
         $form = $this->formRequestFactory->create($this->forms[self::CREATE]);
         
