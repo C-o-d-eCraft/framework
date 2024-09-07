@@ -6,20 +6,37 @@ use Craft\Http\Exceptions\BadRequestHttpException;
 
 abstract class AbstractFormRequest
 {
+    public array $formData;
     public array $errors = [];
     protected Validator $validator;
+    private array $skipEmptyRuleValues = [];
 
-    public function __construct(array $formData)
+    public function __construct()
     {
-        $this->validator = new Validator($formData);
+        $this->validator = new Validator($this->formData);
     }
 
+    /**
+     * @return array
+     */
     abstract public function rules(): array;
 
+    /**
+     * @return void
+     * @throws BadRequestHttpException
+     */
     public function validate(): void
     {
         foreach ($this->rules() as $rule) {
+            $attributes = (array)$rule[0];
+
+            if ($this->shouldSkipRule($attributes) === true) {
+                continue;
+            }
+
             try {
+                $validator = new Validator($this->formData);
+
                 $this->validator->apply($rule);
             } catch (BadRequestHttpException $e) {
                 $this->addError($rule[0], $e->getMessage());
@@ -31,11 +48,19 @@ abstract class AbstractFormRequest
         }
     }
 
+    /**
+     * @param string $attribute
+     * @param string $message
+     * @return void
+     */
     protected function addError(string $attribute, string $message): void
     {
         $this->errors[$attribute][] = $message;
     }
 
+    /**
+     * @return array
+     */
     public function getErrors(): array
     {
         $this->errors = array_merge($this->errors, $this->validator->errors);
@@ -43,6 +68,9 @@ abstract class AbstractFormRequest
         return $this->errors;
     }
 
+    /**
+     * @return string
+     */
     public function getErrorsAsString(): string
     {
         $errorMessages = [];
@@ -54,5 +82,41 @@ abstract class AbstractFormRequest
         }
 
         return implode(' ', $errorMessages);
+    }
+
+    /**
+     * @return void
+     */
+    public function setSkipEmptyValues(): void
+    {
+        $allKeys = [];
+
+        foreach ($this->rules() as $rule) {
+            $fields = (array)$rule[0];
+            $allKeys = array_merge($allKeys, $fields);
+        }
+
+        $uniqueKeys = array_unique($allKeys);
+
+        foreach ($uniqueKeys as $field) {
+            if (array_key_exists($field, $this->formData) === false) {
+                $this->skipEmptyRuleValues[$field] = true;
+            }
+        }
+    }
+
+    /**
+     * @param array $attributes
+     * @return bool
+     */
+    private function shouldSkipRule(array $attributes): bool
+    {
+        foreach ($attributes as $attribute) {
+            if (isset($this->skipEmptyRuleValues[$attribute]) === true) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
