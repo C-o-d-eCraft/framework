@@ -4,8 +4,8 @@ namespace Craft\Http\Factory;
 
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Contracts\FormRequestFactoryInterface;
-use Craft\Http\Exceptions\BadRequestHttpException;
 use Craft\Http\Validator\AbstractFormRequest;
+use Craft\Http\Factory\FormNotFoundException;
 
 class FormRequestFactory implements FormRequestFactoryInterface
 {
@@ -21,6 +21,6 @@ class FormRequestFactory implements FormRequestFactoryInterface
             return $this->container->make($formClassName);
         }
 
-        throw new BadRequestHttpException("Форма с именем $formClassName не найдена.");
+        throw new FormNotFoundException();
     }
 }
