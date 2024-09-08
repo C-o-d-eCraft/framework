@@ -107,10 +107,10 @@ class RoutesCollection implements RoutesCollectionInterface
 
         $this->get($prefix, $controller . '::actionGetList', $middleware);
         $this->post($prefix, $controller . '::actionCreate', $middleware);
-        $this->get($prefix . '/{id}', $controller . '::actionGetItem', $middleware);
-        $this->put($prefix . '/{id}', $controller . '::actionUpdate', $middleware);
-        $this->patch($prefix . '/{id}', $controller . '::actionPatch', $middleware);
-        $this->delete($prefix . '/{id}', $controller . '::actionDelete', $middleware);
+        $this->get($prefix . '/{id:integer}', $controller . '::actionGetItem', $middleware);
+        $this->put($prefix . '/{id:integer}', $controller . '::actionUpdate', $middleware);
+        $this->patch($prefix . '/{id:integer}', $controller . '::actionPatch', $middleware);
+        $this->delete($prefix . '/{id:integer}', $controller . '::actionDelete', $middleware);
     }
 
     /**
