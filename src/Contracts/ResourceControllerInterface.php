@@ -16,7 +16,7 @@ interface ResourceControllerInterface
      * @return JsonResponse
      * @throws ForbiddenHttpException
      */
-    public function actionGetList(): JsonResponse;
+    public function actionGetList(string|int $id = null): JsonResponse;
 
     /**
      * @return JsonResponse
@@ -28,7 +28,7 @@ interface ResourceControllerInterface
      * @return CreateResponse
      * @throws ForbiddenHttpException
      */
-    public function actionCreate(): CreateResponse;
+    public function actionCreate(string|int $id = null): CreateResponse;
 
     /**
      * @param string|int $id

@@ -24,7 +24,7 @@ abstract class ResourceController implements ResourceControllerInterface
      * @return array
      * @throws ForbiddenHttpException
      */
-    protected function getList(): array
+    protected function getList(string|int $id): array
     {
         throw new ForbiddenHttpException();
     }
@@ -33,9 +33,9 @@ abstract class ResourceController implements ResourceControllerInterface
      * @return JsonResponse
      * @throws ForbiddenHttpException
      */
-    public function actionGetList(): JsonResponse
+    public function actionGetList(string|int $id = null): JsonResponse
     {
-        return new JsonResponse($this->getList());
+        return new JsonResponse($this->getList($id));
     }
 
     /**
@@ -62,7 +62,7 @@ abstract class ResourceController implements ResourceControllerInterface
      * @return void
      * @throws ForbiddenHttpException
      */
-    protected function create(AbstractFormRequest $form): void
+    protected function create(AbstractFormRequest $form, string|int $id): void
     {
         throw new ForbiddenHttpException();
     }
@@ -71,7 +71,7 @@ abstract class ResourceController implements ResourceControllerInterface
      * @return CreateResponse
      * @throws ForbiddenHttpException
      */
-    public function actionCreate(): CreateResponse
+    public function actionCreate(string|int $id = null): CreateResponse
     {
         $form = $this->formRequestFactory->create($this->forms[self::CREATE]);
         
@@ -81,7 +81,7 @@ abstract class ResourceController implements ResourceControllerInterface
             throw new BadRequestHttpException($form->getErrors());
         }
 
-        $this->create($form);
+        $this->create($form, $id);
 
         return new CreateResponse();
     }
