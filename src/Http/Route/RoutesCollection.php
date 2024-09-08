@@ -2,9 +2,7 @@
 
 namespace Craft\Http\Route;
 
-use Craft\Contracts\ResourceControllerInterface;
 use Craft\Contracts\RoutesCollectionInterface;
-use Craft\Http\Exceptions\BadRequestHttpException;
 
 class RoutesCollection implements RoutesCollectionInterface
 {
@@ -101,10 +99,6 @@ class RoutesCollection implements RoutesCollectionInterface
      */
     public function addResource(string $prefix, string $controller, array $middleware = []): void
     {
-//        if (($controller instanceof ResourceControllerInterface) === false) {
-//            throw new BadRequestHttpException("Ресурс $controller не соответствует контракту " . ResourceControllerInterface::class);
-//        }
-
         $this->get($prefix, $controller . '::actionGetList', $middleware);
         $this->post($prefix, $controller . '::actionCreate', $middleware);
         $this->get($prefix . '/{id:integer}', $controller . '::actionGetItem', $middleware);
