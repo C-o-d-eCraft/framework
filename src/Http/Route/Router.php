@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Craft\Http\Route;
 
@@ -10,9 +11,11 @@ use Craft\Contracts\RoutesCollectionInterface;
 use Craft\Http\Exceptions\BadRequestHttpException;
 use Craft\Http\Exceptions\HttpException;
 use Craft\Http\Exceptions\NotFoundHttpException;
+use Craft\Http\Message\Stream;
+use Craft\Http\ResponseTypes\JsonResponse;
 use ReflectionException;
 
-readonly class Router implements RouterInterface
+class Router implements RouterInterface
 {
     /**
      * @param DIContainer $container
@@ -37,11 +40,12 @@ readonly class Router implements RouterInterface
     {
         $method = $this->request->getMethod();
         $path = $this->request->getUri()->getPath();
+        $queryParams = $this->request->getUri()->getQueryParams();
 
         foreach ($this->routesCollection->getRoutes() as $route) {
             $params = [];
 
-            if ($this->handleRoute($route, $path, $method, $params)) {
+            if ($this->handleRoute($route, $path, $method, $params, $queryParams)) {
                 [$controllerClass, $action] = explode('::', $route->handler);
 
                 $handler = function (RequestInterface $request, ResponseInterface $response) use ($controllerClass, $action, $params) {
@@ -64,12 +68,20 @@ readonly class Router implements RouterInterface
      * @param array $params
      * @return bool
      */
-    private function handleRoute(Route $route, string $path, string $method, array &$params = []): bool
+    private function handleRoute(Route $route, string $path, string $method, array &$params = [], array $queryParams = []): bool
     {
         $routePattern = $this->buildRoutePattern($route->route);
 
         if (preg_match($routePattern, $path, $matches) && $route->method === $method) {
             $params = $this->extractParams($route->route, $matches);
+
+            if ($this->hasQueryParams($route->route) === true) {
+                $queryParamRules = $this->extractQueryParamRules($route->route);
+
+                $this->validateQueryParams($queryParams, $queryParamRules);
+
+                $params = array_merge($params, $queryParams);
+            }
 
             return true;
         }
@@ -83,11 +95,12 @@ readonly class Router implements RouterInterface
      */
     private function buildRoutePattern(string $route): string
     {
+        $routeWithoutQuery = explode('?', $route)[0];
         $pattern = preg_replace_callback('/\{(\w+)(:[^}]+)?\}/', function ($matches) {
             $paramPattern = $matches[2] ?? '';
 
             return '(' . ($this->convertParamPattern($paramPattern) ?: '\w+') . ')';
-        }, $route);
+        }, $routeWithoutQuery);
 
         return '#^' . $pattern . '$#';
     }
@@ -138,6 +151,62 @@ readonly class Router implements RouterInterface
     }
 
     /**
+     * @param string $route
+     * @return bool
+     */
+    private function hasQueryParams(string $route): bool
+    {
+        return strpos($route, '?') !== false;
+    }
+
+    /**
+     * @param string $route
+     * @return array
+     */
+    private function extractQueryParamRules(string $route): array
+    {
+        $parts = explode('?', $route);
+        $queryParams = $parts[1] ?? '';
+        $rules = [];
+
+        foreach (explode('&', $queryParams) as $param) {
+            if (strpos($param, ':') !== false) {
+                [$name, $specifiers] = explode(':', $param);
+                $rules[$name] = $specifiers;
+            }
+        }
+
+        return $rules;
+    }
+
+    /**
+     * @param array $queryParams
+     * @param array $rules
+     * @return void
+     * @throws BadRequestHttpException
+     */
+    private function validateQueryParams(array $queryParams, array $rules): ResponseInterface
+    {
+        foreach ($rules as $name => $specifiers) {
+            $value = $queryParams[$name] ?? null;
+
+            if ($this->isValueInvalid($value, $specifiers) === true) {
+                $responseBody = [
+                    'cause' => "Invalid query parameter '$name'",
+                    'type' => 'Validation Error',
+                    'data' => []
+                ];
+
+                $this->response = new JsonResponse($responseBody, 400);
+
+                return $this->response;
+            }
+        }
+
+        return $this->response;
+    }
+
+    /**
      * @param string $value
      * @param string $paramSpecifiers
      * @return bool
@@ -156,6 +225,14 @@ readonly class Router implements RouterInterface
             }
 
             if ($specifier === 'required' && empty($value) === true) {
+                return true;
+            }
+
+            if (str_starts_with($specifier, 'minLength=') && strlen($value) < (int)str_replace('minLength=', '', $specifier)) {
+                return true;
+            }
+
+            if (str_starts_with($specifier, 'maxLength=') && strlen($value) > (int)str_replace('maxLength=', '', $specifier)) {
                 return true;
             }
         }
