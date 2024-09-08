@@ -1,5 +1,4 @@
 <?php
-declare(strict_types = 1);
 
 namespace Craft\Http\Route;
 
@@ -140,8 +139,8 @@ class Router implements RouterInterface
 
             $value = $matches[$index + 1];
 
-            if ($this->isValueInvalid($value, $paramSpecifiers)) {
-                throw new BadRequestHttpException("Некорректный параметр '$name'");
+            if ($this->isValueInvalid($value, $paramSpecifiers) === true) {
+                throw new BadRequestHttpException('Не корректные параметры поиска');
             }
 
             $params[$name] = $value;
@@ -191,15 +190,7 @@ class Router implements RouterInterface
             $value = $queryParams[$name] ?? null;
 
             if ($this->isValueInvalid($value, $specifiers) === true) {
-                $responseBody = [
-                    'cause' => "Invalid query parameter '$name'",
-                    'type' => 'Validation Error',
-                    'data' => []
-                ];
-
-                $this->response = new JsonResponse($responseBody, 400);
-
-                return $this->response;
+                throw new BadRequestHttpException('Не корректные параметры поиска');
             }
         }
 

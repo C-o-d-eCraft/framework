@@ -16,38 +16,38 @@ interface ResourceControllerInterface
      * @return JsonResponse
      * @throws ForbiddenHttpException
      */
-    public function actionGetList(): JsonResponse;
+    public function actionGetList(string|int $id = null): JsonResponse;
 
     /**
      * @return JsonResponse
      * @throws ForbiddenHttpException
      */
-    public function actionGetItem(string|int $id): JsonResponse;
+    public function actionGetItem(string|int $id, string|int $itemId = null): JsonResponse;
 
     /**
      * @return CreateResponse
      * @throws ForbiddenHttpException
      */
-    public function actionCreate(): CreateResponse;
+    public function actionCreate(string|int $id = null): CreateResponse;
 
     /**
      * @param string|int $id
      * @return UpdateResponse
      * @throws ForbiddenHttpException
      */
-    public function actionUpdate(string|int $id): UpdateResponse;
+    public function actionUpdate(string|int $id, string|int $itemId = null): UpdateResponse;
 
     /**
      * @param string|int $id
      * @return PatchResponse
      * @throws ForbiddenHttpException
      */
-    public function actionPatch(string|int $id): PatchResponse;
+    public function actionPatch(string|int $id, string|int $itemId = null): PatchResponse;
 
     /**
      * @param string|int $id
      * @return DeleteResponse
      * @throws ForbiddenHttpException
      */
-    public function actionDelete(string|int $id): DeleteResponse;
+    public function actionDelete(string|int $id, string|int $itemId = null): DeleteResponse;
 }
