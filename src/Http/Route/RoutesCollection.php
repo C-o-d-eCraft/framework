@@ -3,8 +3,6 @@
 namespace Craft\Http\Route;
 
 use Craft\Contracts\RoutesCollectionInterface;
-use Craft\Http\Exceptions\BadRequestHttpException;
-use Craft\Http\Controllers\ResourceController;
 
 class RoutesCollection implements RoutesCollectionInterface
 {
