@@ -23,6 +23,7 @@ class ObserverAttachContext implements ObserverInterface
 
         if ($this->storage->context === null) {
             $this->storage->context = $newContext;
+
             return;
         }
 

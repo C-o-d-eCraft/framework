@@ -2,6 +2,7 @@
 
 namespace Craft\Http\Validator\Rules;
 
+use Craft\Contracts\ValidationRuleInterface;
 use Craft\Http\Validator\Validator;
 
 class RequiredRule implements ValidationRuleInterface
@@ -13,9 +14,13 @@ class RequiredRule implements ValidationRuleInterface
      * @param Validator $validator
      * @return void
      */
-    public function validate(string|array $attribute, mixed $value, array $params, Validator $validator): void
+    public function validate(string|array $attributes, mixed $value, array $params, Validator $validator): void
     {
-        foreach ((array)$attribute as $attr) {
+        if (is_array($attributes) === false) {
+            $attributes = [$attributes];
+        }
+
+        foreach ($attributes as $attr) {
             $this->validateAttribute($attr, $value, $validator);
         }
     }
@@ -28,7 +33,7 @@ class RequiredRule implements ValidationRuleInterface
      */
     private function validateAttribute(string $attribute, mixed $value, Validator $validator): void
     {
-        if (empty($value)) {
+        if (empty($value) === true) {
             $validator->addError($attribute, 'required');
         }
     }

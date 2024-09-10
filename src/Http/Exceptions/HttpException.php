@@ -2,21 +2,17 @@
 
 namespace Craft\Http\Exceptions;
 
-class HttpException extends \Exception
+abstract class HttpException extends \Exception
 {
-    public function __construct(string $message = 'Некорректный запрос!', int $statusCode = 400)
+    public function __construct(string $message, int $statusCode)
     {
         parent::__construct($message, $statusCode);
     }
 
     public function getType(): string
     {
-        $calledClassName = (new \ReflectionClass($this))->getShortName();
+        $childClassName = (new \ReflectionClass($this))->getShortName();
 
-        if ($calledClassName === 'HttpException') {
-            return 'BadRequest';
-        }
-
-        return str_replace('HttpException', '', $baseClassName);
+        return str_replace('HttpException', '', $childClassName);
     }
 }

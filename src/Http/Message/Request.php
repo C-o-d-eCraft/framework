@@ -5,6 +5,8 @@ namespace Craft\Http\Message;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\StreamInterface;
 use Craft\Contracts\UriInterface;
+use Craft\Http\Processors\AuthHeaderProcessor;
+use Craft\Http\Processors\FormDataProcessor;
 
 class Request extends Message implements RequestInterface
 {
@@ -41,13 +43,12 @@ class Request extends Message implements RequestInterface
      * @param string $protocolVersion
      */
     public function __construct(
-        string $method,
-        UriInterface $uri,
-        array $headers,
+        string          $method,
+        UriInterface    $uri,
+        array           $headers,
         StreamInterface $body,
-        string $protocolVersion = 'HTTP/1.1',
-    )
-    {
+        string          $protocolVersion = 'HTTP/1.1',
+    ) {
         $this->method = $method;
         $this->uri = $uri;
         $this->headers = $headers;
@@ -88,7 +89,7 @@ class Request extends Message implements RequestInterface
      */
     public function withMethod(string $method): static
     {
-        $request =clone $this;
+        $request = clone $this;
         $request->method = $method;
 
         return $request;
@@ -114,7 +115,7 @@ class Request extends Message implements RequestInterface
         $request->uri = $uri;
 
         if ($preserveHost === false) {
-            $request =$request->withHeader('Host', $uri->getHost());
+            $request = $request->withHeader('Host', $uri->getHost());
         }
 
         return $request;
@@ -196,7 +197,6 @@ class Request extends Message implements RequestInterface
     public function withHeader(string $name, array|string $value): static
     {
         $request = clone $this;
-
         $request->headers[$name] = is_array($value) ? $value : [$value];
 
         return $request;
@@ -246,6 +246,7 @@ class Request extends Message implements RequestInterface
     {
         $request = clone $this;
         $request->body = $body;
+
         return $request;
     }
 
@@ -270,26 +271,6 @@ class Request extends Message implements RequestInterface
      */
     public function getBodyContents(): array
     {
-        return array_merge((array) json_decode($this->body->getContents()), $_POST);
-    }
-
-    public function getParams(): array
-    {
-        $params = array_merge($this->getBodyContents(), $this->getQueryParams(), $this->getPathVariables());
-
-        if (isset($this->getHeaders()['X-BASE-AUTH']) === true) {
-
-            $params['token'] = $this->getHeaders()['X-BASE-AUTH'];
-        }
-
-
-        if (isset($params['formData']) && $params['formData'] instanceof \stdClass) {
-            $formDataArray = json_decode(json_encode($params['formData']), true);
-            $params['formData'] = $formDataArray;
-
-            $params = array_merge($params, $formDataArray);
-        }
-
-        return $params;
+        return array_merge((array)json_decode($this->body->getContents()), $_POST);
     }
 }

@@ -18,7 +18,10 @@ class DIContainer implements ContainerInterface
     protected static ?self $instance = null;
     public array $singletons = [];
 
-    protected function __construct(private readonly array $config = []) { }
+    protected function __construct(private readonly array $config = [])
+    {
+        $this->registerSingletons();
+    }
 
     /**
      * Запрещает клонирование объектов класса DIContainer
@@ -43,6 +46,17 @@ class DIContainer implements ContainerInterface
         }
 
         return self::$instance = new self($config);
+    }
+
+    private function registerSingletons(): void
+    {
+        if (empty($this->config['singletons']) === true) {
+            return;
+        }
+
+        foreach ($this->config['singletons'] as $contract) {
+            $this->singleton($contract);
+        }
     }
 
     /**
@@ -90,10 +104,6 @@ class DIContainer implements ContainerInterface
             return new $className();
         }
 
-        if (is_object($className) === true) {
-            return $className;
-        }
-
         $dependencies = [];
 
         foreach ($constructor->getParameters() as $parameter) {
@@ -102,7 +112,7 @@ class DIContainer implements ContainerInterface
             }
 
             $dependencyInterface = $parameter->getType()->getName();
-            
+
             $dependencies[] = $this->make($dependencyInterface);
         }
 
@@ -146,21 +156,21 @@ class DIContainer implements ContainerInterface
             $reflection = new ReflectionMethod($handler, $method);
             $parameters = $reflection->getParameters();
             $resolvedArgs = $this->resolveArguments($parameters);
-            
+
             $args = array_merge($resolvedArgs, $args);
-            
+
             return $reflection->invokeArgs($handler, $args);
         }
 
         if (is_string($handler) && class_exists($handler)) {
             $instance = $this->make($handler);
-            
+
             $reflection = new ReflectionMethod($instance, $method);
             $parameters = $reflection->getParameters();
             $resolvedArgs = $this->resolveArguments($parameters);
-            
+
             $args = array_merge($resolvedArgs, $args);
-            
+
             return $reflection->invokeArgs($instance, $args);
         }
 
@@ -187,6 +197,7 @@ class DIContainer implements ContainerInterface
 
             if (is_callable($argument)) {
                 $arguments[] = $argument($this);
+
                 continue;
             }
 
@@ -195,7 +206,7 @@ class DIContainer implements ContainerInterface
 
         return $arguments;
     }
-    
+
     /**
      * Проверяет наличие контракта в конфигурации.
      *

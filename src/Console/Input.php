@@ -75,15 +75,11 @@ class Input implements InputInterface
         foreach ($this->argv as $item) {
             if (str_starts_with($item, '--')) {
                 $this->options[] = $item;
+
                 continue;
             }
 
             $this->arguments[] = $item;
         }
-    }
-
-    public function outputToFile(): bool
-    {
-        return in_array('--save-file',$this->options);
     }
 }

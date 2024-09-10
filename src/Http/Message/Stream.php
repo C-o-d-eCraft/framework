@@ -24,8 +24,9 @@ class Stream implements StreamInterface
      */
     public function __construct(
         mixed $resourceOrString,
-        bool $closed = false
-    ) {
+        bool  $closed = false
+    )
+    {
         $this->closed = $closed;
 
         if (is_resource($resourceOrString) === true) {
@@ -74,7 +75,7 @@ class Stream implements StreamInterface
             $resource = $this->resource;
             $this->resource = null;
             $this->closed = true;
-            
+
             return $resource;
         }
 
@@ -88,6 +89,7 @@ class Stream implements StreamInterface
     {
         if ($this->closed === false) {
             $stat = fstat($this->resource);
+
             return $stat['size'] ?? null;
         }
 
@@ -135,7 +137,7 @@ class Stream implements StreamInterface
 
         $metaData = stream_get_meta_data($this->resource);
 
-        return (bool) ($metaData['seekable'] ?? false);
+        return (bool)($metaData['seekable'] ?? false);
     }
 
     /**

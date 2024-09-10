@@ -4,8 +4,9 @@ namespace Craft\Console;
 
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
-use Craft\Components\EventDispatcher\Event;
 use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Console\Command\ListCommand;
+use Craft\Console\Exceptions\CommandInterruptedException;
 use Craft\Contracts\CommandInterface;
 use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
@@ -28,12 +29,12 @@ class ConsoleKernel implements ConsoleKernelInterface
      * @param InputOptionsInterface $inputOptions
      */
     public function __construct(
-        private readonly DIContainer      $container,
-        private InputInterface            $input,
-        private OutputInterface           $output,
-        private readonly EventDispatcherInterface  $eventDispatcher,
-        private readonly CliErrorHandler  $errorHandler,
-        private InputOptionsInterface     $inputOptions
+        private readonly DIContainer $container,
+        private InputInterface  $input,
+        private OutputInterface   $output,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CliErrorHandler $errorHandler,
+        private readonly InputOptionsInterface $inputOptions
     ) { }
 
     /**
@@ -43,6 +44,8 @@ class ConsoleKernel implements ConsoleKernelInterface
     public function registerCommandNamespaces(array $commandNameSpaces): void
     {
         $commandMap = [];
+
+        $commandNameSpaces[] = ListCommand::class;
 
         foreach ($commandNameSpaces as $commandClass) {
             if (in_array(CommandInterface::class, class_implements($commandClass), true) === false) {
@@ -74,11 +77,9 @@ class ConsoleKernel implements ConsoleKernelInterface
         try {
             $calledCommandName = $this->input->getCommandNameSpace();
             $commandMap = $this->inputOptions->getCommandMap();
-            $plugins = $this->inputOptions->getPlugins();
-            
-            foreach ($plugins as $plugin) {
-                $plugin = $this->container->make($plugin);
-                $plugin->init();
+
+            if (empty($calledCommandName) === true) {
+                $calledCommandName = ListCommand::getCommandName();
             }
 
             $commandClass = $commandMap[$calledCommandName] ?? null;
@@ -89,23 +90,29 @@ class ConsoleKernel implements ConsoleKernelInterface
                 );
             }
 
+            $this->initializePlugins();
+
             $commandArguments = $this->parseCommandArguments($commandClass::getCommandName());
 
-            $this->eventDispatcher->trigger(Event::BEFORE_RUN, new EventMessage(['commandArguments' => $commandArguments]));
+            $this->eventDispatcher->trigger(
+                Events::BEFORE_RUN,
+                new EventMessage([
+                    'commandArguments' => $commandArguments,
+                    'commandClass' => $commandClass,
+                ]));
 
             $this->comparisonArguments($commandArguments);
 
-            $this->eventDispatcher->trigger(Event::BEFORE_EXECUTE);
+            $this->eventDispatcher->trigger(Events::BEFORE_EXECUTE);
 
             $this->container->make($commandClass)->execute($this->input, $this->output);
 
-            if ($this->input->outputToFile() === true) {
-                $this->eventDispatcher->trigger(Event::AFTER_EXECUTE);
-            }
+            $this->output->stdout($this->output->getMessage());
 
-                $this->output->stdout($this->output->getMessage());
+            $this->eventDispatcher->trigger(Events::AFTER_EXECUTE);
 
             return $this->output->getStatusCode();
+
         } catch (Throwable $e) {
             $message = $this->errorHandler->handle($e);
 
@@ -170,9 +177,30 @@ class ConsoleKernel implements ConsoleKernelInterface
             }
 
             $enteredArguments[$paramName] = $paramsValue;
-            $argumentIndex ++;
+            $argumentIndex++;
         }
 
         $this->input->setArguments($enteredArguments);
+    }
+
+    /**
+     * Инициализирует плагины, которые были вызваны в команде
+     * @throws \ReflectionException
+     */
+    private function initializePlugins(): void
+    {
+        $plugins = $this->inputOptions->getPlugins();
+
+        if (empty($plugins) === true) {
+            return;
+        }
+
+        foreach ($plugins as $plugin) {
+            $plugin = $this->container->make($plugin);
+
+            if (in_array($plugin->getPluginName(), $this->input->getOptions())) {
+                $plugin->init();
+            }
+        }
     }
 }

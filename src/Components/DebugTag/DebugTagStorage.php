@@ -1,6 +1,6 @@
 <?php
 
-namespace Craft\Components\Logger\DebugTag;
+namespace Craft\Components\DebugTag;
 
 use Craft\Contracts\DebugTagStorageInterface;
 

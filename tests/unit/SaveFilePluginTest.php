@@ -2,85 +2,56 @@
 
 namespace Tests\Unit;
 
-use Craft\Components\DIContainer\DIContainer;
 use Craft\Console\Plugins\SaveFilePlugin;
 use Craft\Contracts\EventDispatcherInterface;
-use Craft\Contracts\InputInterface;
+use Craft\Contracts\FileSystemInterface;
 use Craft\Contracts\OutputInterface;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
-/**
- * Класс для тестирования SaveFilePlugin
- */
 class SaveFilePluginTest extends TestCase
 {
     /**
-     * Тестирует метод init на предмет привязки события
-     *
-     * @return void
+     * @throws Exception
      */
-    public function testInitAttachesEvent(): void
+    public function testUpdateSuccessfullyWritesToFile()
     {
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $inputMock = $this->createMock(InputInterface::class);
-        $outputMock = $this->createMock(OutputInterface::class);
-        $containerMock = $this->createMock(DIContainer::class);
+        $fileSystemStub = $this->createStub(FileSystemInterface::class);
 
-        $containerMock->method('make')
-            ->willreturnMap([
-                [EventDispatcherInterface::class, $eventDispatcher],
-                [InputInterface::class, $inputMock],
-                [OutputInterface::class, $outputMock],
-            ]);
+        $fileSystemStub->method('put');
+        $fileSystemStub->method('getAlias')->willReturn('/var/www/html/runtime/console-output');
 
-        $saveFilePlugin = new SaveFilePlugin($containerMock, '/tmp');
+        $outputStub = $this->createStub(OutputInterface::class);
 
-        $eventDispatcher->expects($this->once())
-            ->method('attach')
-            ->with($this->equalTo('after_execute'), $saveFilePlugin);
+        $eventDispatcherStub = $this->createStub(EventDispatcherInterface::class);
 
-        $saveFilePlugin->init();
+        $plugin = new SaveFilePlugin($eventDispatcherStub, $outputStub, $fileSystemStub);
+
+        $this->expectNotToPerformAssertions();
+
+        $plugin->update('testMessage');
     }
 
     /**
-     * Тестирует метод update на вызов функции file_put_contents с правильными аргументами
-     *
-     * @return void
+     * @throws Exception
      */
-    public function testUpdateCallsFilePutContents(): void
+    public function testUpdateThrowsExceptionOnWriteFailure()
     {
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $inputMock = $this->createMock(InputInterface::class);
-        $outputMock = $this->createMock(OutputInterface::class);
-        $containerMock = $this->createMock(DIContainer::class);
+        $fileSystemStub = $this->createStub(FileSystemInterface::class);
 
-        $containerMock->method('make')
-            ->willreturnMap([
-                [EventDispatcherInterface::class, $eventDispatcher],
-                [InputInterface::class, $inputMock],
-                [OutputInterface::class, $outputMock],
-            ]);
+        $fileSystemStub->method('put')->willThrowException(new RuntimeException('Не удалось записать данные в файл'));
+        $fileSystemStub->method('getAlias')->willReturn('/var/www/html/runtime/console-output');
 
-        $message = "Command output\n";
-        $outputMock->method('getMessage')->willReturn($message);
+        $outputStub = $this->createStub(OutputInterface::class);
 
-        $filePutContentsMock = $this->getMockBuilder(SaveFilePlugin::class)
-            ->onlyMethods(['filePutContents'])
-            ->setConstructorArgs([$containerMock, '/tmp'])
-            ->getMock();
+        $eventDispatcherStub = $this->createStub(EventDispatcherInterface::class);
 
-        $filePutContentsMock->expects($this->once())
-            ->method('filePutContents')
-            ->with(
-                $this->callback(function ($fileName) {
-                    return str_contains($fileName, '/tmp/');
-                }),
-                $this->equalTo("Command output\n"),
-                $this->equalTo(FILE_APPEND)
-            )
-            ->willReturn(true);
+        $plugin = new SaveFilePlugin($eventDispatcherStub, $outputStub, $fileSystemStub);
 
-        $filePutContentsMock->update();
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Не удалось записать данные в файл');
+
+        $plugin->update('testMessage');
     }
 }

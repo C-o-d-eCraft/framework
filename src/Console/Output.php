@@ -53,13 +53,23 @@ class Output implements OutputInterface
     }
 
     /**
+     * @param string|null $result
+     *
+     * @return void
+     */
+    public function stdout(?string $result = null): void
+    {
+        fwrite(STDOUT, PHP_EOL . ($result ?? $this->message));
+    }
+
+    /**
      * @param string $result
      *
      * @return void
      */
-    public function stdout(string $result): void
+    public function text(string $result): void
     {
-        fwrite(STDOUT,PHP_EOL . $result);
+        $this->setMessage($result);
     }
 
     /**

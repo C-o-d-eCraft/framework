@@ -2,7 +2,7 @@
 
 namespace Craft\Http\Validator;
 
-use Craft\Http\Validator\Rules\ValidationRuleInterface;
+use Craft\Contracts\ValidationRuleInterface;
 use InvalidArgumentException;
 
 class Validator
@@ -32,9 +32,14 @@ class Validator
         [$attributes, $ruleName, $params] = array_pad($rule, 3, []);
 
         if (is_callable($ruleName)) {
-            foreach ((array)$attributes as $attribute) {
-                $ruleName($this->data[$attribute] ?? null, $attribute);
+            if (is_array($attributes) === false) {
+                $attributes = [$attributes];
             }
+
+            foreach ($attributes as $attr) {
+                $ruleName($this->data[$attr] ?? null, $attr);
+            }
+
             return;
         }
 
@@ -57,8 +62,12 @@ class Validator
 
     protected function validateAttributes(array|string $attributes, ValidationRuleInterface $ruleClass, array $params): void
     {
-        foreach ((array)$attributes as $attribute) {
-            $ruleClass->validate($attribute, $this->data[$attribute] ?? null, $params, $this);
+        if (is_array($attributes) === false) {
+            $attributes = [$attributes];
+        }
+
+        foreach ($attributes as $attr) {
+            $ruleClass->validate($attr, $this->data[$attr] ?? null, $params, $this);
         }
     }
 
@@ -70,6 +79,7 @@ class Validator
         foreach ($params as $key => $value) {
             $message = str_replace(":{$key}", $value, $message);
         }
+
         $this->errors[$attribute][] = $message;
     }
 

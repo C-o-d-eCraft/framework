@@ -22,7 +22,7 @@ class Query implements QueryInterface
     public function select(array|string ...$fields): self
     {
         $this->select = is_array($fields[0]) ? $fields[0] : $fields;
-        
+
         return $this;
     }
 
@@ -45,17 +45,26 @@ class Query implements QueryInterface
      */
     public function where(array|string $condition): self
     {
-        if (is_array($condition) === true) {
-            foreach ($condition as $key => $value) {
-                if ($value instanceof self === true) {
-                    $this->where[] = "$key = (" . $value->build() . ")";
-                }
-                if ($value instanceof self === false) {
-                    $this->where[] = "$key = " . (is_numeric($value) ? $value : "'" . addslashes((string) $value) . "'");
-                }
-            }
-        } else {
+        if (is_array($condition) === false) {
             $this->where[] = $condition;
+
+            return $this;
+        }
+
+        foreach ($condition as $key => $value) {
+            if ($value instanceof self === true) {
+                $this->where[] = "$key = (" . $value->build() . ")";
+
+                continue;
+            }
+
+            if ($value === null) {
+                $this->where[] = "$key IS NULL";
+            }
+
+            if ($value !== null) {
+                $this->where[] = "$key = " . (is_numeric($value) ? $value : "'" . addslashes((string)$value) . "'");
+            }
         }
 
         return $this;
@@ -69,8 +78,8 @@ class Query implements QueryInterface
      */
     public function whereIn(string $column, array $values): self
     {
-        $escapedValues = array_map(function($value) {
-            return is_numeric($value) ? $value : "'" . addslashes((string) $value) . "'";
+        $escapedValues = array_map(function ($value) {
+            return is_numeric($value) ? $value : "'" . addslashes((string)$value) . "'";
         }, $values);
 
         $this->where[] = "$column IN (" . implode(', ', $escapedValues) . ")";

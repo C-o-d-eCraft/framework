@@ -7,12 +7,18 @@ use Craft\Http\Message\Stream;
 
 class JsonResponse extends Response
 {
+    public function __construct(array $data, int $statusCode = 200)
+    {
+        $this->setJsonBody($data);
+        $this->statusCode = $statusCode;
+    }
+
     /**
-     * @param array $result
+     * @param array $data
      * @return void
      */
-    public function setJsonBody(array $result): void
+    private function setJsonBody(array $data): void
     {
-        $this->body = new Stream(json_encode($result));
+        $this->body = new Stream(json_encode($data));
     }
 }

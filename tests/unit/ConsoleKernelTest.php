@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use Craft\Components\DIContainer\DIContainer;
 use Craft\Components\ErrorHandler\CliErrorHandler;
 use Craft\Components\EventDispatcher\EventDispatcher;
+use Craft\Console\Command\AbstractCommand;
 use Craft\Console\ConsoleKernel;
 use Craft\Console\Input;
 use Craft\Console\InputArguments;
@@ -20,11 +21,11 @@ use RuntimeException;
 class ConsoleKernelTest extends TestCase
 {
     private function createConsoleKernel(
-        ?Input $input = null,
-        ?Output $output = null,
+        ?Input           $input = null,
+        ?Output          $output = null,
         ?CliErrorHandler $errorHandler = null,
-        ?InputOptions $inputOptions = null
-    ): ConsoleKernel 
+        ?InputOptions    $inputOptions = null
+    ): ConsoleKernel
     {
         return new ConsoleKernel(
             $this->createMock(DIContainer::class),
@@ -38,8 +39,7 @@ class ConsoleKernelTest extends TestCase
 
     private function createCommandSpy(): CommandInterface
     {
-        return new class() implements CommandInterface
-        {
+        return new class() extends AbstractCommand {
             public static function getCommandName(): string
             {
                 return 'testCommand';
@@ -51,7 +51,8 @@ class ConsoleKernelTest extends TestCase
             }
 
             public function execute(InputInterface $input, OutputInterface $output): void
-            { }
+            {
+            }
         };
     }
 
@@ -86,7 +87,7 @@ class ConsoleKernelTest extends TestCase
     {
         $input = $this->createMock(Input::class);
         $input->method('getArguments')->willReturn(['arg1', 'arg2']);
-        
+
         $consoleKernel = $this->createConsoleKernel($input);
 
         $commandArguments = [

@@ -10,10 +10,12 @@ use DateTimeZone;
 
 class LogStateProcessor implements LogStateProcessorInterface
 {
-    public function __construct(private string $indexName, private DebugTagStorageInterface $tagStorage, private LogStorageDTO $storage)
-    {
+    public function __construct(
+        private string $indexName,
+        private DebugTagStorageInterface $tagStorage,
+        private LogStorageDTO $storage
+    ) {
         $this->storage->index = $this->indexName;
-
         $this->setUpDefaults();
     }
 
@@ -29,7 +31,7 @@ class LogStateProcessor implements LogStateProcessorInterface
      */
     private function setUpDefaults(): void
     {
-        $this->storage->action_type = empty($_SERVER['argv']) ? 'web' : 'cli';
+        $this->storage->actionType = empty($_SERVER['argv']) ? 'web' : 'cli';
     }
 
     /**
@@ -44,13 +46,12 @@ class LogStateProcessor implements LogStateProcessorInterface
     {
         $this->validateSetUp();
 
-        $this->storage->x_debug_tag = $this->tagStorage->getTag();
+        $this->storage->xDebugTag = $this->tagStorage->getTag();
 
         $this->storage->message = $message;
 
         if (
-            $this->storage->message instanceof \Exception
-            ||
+            $this->storage->message instanceof \Exception ||
             (class_exists(\Error::class) && $this->storage->message instanceof \Error)
         ) {
             $this->storage->exception = [
@@ -62,7 +63,6 @@ class LogStateProcessor implements LogStateProcessorInterface
         }
 
         $this->storage->level = $level;
-
 
         $utcDate = new DateTime('now', new DateTimeZone('UTC'));
 

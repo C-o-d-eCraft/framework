@@ -2,6 +2,7 @@
 
 namespace Craft\Http\Validator\Rules;
 
+use Craft\Contracts\ValidationRuleInterface;
 use Craft\Http\Validator\Validator;
 
 class DateRule implements ValidationRuleInterface

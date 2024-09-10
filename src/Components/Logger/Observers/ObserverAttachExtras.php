@@ -18,7 +18,7 @@ class ObserverAttachExtras implements ObserverInterface
         if ($message === null) {
             return;
         }
-        
+
         if ($this->storage->extras === null) {
             $this->storage->extras = [];
         }

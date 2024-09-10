@@ -2,17 +2,19 @@
 
 namespace Craft\Components\ErrorHandler;
 
+use Craft\Contracts\DebugTagStorageInterface;
 use Craft\Contracts\ErrorHandlerInterface;
 use Craft\Contracts\LoggerInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ViewInterface;
 use Throwable;
 
-class HttpErrorHandler implements ErrorHandlerInterface 
+class HttpErrorHandler implements ErrorHandlerInterface
 {
     public function __construct(
         private ViewInterface $view,
         private LoggerInterface $logger,
+        private DebugTagStorageInterface $debugTagStorage,
         private readonly RequestInterface $request,
         private ?string $environmentMode = null,
         private ?string $customErrorViewPath = null,
@@ -37,10 +39,10 @@ class HttpErrorHandler implements ErrorHandlerInterface
         $requestContentType = $this->request->getHeaders()['CONTENT-TYPE'] ?? null;
 
         if ($requestContentType === 'application/json') {
-            return $this->getJsonErrorBody($exception, $exception->getCode() ?? null, $reasonPhrase);
+            return $this->getJsonErrorBody($exception, $statusCode, $reasonPhrase);
         }
 
-        return $this->getHttpErrorView($exception, $exception->getCode() ?? null, $reasonPhrase);
+        return $this->getHttpErrorView($exception, $statusCode, $reasonPhrase);
     }
 
     public function getHttpErrorView(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
@@ -52,33 +54,34 @@ class HttpErrorHandler implements ErrorHandlerInterface
         }
 
         $params = [
+            'xdebugTag' => $this->debugTagStorage->getTag(),
             'statusCode' => $statusCode ?? $exception->getCode(),
             'reasonPhrase' => $reasonPhrase ?? $exception->getMessage(),
-            'environmentMode' => $this->environmentMode
+            'environmentMode' => $this->environmentMode,
         ];
 
-        $params = $this->checkEnvironmentMode($params, $exception);
+        $result = $this->checkEnvironmentMode($params, $exception);
 
-        return $this->view->render($baseViewName, $params);
+        return $this->view->render($baseViewName, $result);
     }
 
     public function getJsonErrorBody(Throwable $exception, string $statusCode = null, string $reasonPhrase = null): string
     {
         $params = [
+            'xdebugTag' => $this->debugTagStorage->getTag(),
             'statusCode' => $statusCode ?? $exception->getCode(),
             'reasonPhrase' => $reasonPhrase ?? $exception->getMessage(),
         ];
 
-        $params = $this->checkEnvironmentMode($params, $exception);
+        $result = $this->checkEnvironmentMode($params, $exception);
 
-        return json_encode($params);
+        return json_encode($result);
     }
 
     private function checkEnvironmentMode(array $params, Throwable $exception): array
     {
         if ($this->environmentMode === 'development') {
             $params = array_merge($params, [
-                'xdebugTag' => defined('X_DEBUG_TAG') ? X_DEBUG_TAG : null,
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
                 'stackTrace' => explode(PHP_EOL, $exception->getTraceAsString()),

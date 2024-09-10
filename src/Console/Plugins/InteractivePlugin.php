@@ -2,33 +2,16 @@
 
 namespace Craft\Console\Plugins;
 
-use Craft\Components\DIContainer\DIContainer;
-use Craft\Components\EventDispatcher\Event;
 use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Console\Events;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\ObserverInterface;
 use Craft\Contracts\OutputInterface;
 use Craft\Contracts\PluginInterface;
-use ReflectionException;
 
 class InteractivePlugin implements PluginInterface, ObserverInterface
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    private EventDispatcherInterface $eventDispatcher;
-
-    /**
-     * @var InputInterface
-     */
-    private InputInterface $input;
-
-    /**
-     * @var OutputInterface
-     */
-    private OutputInterface $output;
-
     /**
      * @var string
      */
@@ -40,15 +23,15 @@ class InteractivePlugin implements PluginInterface, ObserverInterface
     private static string $description = 'Интерактивный режим';
 
     /**
-     * @param DIContainer $container
-     * @throws ReflectionException
+     * @param EventDispatcherInterface $eventDispatcher
+     * @param InputInterface $input
+     * @param OutputInterface $output
      */
-    public function __construct(private readonly DIContainer $container)
-    {
-        $this->eventDispatcher = $this->container->make(EventDispatcherInterface::class);
-        $this->input = $this->container->make(InputInterface::class);
-        $this->output = $this->container->make(OutputInterface::class);
-    }
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly InputInterface $input,
+        private readonly OutputInterface $output
+    ) { }
 
     /**
      * @return string
@@ -70,7 +53,7 @@ class InteractivePlugin implements PluginInterface, ObserverInterface
      * @param EventMessage|null $message
      * @return void
      */
-    public function update(?EventMessage $message = null): void
+    public function update(mixed $message = null): void
     {
         $commandArguments = $message->getContent()['commandArguments'];
 
@@ -108,6 +91,6 @@ class InteractivePlugin implements PluginInterface, ObserverInterface
      */
     public function init(): void
     {
-        $this->eventDispatcher->attach(Event::BEFORE_RUN, $this);
+        $this->eventDispatcher->attach(Events::BEFORE_RUN, $this);
     }
 }
