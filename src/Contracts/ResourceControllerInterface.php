@@ -13,10 +13,10 @@ use Craft\Http\Validator\AbstractFormRequest;
 interface ResourceControllerInterface
 {
     /**
+     * @param string|null $id
      * @return JsonResponse
-     * @throws ForbiddenHttpException
      */
-    public function actionGetList(string|int $id): JsonResponse;
+    public function actionGetList(?string $id): JsonResponse;
 
     /**
      * @return JsonResponse

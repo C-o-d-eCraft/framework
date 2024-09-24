@@ -21,19 +21,21 @@ abstract class ResourceController implements ResourceControllerInterface
     public function __construct(private FormRequestFactoryInterface $formRequestFactory, private array $forms) { }
 
     /**
+     * @param string|null $id
      * @return array
      * @throws ForbiddenHttpException
      */
-    protected function getList(string|int $id): array
+    protected function getList(?string $id = null): array
     {
         throw new ForbiddenHttpException();
     }
 
     /**
+     * @param string|null $id
      * @return JsonResponse
      * @throws ForbiddenHttpException
      */
-    public function actionGetList(string|int $id): JsonResponse
+    public function actionGetList(?string $id = null): JsonResponse
     {
         return new JsonResponse($this->getList($id));
     }
