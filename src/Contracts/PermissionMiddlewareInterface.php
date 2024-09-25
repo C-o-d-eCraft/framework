@@ -2,7 +2,7 @@
 
 namespace Craft\Contracts;
 
-interface CustomMiddleware
+interface PermissionMiddlewareInterface
 {
     public function process(RequestInterface $request, ResponseInterface $response, callable $next, ?array $params): ResponseInterface;
 }
