@@ -11,6 +11,7 @@ use Craft\Http\ResponseTypes\JsonResponse;
 use Craft\Http\ResponseTypes\PatchResponse;
 use Craft\Http\ResponseTypes\UpdateResponse;
 use Craft\Http\Validator\AbstractFormRequest;
+use Craft\Http\Exceptions\BadRequestHttpException;
 
 abstract class ResourceController implements ResourceControllerInterface
 {
@@ -25,7 +26,7 @@ abstract class ResourceController implements ResourceControllerInterface
      * @return array
      * @throws ForbiddenHttpException
      */
-    protected function getList(?string $id = null): array
+    protected function getList(?string $id): array
     {
         throw new ForbiddenHttpException();
     }
@@ -42,38 +43,44 @@ abstract class ResourceController implements ResourceControllerInterface
 
     /**
      * @param string|int $id
+     * @param string|null $itemId
      * @return array
      * @throws ForbiddenHttpException
      */
-    protected function getItem(string|int $id, string|int $itemId): array
+    protected function getItem(string|int $id, ?string $itemId): array
     {
         throw new ForbiddenHttpException();
     }
 
     /**
      * @param string|int $id
+     * @param string|null $itemId
      * @return JsonResponse
      * @throws ForbiddenHttpException
      */
-    public function actionGetItem(string|int $id, string|int $itemId): JsonResponse
+    public function actionGetItem(string|int $id, ?string $itemId = null): JsonResponse
     {
         return new JsonResponse($this->getItem($id, $itemId));
     }
 
     /**
+     * @param string|null $id
+     * @param AbstractFormRequest $form
      * @return void
      * @throws ForbiddenHttpException
      */
-    protected function create(string|int $id, AbstractFormRequest $form): void
+    protected function create(?string $id, AbstractFormRequest $form): void
     {
         throw new ForbiddenHttpException();
     }
 
     /**
+     * @param string|null $id
      * @return CreateResponse
+     * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      */
-    public function actionCreate(string|int $id): CreateResponse
+    public function actionCreate(?string $id = null): CreateResponse
     {
         $form = $this->formRequestFactory->create($this->forms[self::CREATE]);
         
@@ -91,22 +98,25 @@ abstract class ResourceController implements ResourceControllerInterface
     /**
      * @param string|int $id
      * @param AbstractFormRequest $form
-     * @return array
+     * @param string|null $itemId
+     * @return void
      * @throws ForbiddenHttpException
      */
-    protected function update(string|int $id, AbstractFormRequest $form, string|int $itemId): void
+    protected function update(string|int $id, AbstractFormRequest $form, ?string $itemId): void
     {
         throw new ForbiddenHttpException();
     }
 
     /**
      * @param string|int $id
+     * @param string|null $itemId
      * @return UpdateResponse
+     * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      */
-    public function actionUpdate(string|int $id, string|int $itemId): UpdateResponse
+    public function actionUpdate(string|int $id, ?string $itemId = null): UpdateResponse
     {
-        $this->validateResourceExists($id);
+        $this->validateResourceExists($id, $itemId);
 
         $form = $this->formRequestFactory->create($this->forms[self::UPDATE]);
 
@@ -124,23 +134,25 @@ abstract class ResourceController implements ResourceControllerInterface
     /**
      * @param string|int $id
      * @param AbstractFormRequest $form
-     * @param string|int $itemId
+     * @param string|null $itemId
      * @return void
      * @throws ForbiddenHttpException
      */
-    protected function patch(string|int $id, AbstractFormRequest $form, string|int $itemId): void
+    protected function patch(string|int $id, AbstractFormRequest $form, ?string $itemId): void
     {
         throw new ForbiddenHttpException();
     }
 
     /**
      * @param string|int $id
+     * @param string|null $itemId
      * @return PatchResponse
+     * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      */
-    public function actionPatch(string|int $id, string|int $itemId): PatchResponse
+    public function actionPatch(string|int $id, ?string $itemId = null): PatchResponse
     {
-        $this->validateResourceExists($id);
+        $this->validateResourceExists($id, $itemId);
 
         $form = $this->formRequestFactory->create($this->forms[self::PATCH]);
 
@@ -159,20 +171,22 @@ abstract class ResourceController implements ResourceControllerInterface
 
     /**
      * @param string|int $id
+     * @param string|null $itemId
      * @return void
      * @throws ForbiddenHttpException
      */
-    protected function delete(string|int $id): void
+    protected function delete(string|int $id, ?string $itemId): void
     {
         throw new ForbiddenHttpException();
     }
 
     /**
      * @param string|int $id
+     * @param string|null $itemId
      * @return DeleteResponse
      * @throws ForbiddenHttpException
      */
-    public function actionDelete(string|int $id): DeleteResponse
+    public function actionDelete(string|int $id, ?string $itemId = null): DeleteResponse
     {
         $this->delete($id);
 
@@ -181,9 +195,10 @@ abstract class ResourceController implements ResourceControllerInterface
 
     /**
      * @param string|int $id
+     * @param string|null $itemId
      * @return void
      */
-    protected function validateResourceExists(string|int $id): void
+    protected function validateResourceExists(string|int $id, ?string $itemId): void
     {
         // ...
     }
