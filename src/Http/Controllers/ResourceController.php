@@ -188,7 +188,7 @@ abstract class ResourceController implements ResourceControllerInterface
      */
     public function actionDelete(string|int $id, ?string $itemId = null): DeleteResponse
     {
-        $this->delete($id);
+        $this->delete($id, $itemId);
 
         return new DeleteResponse();
     }
