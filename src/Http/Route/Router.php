@@ -10,24 +10,17 @@ use Craft\Contracts\RoutesCollectionInterface;
 use Craft\Http\Exceptions\BadRequestHttpException;
 use Craft\Http\Exceptions\HttpException;
 use Craft\Http\Exceptions\NotFoundHttpException;
-use Craft\Http\Message\Stream;
-use Craft\Http\ResponseTypes\JsonResponse;
 use ReflectionException;
 
 class Router implements RouterInterface
 {
-    /**
-     * @param DIContainer $container
-     * @param RoutesCollectionInterface $routesCollection
-     * @param MiddlewareInterface $middleware
-     * @param RequestInterface $request
-     */
     public function __construct(
         private DIContainer               $container,
         private RoutesCollectionInterface $routesCollection,
         private RequestInterface          $request,
         private ResponseInterface         $response
-    ) { }
+    ) {
+    }
 
     /**
      * @return ResponseInterface
