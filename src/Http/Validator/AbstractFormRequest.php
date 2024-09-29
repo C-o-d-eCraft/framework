@@ -7,6 +7,7 @@ use Craft\Http\Exceptions\BadRequestHttpException;
 abstract class AbstractFormRequest
 {
     public array $formData;
+    public array $responseData = [];
     public array $errors = [];
     protected Validator $validator;
     private array $skipEmptyRuleValues = [];
