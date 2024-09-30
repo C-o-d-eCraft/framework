@@ -18,10 +18,7 @@ class InputArguments
      * @var int|null
      */
     public ?int $defaultValue = null;
-
-    /**
-     * @param string $argument
-     */
+    
     public function __construct(string $argument)
     {
         $this->parseArguments($argument);

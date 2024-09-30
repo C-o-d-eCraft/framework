@@ -8,9 +8,6 @@ use Craft\Contracts\ObserverInterface;
 
 readonly class OptionsConfirm implements ObserverInterface
 {
-    /**
-     * @param EventDispatcherInterface $eventDispatcher
-     */
     public function __construct(private EventDispatcherInterface $eventDispatcher) { }
 
     /**

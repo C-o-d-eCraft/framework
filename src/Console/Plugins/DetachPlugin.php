@@ -28,20 +28,15 @@ class DetachPlugin implements PluginInterface, ObserverInterface
      * @var string Описание плагина.
      */
     private static string $description = 'Перевести выполнение команды в фоновый режим';
-
-    /**
-     * @param EventDispatcherInterface $eventDispatcher Диспетчер событий.
-     * @param InputInterface $input Входные данные.
-     * @param OutputInterface $output Выходные данные.
-     * @param UnixProcessServiceInterface $unixProcessService
-     */
+    
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly InputInterface $input,
-        private readonly OutputInterface $output,
+        private readonly EventDispatcherInterface    $eventDispatcher,
+        private readonly InputInterface              $input,
+        private readonly OutputInterface             $output,
         private readonly UnixProcessServiceInterface $unixProcessService,
-        private readonly ConsoleKernelInterface $consoleKernel,
-    ) {}
+        private readonly ConsoleKernelInterface      $consoleKernel,
+    ) {
+    }
 
     /**
      * Возвращает имя плагина.

@@ -8,9 +8,7 @@ use Throwable;
 
 class CliErrorHandler implements ErrorHandlerInterface
 {
-    public function __construct(private DebugTagStorage $debugTagStorage)
-    {
-    }
+    public function __construct(private DebugTagStorage $debugTagStorage) { }
 
     /**
      * @param Throwable $exception

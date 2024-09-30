@@ -21,17 +21,13 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      * @var string
      */
     private static string $description = 'Сохранить вывод команды в файл';
-
-    /**
-     * @param EventDispatcherInterface $eventDispatcher
-     * @param OutputInterface $output
-     * @param FileSystemInterface $fileSystem
-     */
+    
     public function __construct(
         readonly private EventDispatcherInterface $eventDispatcher,
         readonly private OutputInterface $output,
         readonly private FileSystemInterface $fileSystem
-    ) { }
+    ) {
+    }
 
     /**
      * @return string
