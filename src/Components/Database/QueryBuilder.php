@@ -217,4 +217,12 @@ class QueryBuilder implements DataBaseConnectionInterface
 
         return $query;
     }
+
+    /**
+     * @return string
+     */
+    public function getLastInsertId(): string
+    {
+        return $this->pdo->lastInsertId();
+    }
 }

@@ -123,5 +123,4 @@ class AbstractCommand implements CommandInterface
     {
         throw new LogicException("Не реализован основной метод для команды " . static::getCommandName());
     }
-
 }

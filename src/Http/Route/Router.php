@@ -10,24 +10,17 @@ use Craft\Contracts\RoutesCollectionInterface;
 use Craft\Http\Exceptions\BadRequestHttpException;
 use Craft\Http\Exceptions\HttpException;
 use Craft\Http\Exceptions\NotFoundHttpException;
-use Craft\Http\Message\Stream;
-use Craft\Http\ResponseTypes\JsonResponse;
 use ReflectionException;
 
 class Router implements RouterInterface
 {
-    /**
-     * @param DIContainer $container
-     * @param RoutesCollectionInterface $routesCollection
-     * @param MiddlewareInterface $middleware
-     * @param RequestInterface $request
-     */
     public function __construct(
         private DIContainer               $container,
         private RoutesCollectionInterface $routesCollection,
         private RequestInterface          $request,
         private ResponseInterface         $response
-    ) { }
+    ) {
+    }
 
     /**
      * @return ResponseInterface
@@ -53,7 +46,7 @@ class Router implements RouterInterface
                     return $controller->$action(...array_values($params));
                 };
 
-                return $this->processMiddlewares($route->middlewares, $handler);
+                return $this->processMiddlewares($route->middlewares, $handler, $params);
             }
         }
 
@@ -234,18 +227,18 @@ class Router implements RouterInterface
     /**
      * @param array $middlewares
      *
-     * @return void
+     * @return ResponseInterface
      * @throws ReflectionException
      */
-    private function processMiddlewares(array $middlewares, callable $handler): ResponseInterface
+    private function processMiddlewares(array $middlewares, callable $handler, ?array $params = null): ResponseInterface
     {
         $chain = array_reduce(
             array_reverse($middlewares),
-            function ($next, $middleware) {
-                return function (RequestInterface $request, ResponseInterface $response) use ($middleware, $next) {
+            function ($next, $middleware) use ($params){
+                return function (RequestInterface $request, ResponseInterface $response) use ($middleware, $next, $params) {
                     $middlewareInstance = $this->container->make($middleware);
 
-                    return $middlewareInstance->process($request, $response, $next);
+                    return $middlewareInstance->process($request, $response, $next, $params);
                 };
             },
             $handler

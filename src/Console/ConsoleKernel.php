@@ -20,22 +20,15 @@ use Throwable;
 
 class ConsoleKernel implements ConsoleKernelInterface
 {
-    /**
-     * @param DIContainer $container
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @param EventDispatcherInterface $eventDispatcher
-     * @param CliErrorHandler $errorHandler
-     * @param InputOptionsInterface $inputOptions
-     */
     public function __construct(
-        private readonly DIContainer $container,
-        private InputInterface  $input,
-        private OutputInterface   $output,
+        private readonly DIContainer              $container,
+        private InputInterface                    $input,
+        private OutputInterface                   $output,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly CliErrorHandler $errorHandler,
-        private readonly InputOptionsInterface $inputOptions
-    ) { }
+        private readonly CliErrorHandler          $errorHandler,
+        private readonly InputOptionsInterface    $inputOptions
+    ) {
+    }
 
     /**
      * @param array $commandNameSpaces

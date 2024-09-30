@@ -21,17 +21,13 @@ class InteractivePlugin implements PluginInterface, ObserverInterface
      * @var string
      */
     private static string $description = 'Интерактивный режим';
-
-    /**
-     * @param EventDispatcherInterface $eventDispatcher
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     */
+    
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly InputInterface $input,
-        private readonly OutputInterface $output
-    ) { }
+        private readonly InputInterface           $input,
+        private readonly OutputInterface          $output
+    ) {
+    }
 
     /**
      * @return string
