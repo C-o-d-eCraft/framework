@@ -4,14 +4,15 @@ namespace Craft\Http\Controllers;
 
 use Craft\Contracts\FormRequestFactoryInterface;
 use Craft\Contracts\ResourceControllerInterface;
+use Craft\Http\Exceptions\BadRequestHttpException;
 use Craft\Http\Exceptions\ForbiddenHttpException;
+use Craft\Http\Message\Stream;
 use Craft\Http\ResponseTypes\CreateResponse;
 use Craft\Http\ResponseTypes\DeleteResponse;
 use Craft\Http\ResponseTypes\JsonResponse;
 use Craft\Http\ResponseTypes\PatchResponse;
 use Craft\Http\ResponseTypes\UpdateResponse;
 use Craft\Http\Validator\AbstractFormRequest;
-use Craft\Http\Exceptions\BadRequestHttpException;
 
 abstract class ResourceController implements ResourceControllerInterface
 {
@@ -92,7 +93,13 @@ abstract class ResourceController implements ResourceControllerInterface
 
         $this->create($id, $form);
 
-        return new CreateResponse();
+        $response = new CreateResponse();
+
+        if ($form->responseData !== []) {
+            $response->setBody(new Stream(json_encode($form->responseData)));
+        }
+
+        return $response;
     }
 
     /**

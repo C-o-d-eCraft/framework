@@ -112,6 +112,10 @@ class Output implements OutputInterface
         $this->setMessage("\033[34m" . $result . "\033[0m");
     }
 
+    /**
+     * @param string $result
+     * @return void
+     */
     public function error(string $result): void
     {
         $this->setMessage("\033[31m" . $result . "\033[0m");

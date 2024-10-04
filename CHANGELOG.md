@@ -5,6 +5,10 @@
 Формат основан на [стандарте формата CHANGELOG](https://keepachangelog.com/en/1.0.0/),
 и придерживается [правил версионирования](https://semver.org/spec/v2.0.0.html).
 
+## [ [0.4.1](https://github.com/C-o-d-eCraft/framework/releases/tag/0.4.1) ] - 30.09.2024
+- Исправлено:
+  - Исправлен ResourceController 
+
 ## [ [0.4.0](https://github.com/C-o-d-eCraft/framework/releases/tag/0.4.0) ] - 10.09.2024
 - Изменено:
   - Удалил неиспользуемые контракты

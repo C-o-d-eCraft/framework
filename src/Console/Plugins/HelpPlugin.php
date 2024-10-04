@@ -24,18 +24,14 @@ class HelpPlugin implements PluginInterface, ObserverInterface
      * @var string
      */
     private static string $description = 'Вывести информацию о команде, способе вызова, доступных аргументах и опциях вызова';
-
-    /**
-     * @param EventDispatcherInterface $eventDispatcher
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     */
+    
     public function __construct(
         readonly private EventDispatcherInterface $eventDispatcher,
-        readonly private InputInterface $input,
-        readonly private OutputInterface $output,
-        private readonly ConsoleKernelInterface $consoleKernel,
-    ) { }
+        readonly private InputInterface           $input,
+        readonly private OutputInterface          $output,
+        private readonly ConsoleKernelInterface   $consoleKernel,
+    ) {
+    }
 
     /**
      * @return string

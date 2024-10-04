@@ -19,6 +19,10 @@ class FileSystem implements FileSystemInterface
         $this->aliasStorage = $config;
     }
 
+    /**
+     * @param string $name
+     * @return string
+     */
     public function getAlias(string $name): string
     {
         return $this->aliasStorage[$name] ?? throw new InvalidArgumentException("Путь {$name} не найден");

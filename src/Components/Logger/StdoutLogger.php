@@ -11,6 +11,10 @@ class StdoutLogger extends AbstractLogger
         parent::__construct($this->logStateProcessor);
     }
 
+    /**
+     * @param mixed $logMessage
+     * @return void
+     */
     protected function writeLog(mixed $logMessage): void
     {
         $fileHandle = fopen('php://stdout', 'w');

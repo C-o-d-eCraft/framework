@@ -11,15 +11,18 @@ use DateTimeZone;
 class LogStateProcessor implements LogStateProcessorInterface
 {
     public function __construct(
-        private string $indexName,
+        private string                   $indexName,
         private DebugTagStorageInterface $tagStorage,
-        private LogStorageDTO $storage
+        private LogStorageDTO            $storage
     ) {
         $this->storage->index = $this->indexName;
         $this->setUpDefaults();
     }
 
-    private function validateSetUp()
+    /**
+     * @return void
+     */
+    private function validateSetUp(): void
     {
         if (is_null($this->tagStorage->getTag()) === true) {
             throw new \InvalidArgumentException('Не определен X_DEBUG_TAG');
