@@ -10,7 +10,7 @@ class OptionsMiddleware implements OptionsMiddlewareInterface
 {
     public function process(RequestInterface $request, ResponseInterface $response, callable $next): ResponseInterface
     {
-        if ($request->getMethod() === 'PUT') {
+        if ($request->getMethod() === 'OPTIONS') {
             return $response->withStatus(200);
         }
 
