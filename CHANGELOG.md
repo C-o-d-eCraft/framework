@@ -5,6 +5,10 @@
 Формат основан на [стандарте формата CHANGELOG](https://keepachangelog.com/en/1.0.0/),
 и придерживается [правил версионирования](https://semver.org/spec/v2.0.0.html).
 
+## [ [0.4.2](https://github.com/C-o-d-eCraft/framework/releases/tag/0.4.2) ] - 20.10.2024
+- Реализовано:
+  - Реализована возможность добавлять мидлвеары на отдельные маршруты ресурсов
+
 ## [ [0.4.1](https://github.com/C-o-d-eCraft/framework/releases/tag/0.4.1) ] - 30.09.2024
 - Исправлено:
   - Исправлен ResourceController 
