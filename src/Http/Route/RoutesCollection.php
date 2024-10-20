@@ -95,16 +95,17 @@ class RoutesCollection implements RoutesCollectionInterface
      * @param string $prefix
      * @param string $controller
      * @param array $middleware
+     * @param array $actionMiddleware
      * @return void
      */
-    public function addResource(string $prefix, string $controller, array $middleware = []): void
+    public function addResource(string $prefix, string $controller, array $middleware = [], array $actionMiddleware = []): void
     {
-        $this->get($prefix, $controller . '::actionGetList', $middleware);
-        $this->post($prefix, $controller . '::actionCreate', $middleware);
-        $this->get($prefix . '/{id:integer}', $controller . '::actionGetItem', $middleware);
-        $this->put($prefix . '/{id:integer}', $controller . '::actionUpdate', $middleware);
-        $this->patch($prefix . '/{id:integer}', $controller . '::actionPatch', $middleware);
-        $this->delete($prefix . '/{id:integer}', $controller . '::actionDelete', $middleware);
+        $this->get($prefix, $controller . '::actionGetList', $this->mergeActionMiddleware('actionGetList', $middleware, $actionMiddleware));
+        $this->post($prefix, $controller . '::actionCreate', $this->mergeActionMiddleware('actionCreate', $middleware, $actionMiddleware));
+        $this->get($prefix . '/{id:integer}', $controller . '::actionGetItem', $this->mergeActionMiddleware('actionGetItem', $middleware, $actionMiddleware));
+        $this->put($prefix . '/{id:integer}', $controller . '::actionUpdate', $this->mergeActionMiddleware('actionUpdate', $middleware, $actionMiddleware));
+        $this->patch($prefix . '/{id:integer}', $controller . '::actionPatch', $this->mergeActionMiddleware('actionPatch', $middleware, $actionMiddleware));
+        $this->delete($prefix . '/{id:integer}', $controller . '::actionDelete', $this->mergeActionMiddleware('actionDelete', $middleware, $actionMiddleware));
     }
 
     /**
@@ -149,5 +150,18 @@ class RoutesCollection implements RoutesCollectionInterface
     private function applyGroupPrefixes(string $route): string
     {
         return '/' . trim(implode('/', array_merge($this->groupPrefixes, [$route])), '/');
+    }
+
+    /**
+     * @param string $action
+     * @param array $middleware
+     * @param array $actionMiddleware
+     * @return array
+     */
+    private function mergeActionMiddleware(string $action, array $middleware, array $actionMiddleware): array
+    {
+        $specificMiddleware = $actionMiddleware[$action] ?? [];
+
+        return $this->mergeMiddlewares(array_merge($middleware, $specificMiddleware));
     }
 }
