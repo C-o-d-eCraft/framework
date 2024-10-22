@@ -41,13 +41,17 @@ class DIContainer implements ContainerInterface
      */
     public static function createContainer(array $config = []): self
     {
-        if (empty(self::$instance) === false) {
+        if (self::$instance !== null) {
             return self::$instance;
         }
 
         return self::$instance = new self($config);
     }
 
+    /**
+     * @return void
+     * @throws ReflectionException
+     */
     private function registerSingletons(): void
     {
         if (empty($this->config['singletons']) === true) {
@@ -82,19 +86,27 @@ class DIContainer implements ContainerInterface
      */
     public function build(string $dependencyName): object
     {
-        if ($dependencyName === self::class) {
+        if ($dependencyName === self::class || $dependencyName === ContainerInterface::class) {
             return $this;
         }
 
-        $className = $this->config[$dependencyName] ?? $dependencyName;
+        $configEntry = $this->config[$dependencyName] ?? $dependencyName;
 
-        if (is_callable($className) === true) {
-            return $this->config[$dependencyName]($this);
+        if (is_callable($configEntry) === true) {
+            return $configEntry($this);
+        }
+
+        $params = [];
+        $className = $configEntry;
+
+        if (is_array($configEntry) === true) {
+            $className = $configEntry[0];
+            $params = $configEntry[1] ?? [];
         }
 
         $reflectionClass = new ReflectionClass($className);
 
-        if ($reflectionClass->isInstantiable() === false || $reflectionClass->isCloneable() === false) {
+        if ($reflectionClass->isInstantiable() === false) {
             throw new ReflectionException('Экземпляр класса ' . $className . ' не может быть создан');
         }
 
@@ -107,13 +119,29 @@ class DIContainer implements ContainerInterface
         $dependencies = [];
 
         foreach ($constructor->getParameters() as $parameter) {
-            if (interface_exists($parameter->getType()->getName()) === false && class_exists($parameter->getType()->getName()) === false) {
+            $paramName = $parameter->getName();
+            $paramType = $parameter->getType();
+
+            if ($paramType instanceof \ReflectionNamedType === true && $paramType->isBuiltin() === false) {
+                $dependencyInterface = $paramType->getName();
+                $dependencies[] = $this->make($dependencyInterface);
+
                 continue;
             }
 
-            $dependencyInterface = $parameter->getType()->getName();
+            if (array_key_exists($paramName, $params) === true) {
+                $dependencies[] = $params[$paramName];
 
-            $dependencies[] = $this->make($dependencyInterface);
+                continue;
+            }
+
+            if ($parameter->isDefaultValueAvailable() === true) {
+                $dependencies[] = $parameter->getDefaultValue();
+
+                continue;
+            }
+
+            throw new InvalidArgumentException("Невозможно задать параметр '$paramName' для класса '$className'");
         }
 
         return $reflectionClass->newInstanceArgs($dependencies);
@@ -129,7 +157,7 @@ class DIContainer implements ContainerInterface
      */
     public function make(string $contract): object
     {
-        if (isset($this->singletons[$contract])) {
+        if (isset($this->singletons[$contract]) === true) {
             return $this->singletons[$contract];
         }
 
@@ -148,11 +176,11 @@ class DIContainer implements ContainerInterface
      */
     public function call(callable|object|string $handler, string $method, array $args = []): mixed
     {
-        if (is_callable($handler)) {
+        if (is_callable($handler) === true) {
             return $handler(...$args);
         }
 
-        if (is_object($handler)) {
+        if (is_object($handler) === true) {
             $reflection = new ReflectionMethod($handler, $method);
             $parameters = $reflection->getParameters();
             $resolvedArgs = $this->resolveArguments($parameters);
@@ -162,7 +190,7 @@ class DIContainer implements ContainerInterface
             return $reflection->invokeArgs($handler, $args);
         }
 
-        if (is_string($handler) && class_exists($handler)) {
+        if (is_string($handler) === true && class_exists($handler) === true) {
             $instance = $this->make($handler);
 
             $reflection = new ReflectionMethod($instance, $method);
@@ -189,19 +217,14 @@ class DIContainer implements ContainerInterface
         foreach ($parameters as $parameter) {
             $dependencyName = $parameter->getType()?->getName();
 
-            if (empty($dependencyName) || $parameter->getType()->isBuiltin() || !isset($this->config[$dependencyName])) {
+            if (
+                empty($dependencyName) === true
+                || $parameter->getType()->isBuiltin()
+            ) {
                 continue;
             }
 
-            $argument = $this->config[$dependencyName];
-
-            if (is_callable($argument)) {
-                $arguments[] = $argument($this);
-
-                continue;
-            }
-
-            $arguments[] = $this->build($this->config[$dependencyName]);
+            $arguments[] = $this->make($dependencyName);
         }
 
         return $arguments;
@@ -215,6 +238,6 @@ class DIContainer implements ContainerInterface
      */
     public function has(string $contract): bool
     {
-        return isset($this->config[$contract]);
+        return isset($this->config[$contract]) === true;
     }
 }
