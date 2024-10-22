@@ -86,17 +86,10 @@ class AbstractCommand implements CommandInterface
 
             $parts = explode(':', $arg, 2);
             $name = $parts[0];
-            $info = null;
-            $defaultValue = null;
 
-            if (isset($parts[1])) {
-                $infoParts = explode('=', $parts[1], 2);
-                $info = $infoParts[0];
-
-                if (isset($infoParts[1])) {
-                    $defaultValue = $infoParts[1];
-                }
-            }
+            $infoParts = explode('=', $parts[1] ?? '', 2);
+            $info = $infoParts[0] !== '' ? $infoParts[0] : null;
+            $defaultValue = $infoParts[1] ?? null;
 
             $arguments[] = [
                 'name' => $name,
