@@ -14,7 +14,7 @@ class UnixProcessService implements UnixProcessServiceInterface
      */
     public function fork(): int
     {
-      return pcntl_fork();
+        return pcntl_fork();
     }
 
     /**
