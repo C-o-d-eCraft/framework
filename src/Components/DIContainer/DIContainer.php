@@ -106,7 +106,7 @@ class DIContainer implements ContainerInterface
 
         $reflectionClass = new ReflectionClass($className);
 
-        if ($reflectionClass->isInstantiable() === false) {
+        if ($reflectionClass->isInstantiable() === false || $reflectionClass->isCloneable() === false) {
             throw new ReflectionException('Экземпляр класса ' . $className . ' не может быть создан');
         }
 
@@ -219,12 +219,21 @@ class DIContainer implements ContainerInterface
 
             if (
                 empty($dependencyName) === true
-                || $parameter->getType()->isBuiltin()
+                || $parameter->getType()->isBuiltin() === true
+                || isset($this->config[$dependencyName]) === false
             ) {
                 continue;
             }
 
-            $arguments[] = $this->make($dependencyName);
+            $argument = $this->config[$dependencyName];
+
+            if (is_callable($argument)) {
+                $arguments[] = $argument($this);
+
+                continue;
+            }
+
+            $arguments[] = $this->build($this->config[$dependencyName]);
         }
 
         return $arguments;
