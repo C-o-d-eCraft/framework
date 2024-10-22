@@ -7,6 +7,7 @@
 
 - Изменено:
   - Переименован класс QueryBuilder на MySql\Connection
+  - Переименован класс NotAuthorizedHttpException в UnauthorizedHttpException
 - Исправлено:
   - Уменьшил уровень вложенности в AbstractCommand
 

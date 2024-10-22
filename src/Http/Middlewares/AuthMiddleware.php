@@ -5,7 +5,7 @@ namespace Craft\Http\Middlewares;
 use Craft\Contracts\AuthMiddlewareInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ResponseInterface;
-use Craft\Http\Exceptions\NotAuthorizedHttpException;
+use Craft\Http\Exceptions\UnauthorizedHttpException;
 
 class AuthMiddleware implements AuthMiddlewareInterface
 {
@@ -16,7 +16,7 @@ class AuthMiddleware implements AuthMiddlewareInterface
         $authHeaderValue = $request->getHeaders()[$this->headerName] ?? null;
 
         if ($authHeaderValue === null) {
-            throw new NotAuthorizedHttpException();
+            throw new UnauthorizedHttpException();
         }
 
         return $next($request, $response);
