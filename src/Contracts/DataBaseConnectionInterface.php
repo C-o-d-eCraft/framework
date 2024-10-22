@@ -2,16 +2,16 @@
 
 namespace Craft\Contracts;
 
-use Craft\Components\Database\Query;
+use Craft\Components\Database\MySql\QueryBuilder;
 
 interface DataBaseConnectionInterface
 {
     /**
-     * @param Query $query
+     * @param QueryBuilder $query
      *
      * @return array
      */
-    public function select(Query $query): array;
+    public function select(QueryBuilder $query): array;
 
     /**
      * @param string $table
