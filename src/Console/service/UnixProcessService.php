@@ -6,7 +6,6 @@ use Craft\Contracts\UnixProcessServiceInterface;
 
 class UnixProcessService implements UnixProcessServiceInterface
 {
-
     /**
      * Клонирует текущий процесс, и возвращает PID дочернего.
      * В случае ошибки вернет -1

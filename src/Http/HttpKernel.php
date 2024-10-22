@@ -28,7 +28,8 @@ class HttpKernel implements HttpKernelInterface
         private ErrorHandlerInterface     $errorHandler,
         private EventDispatcherInterface  $eventDispatcher,
         private DIContainer               $container,
-    ) { }
+    ) {
+    }
 
     /**
      * @param RequestInterface $request

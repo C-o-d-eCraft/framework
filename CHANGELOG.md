@@ -11,6 +11,7 @@
 - Исправлено:
   - Уменьшил уровень вложенности в AbstractCommand
   - Вынес методы из ConsoleKernel в Input
+  - Привел параметры конструктора к единообразию
 
 ## [ [0.4.2](https://github.com/C-o-d-eCraft/framework/releases/tag/0.4.2) ] - 20.10.2024
 - Реализовано:
