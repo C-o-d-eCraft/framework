@@ -8,7 +8,7 @@ use Craft\Contracts\UriInterface;
 use Craft\Http\Processors\AuthHeaderProcessor;
 use Craft\Http\Processors\FormDataProcessor;
 
-class Request extends Message implements RequestInterface
+class Request implements RequestInterface
 {
     /**
      * @var string
