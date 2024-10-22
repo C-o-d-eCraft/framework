@@ -85,7 +85,7 @@ class ConsoleKernel implements ConsoleKernelInterface
 
             $this->initializePlugins();
 
-            $commandArguments = $this->parseCommandArguments($commandClass::getCommandName());
+            $commandArguments = $this->input->parseCommandArguments($commandClass::getCommandName());
 
             $this->eventDispatcher->trigger(
                 Events::BEFORE_RUN,
@@ -94,7 +94,7 @@ class ConsoleKernel implements ConsoleKernelInterface
                     'commandClass' => $commandClass,
                 ]));
 
-            $this->comparisonArguments($commandArguments);
+            $this->input->comparisonArguments($commandArguments);
 
             $this->eventDispatcher->trigger(Events::BEFORE_EXECUTE);
 
@@ -113,67 +113,6 @@ class ConsoleKernel implements ConsoleKernelInterface
 
             return 1;
         }
-    }
-
-    /**
-     * @param string $commandName
-     * @return array
-     */
-    public function parseCommandArguments(string $commandName): array
-    {
-        $pattern = '/\{([^}]+)}/';
-
-        preg_match_all($pattern, $commandName, $matches);
-
-        $arguments = [];
-
-        if (empty($matches) === true) {
-            return [];
-        }
-
-        foreach ($matches[1] as $argument) {
-            $arguments[] = new InputArguments($argument);
-        }
-
-        return $arguments;
-    }
-
-    /**
-     * @param array $commandArguments
-     * @return void
-     */
-    public function comparisonArguments(array $commandArguments): void
-    {
-        $inputArguments = $this->input->getArguments();
-
-        if (empty($commandArguments) === true) {
-            return;
-        }
-
-        $expectedParams = count($commandArguments);
-        $actualParams = count($inputArguments);
-
-        if ($actualParams > $expectedParams) {
-            throw new LogicException('Избыточное количество аргументов');
-        }
-
-        $argumentIndex = 0;
-        $enteredArguments = [];
-
-        foreach ($commandArguments as $argument) {
-            $paramName = $argument->name;
-            $defaultValue = $argument->defaultValue;
-            $paramsValue = $inputArguments[$argumentIndex] ?? $defaultValue;
-
-            if ($paramsValue === null && $defaultValue === null) {
-                throw new LogicException("\"{$paramName}\" Аргумент обязателен для ввода");
-            }
-
-            $enteredArguments[$paramName] = $paramsValue;
-            $argumentIndex++;
-        }
-
-        $this->input->setArguments($enteredArguments);
     }
 
     /**
