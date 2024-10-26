@@ -61,49 +61,11 @@ class AbstractCommand implements CommandInterface
      * ]
      * @return array
      */
-    public static function getFullCommandInfo(): array
+    public static function getFullCommandInfo(): CommandInfoDTO
     {
-        $parts = explode(' ', static::$commandName, 2);
-        $commandName = $parts[0];
-        $argumentsString = $parts[1] ?? '';
+        $parser = new CommandParser($commandName, static::$description);
 
-        if (empty($argumentsString) === true) {
-            return [
-                'commandName' => $commandName,
-                'description' => static::$description,
-                'arguments' => [],
-            ];
-        }
-
-        preg_match_all('/\{([^}]+)}/', $argumentsString, $matches);
-        $arguments = [];
-
-        foreach ($matches[1] as $arg) {
-            $isRequired = $arg[0] !== '?';
-            if ($isRequired === false) {
-                $arg = substr($arg, 1);
-            }
-
-            $parts = explode(':', $arg, 2);
-            $name = $parts[0];
-
-            $infoParts = explode('=', $parts[1] ?? '', 2);
-            $info = $infoParts[0] !== '' ? $infoParts[0] : null;
-            $defaultValue = $infoParts[1] ?? null;
-
-            $arguments[] = [
-                'name' => $name,
-                'info' => $info,
-                'required' => $isRequired,
-                'defaultValue' => $defaultValue,
-            ];
-        }
-
-        return [
-            'commandName' => $commandName,
-            'description' => static::$description,
-            'arguments' => $arguments,
-        ];
+        return $parser->getFullCommandInfo();
     }
 
     /**

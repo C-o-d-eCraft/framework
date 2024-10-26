@@ -2,6 +2,8 @@
 
 namespace Craft\Contracts;
 
+use Craft\Console\Command\CommandInfoDTO;
+
 interface CommandInterface
 {
     /**
@@ -17,7 +19,7 @@ interface CommandInterface
     /**
      * @return array
      */
-    public static function getFullCommandInfo(): array;
+    public static function getFullCommandInfo(): CommandInfoDTO;
 
     /**
      * @param InputInterface $input
