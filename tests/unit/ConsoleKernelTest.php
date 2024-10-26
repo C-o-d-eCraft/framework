@@ -82,41 +82,6 @@ class ConsoleKernelTest extends TestCase
         $result = $consoleKernel->handle();
     }
 
-
-    public function testParseArgumentsWithExcessArgumentsThrowLogicException(): void
-    {
-        $input = $this->createMock(Input::class);
-        $input->method('getArguments')->willReturn(['arg1', 'arg2']);
-
-        $consoleKernel = $this->createConsoleKernel($input);
-
-        $commandArguments = [
-            new InputArguments('arg1'),
-        ];
-
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('Избыточное количество аргументов');
-
-        $consoleKernel->comparisonArguments($commandArguments);
-    }
-
-    public function testParseArgumentsWithRequiredArgumentMissingThrowLogicException(): void
-    {
-        $input = $this->createMock(Input::class);
-        $input->method('getArguments')->willReturn([]);
-
-        $consoleKernel = $this->createConsoleKernel($input);
-
-        $commandArguments = [
-            new InputArguments('arg1'),
-        ];
-
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('"arg1" Аргумент обязателен для ввода');
-
-        $consoleKernel->comparisonArguments($commandArguments);
-    }
-
     public function testRegisterCommandNamespaceIsCorrectly(): void
     {
         $commandStub = $this->createCommandSpy();

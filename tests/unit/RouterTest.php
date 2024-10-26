@@ -45,13 +45,15 @@ class RouterTest extends TestCase
         $routesCollection = $this->createMock(RoutesCollectionInterface::class);
         $routesCollection->method('getRoutes')->willReturn([$route]);
 
-        $controller = $this->createMock(stdClass::class);
+        $controller = $this->getMockBuilder(stdClass::class)
+            ->addMethods(['action'])
+            ->getMock();
+        $controller->expects($this->once())->method('action')->willReturn($this->createMock(ResponseInterface::class));
 
         $container = $this->createMock(DIContainer::class);
         $container->method('make')->willReturn($controller);
 
         $response = $this->createMock(ResponseInterface::class);
-        $container->expects($this->once())->method('call')->willReturn($response);
 
         $router = $this->createRouter($container, $routesCollection, $request);
 
