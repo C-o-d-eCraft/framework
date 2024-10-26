@@ -3,6 +3,7 @@
 namespace Craft\Console\Plugins;
 
 use Craft\Components\EventDispatcher\EventMessage;
+use Craft\Console\Command\CommandInfoDTO;
 use Craft\Console\Events;
 use Craft\Console\Exceptions\CommandInterruptedException;
 use Craft\Contracts\ConsoleKernelInterface;
@@ -79,24 +80,25 @@ class HelpPlugin implements PluginInterface, ObserverInterface
         }
     }
 
-    private function writeMessage(array $description): void
+    private function writeMessage(CommandInfoDTO $description): void
     {
         $this->output->success('Вызов:' . PHP_EOL);
-        $this->output->text($description['commandName'] . ' ');
+        $this->output->text($description->commandName . ' ');
 
-        if ($description['arguments'] !== []) {
-            foreach ($description['arguments'] as $argument) {
+        if ($description->arguments !== []) {
+            foreach ($description->arguments as $argument) {
                $this->output->text('[' . $argument['name'] . '] ');
             }
         }
 
         $this->output->text('[опции]' . PHP_EOL . PHP_EOL);
         $this->output->info('Назначение:' . PHP_EOL);
-        $this->output->text($description['description'] . PHP_EOL . PHP_EOL);
+        $this->output->text($description->description . PHP_EOL . PHP_EOL);
 
-        if ($description['arguments'] !== []) {
+        if ($description->arguments !== []) {
             $this->output->info('Аргументы:' . PHP_EOL);
-            foreach ($description['arguments'] as $argument) {
+
+            foreach ($description->arguments as $argument) {
                 $this->output->success($argument['name'] . ' ');
                 $this->output->text($argument['info']);
                 $this->output->text($argument['required'] === true ? ', обязательный параметр' : ', не обязательный параметр,');

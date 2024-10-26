@@ -2,15 +2,16 @@
 
 namespace Tests\Unit;
 
+use Craft\Console\Command\CommandInfoDTO;
 use Craft\Console\Plugins\HelpPlugin;
 use Craft\Contracts\ConsoleKernelInterface;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\EventMessageInterface;
 use Craft\Contracts\InputInterface;
 use Craft\Contracts\OutputInterface;
+use InvalidArgumentException;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
-use InvalidArgumentException;
 
 class HelpPluginTest extends TestCase
 {
@@ -50,13 +51,12 @@ class HelpPluginTest extends TestCase
         $consoleKernelStub->expects($this->once())->method('terminate')->with(0);
 
         $commandClass = new class {
-            public static function getFullCommandInfo(): array
+            public static function getFullCommandInfo(): CommandInfoDTO
             {
-                return [
-                    'commandName' => 'calculator:calculate-modes',
-                    'description' => 'Описание команды',
-                    'arguments' => [],
-                ];
+                return new CommandInfoDTO(
+                    'calculator:calculate-modes',
+                    'Описание команды'
+                );
             }
         };
 
