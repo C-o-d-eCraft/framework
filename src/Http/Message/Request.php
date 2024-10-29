@@ -177,7 +177,13 @@ class Request implements RequestInterface
      */
     public function getHeaderLine(string $name): string
     {
-        return implode(',', $this->headers[$name] ?? []);
+        $data = $this->headers[$name] ?? [];
+
+        if (is_string($data) === true) {
+            return $data;
+        }
+
+        return implode(',', $data ?? []);
     }
 
     /**
