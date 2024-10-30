@@ -14,4 +14,6 @@ interface IdentityInterface
     public function getIdentityUser(): array|null;
 
     public function getIdentityUserId(): int|null;
+
+    public function setIdentityUser(DtoInterface $userData): void;
 }
