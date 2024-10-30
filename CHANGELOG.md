@@ -6,6 +6,7 @@
 и придерживается [правил версионирования](https://semver.org/spec/v2.0.0.html).
 
 - Изменено:
+  - Валидация в роутере с помощью Validator 
   - Переименован класс QueryBuilder на MySql\Connection
   - Переименован класс NotAuthorizedHttpException в UnauthorizedHttpException
   - Переименована директория service в Service

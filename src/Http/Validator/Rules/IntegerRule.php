@@ -16,7 +16,7 @@ class IntegerRule implements ValidationRuleInterface
      */
     public function validate(string $attribute, mixed $value, array $params, Validator $validator): void
     {
-        if (is_int($value) === false) {
+        if (ctype_digit($value) === false) {
             $validator->addError($attribute, 'integer');
         }
     }
