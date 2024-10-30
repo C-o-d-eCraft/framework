@@ -63,9 +63,12 @@ class AbstractCommand implements CommandInterface
      */
     public static function getFullCommandInfo(): CommandInfoDTO
     {
-        $parser = new CommandParser($commandName, static::$description);
+        $parser = new ParseProccessingHandler(self::$commandName, self::$description);
+        $dto = new CommandInfoDTO();
 
-        return $parser->getFullCommandInfo();
+        $parser->handle($dto);
+        
+        return $dto;
     }
 
     /**

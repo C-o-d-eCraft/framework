@@ -2,7 +2,7 @@
 
 namespace Craft\Console\Command;
 
-class CommandParser
+class ParseProccessingHandler
 {
     public function __construct(
         private string $commandName,
@@ -11,23 +11,29 @@ class CommandParser
     }
 
     /**
-     * @return CommandInfoDTO
+     * @param CommandInfoDTO $dto
+     * @return void
      */
-    public function getFullCommandInfo(): CommandInfoDTO
+    public function handle(CommandInfoDTO $dto): void 
     {
         $parts = explode(' ', $this->commandName, 2);
         $commandName = $parts[0];
         $argumentsString = $parts[1] ?? '';
 
         if (empty($argumentsString) === true) {
-            return new CommandInfoDTO($commandName, $this->description);
+            $dto->commandName = $commandName;
+            $dto->description = $this->description;
+            
+            return;
         }
 
         preg_match_all('/\{([^}]+)}/', $argumentsString, $matches);
 
-        $arguments = array_map([$this, 'parseArgument'], $matches[1]);
+        $arguments = $this->parseArgument($matches[1]);
 
-        return new CommandInfoDTO($commandName, $this->description, $arguments);
+        $dto->commandName = $commandName;
+        $dto->description = $this->description;
+        $dto->arguments = $arguments;
     }
 
     /**
