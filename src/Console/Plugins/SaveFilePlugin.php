@@ -50,7 +50,7 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      */
     public function init(): void
     {
-        $this->eventDispatcher->attach(Events::AFTER_EXECUTE, $this);
+        $this->eventDispatcher->attach(Events::AFTER_EXECUTE->value, $this);
     }
 
     /**
