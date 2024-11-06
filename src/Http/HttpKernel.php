@@ -3,8 +3,8 @@
 namespace Craft\Http;
 
 use Craft\Components\DIContainer\DIContainer;
-use Craft\Components\ErrorHandler\MessageEnum;
-use Craft\Components\ErrorHandler\StatusCodeEnum;
+use Craft\Components\ErrorHandler\ErrorMessage;
+use Craft\Components\ErrorHandler\StatusCode;
 use Craft\Contracts\ErrorHandlerInterface;
 use Craft\Contracts\EventDispatcherInterface;
 use Craft\Contracts\HttpKernelInterface;
@@ -62,8 +62,8 @@ class HttpKernel implements HttpKernelInterface
 
             $this->response->setBody(new Stream($errorsView));
         } catch (Throwable $e) {
-            $this->response->withStatus(StatusCodeEnum::INTERNAL_SERVER_ERROR);
-            $this->response->setReasonPhrase(MessageEnum::INTERNAL_SERVER_ERROR);
+            $this->response->withStatus(StatusCode::INTERNAL_SERVER_ERROR->value);
+            $this->response->setReasonPhrase(ErrorMessage::INTERNAL_SERVER_ERROR->value);
 
             $this->logger->critical($e);
 
@@ -72,7 +72,7 @@ class HttpKernel implements HttpKernelInterface
             $this->response->setBody(new Stream($errorsView));
         } finally {
             if (isset($errorsView) === true) {
-                $this->response->setStatusCode((json_decode($errorsView, true)['statusCode']) ?? StatusCodeEnum::INTERNAL_SERVER_ERROR);
+                $this->response->setStatusCode((json_decode($errorsView, true)['statusCode']) ?? StatusCode::INTERNAL_SERVER_ERROR->value);
             }
 
             if (isset($request->getHeaders()['CONTENT-TYPE']) && $request->getHeaders()['CONTENT-TYPE'] === 'application/json') {
