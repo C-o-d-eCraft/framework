@@ -10,6 +10,7 @@ use Craft\Contracts\RoutesCollectionInterface;
 use Craft\Http\Exceptions\BadRequestHttpException;
 use Craft\Http\Exceptions\NotFoundHttpException;
 use Craft\Http\Validator\Validator;
+use Craft\Http\Route\DTO\Route;
 
 class Router implements RouterInterface
 {
@@ -65,17 +66,17 @@ class Router implements RouterInterface
             return false;
         }
 
-        $routePattern = $this->paramsParser->buildRegexFromRoute($route->route);
+        $routePattern = $this->paramsParser->buildRegexFromRoute($route->path);
 
         if ((bool)preg_match($routePattern, $path, $matches) === false) {
             return false;
         }
 
-        $params = $this->extractAndValidateParams($route->route, $matches);
+        $params = $this->extractAndValidateParams($route->path, $matches);
 
-        if ($this->paramsParser->hasQueryParameters($route->route)) {
+        if ($this->paramsParser->hasQueryParameters($route->path)) {
             $queryParams = $this->request->getUri()->getQueryParams();
-            $params += $this->extractAndValidateParams($route->route, $queryParams, true);
+            $params += $this->extractAndValidateParams($route->path, $queryParams, true);
         }
 
         return true;

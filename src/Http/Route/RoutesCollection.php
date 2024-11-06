@@ -3,6 +3,7 @@
 namespace Craft\Http\Route;
 
 use Craft\Contracts\RoutesCollectionInterface;
+use Craft\Http\Route\DTO\Route;
 
 class RoutesCollection implements RoutesCollectionInterface
 {
@@ -20,58 +21,63 @@ class RoutesCollection implements RoutesCollectionInterface
     }
 
     /**
-     * @param string $route
-     * @param string|callable $controllerAction
+     * @param string $path
+     * @param string|callable $handler
+     * @param array $rules
      * @param array $middleware
      * @return void
      */
-    public function post(string $route, string|callable $controllerAction, array $middleware = []): void
+    public function post(string $path, string|callable $handler, array $rules = [], array $middleware = []): void
     {
-        $this->addRoute('POST', $route, $controllerAction, $middleware);
+        $this->addRoute('POST', $path, $handler, $rules, $middleware);
     }
 
     /**
-     * @param string $route
-     * @param string|callable|array $controllerAction
+     * @param string $path
+     * @param string|callable $handler
+     * @param array $rules
      * @param array $middleware
      * @return void
      */
-    public function get(string $route, string|callable $controllerAction, array $middleware = []): void
+    public function get(string $path, string|callable $handler, array $rules = [], array $middleware = []): void
     {
-        $this->addRoute('GET', $route, $controllerAction, $middleware);
+        $this->addRoute('GET', $path, $handler, $rules, $middleware);
     }
 
     /**
-     * @param string $route
-     * @param string|callable $controllerAction
+     * @param string $path
+     * @param string|callable $handler
+     * @param array $rules
      * @param array $middleware
      * @return void
      */
-    public function delete(string $route, string|callable $controllerAction, array $middleware = []): void
+    public function delete(string $path, string|callable $handler, array $rules = [], array $middleware = []): void
     {
-        $this->addRoute('DELETE', $route, $controllerAction, $middleware);
+        $this->addRoute('DELETE', $path, $handler, $rules, $middleware);
     }
 
     /**
-     * @param string $route
-     * @param string|callable $controllerAction
+     * @param string $path
+     * @param string|callable $handler
+     * @param array $rules
      * @param array $middleware
      * @return void
      */
-    public function put(string $route, string|callable $controllerAction, array $middleware = []): void
+    public function put(string $path, string|callable $handler, array $rules = [], array $middleware = []): void
     {
-        $this->addRoute('PUT', $route, $controllerAction, $middleware);
+        $this->addRoute('PUT', $path, $handler, $rules, $middleware);
     }
 
     /**
-     * @param string $route
-     * @param string|callable $controllerAction
+     * @param string $path
+     * @param string|callable $handler
+     * @param array $rules
      * @param array $middleware
      * @return void
      */
-    public function patch(string $route, string|callable $controllerAction, array $middleware = []): void
+    public function patch(string $path, string|callable $handler, array $rules = [], array $middleware = []): void
     {
-        $this->addRoute('PATCH', $route, $controllerAction, $middleware);
+        $this->addRoute('PATCH', $path, $handler, $rules, $middleware);
     }
 
     /**
@@ -92,20 +98,14 @@ class RoutesCollection implements RoutesCollectionInterface
     }
 
     /**
-     * @param string $prefix
+     * @param string $path
      * @param string $controller
-     * @param array $middleware
-     * @param array $actionMiddleware
+     * @param array $config
      * @return void
      */
-    public function addResource(string $prefix, string $controller, array $middleware = [], array $actionMiddleware = []): void
+    public function addResource(string $path, string $controller, array $config = []): void
     {
-        $this->get($prefix, $controller . '::actionGetList', $this->mergeActionMiddleware('actionGetList', $middleware, $actionMiddleware));
-        $this->post($prefix, $controller . '::actionCreate', $this->mergeActionMiddleware('actionCreate', $middleware, $actionMiddleware));
-        $this->get($prefix . '/{id:integer}', $controller . '::actionGetItem', $this->mergeActionMiddleware('actionGetItem', $middleware, $actionMiddleware));
-        $this->put($prefix . '/{id:integer}', $controller . '::actionUpdate', $this->mergeActionMiddleware('actionUpdate', $middleware, $actionMiddleware));
-        $this->patch($prefix . '/{id:integer}', $controller . '::actionPatch', $this->mergeActionMiddleware('actionPatch', $middleware, $actionMiddleware));
-        $this->delete($prefix . '/{id:integer}', $controller . '::actionDelete', $this->mergeActionMiddleware('actionDelete', $middleware, $actionMiddleware));
+        (new Resource($path, $controller, $config))->build($this);
     }
 
     /**
@@ -115,11 +115,11 @@ class RoutesCollection implements RoutesCollectionInterface
      * @param array $middleware
      * @return void
      */
-    private function addRoute(string $method, string $route, string|callable $handler, array $middleware = []): void
+    public function addRoute(string $method, string $path, string|callable $handler, array $rules = [], array $middleware = []): void
     {
-        $routePath = $this->applyGroupPrefixes($route);
+        $routePath = $this->applyGroupPrefixes($path);
 
-        $this->routes[] = new Route($method, $routePath, $handler, $this->mergeMiddlewares($middleware));
+        $this->routes[] = new Route($method, $routePath, $handler, $rules, $this->mergeMiddlewares($middleware));
     }
 
     /**

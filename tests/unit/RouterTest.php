@@ -8,7 +8,7 @@ use Craft\Contracts\ResponseInterface;
 use Craft\Contracts\RoutesCollectionInterface;
 use Craft\Contracts\UriInterface;
 use Craft\Http\Exceptions\NotFoundHttpException;
-use Craft\Http\Route\Route;
+use Craft\Http\Route\DTO\Route;
 use Craft\Http\Route\RouteParamsParser;
 use Craft\Http\Route\Router;
 use PHPUnit\Framework\MockObject\Exception;
@@ -43,7 +43,7 @@ class RouterTest extends TestCase
 
         $route = $this->createMock(Route::class);
         $route->method = 'GET';
-        $route->route = '/test';
+        $route->path = '/test';
         $route->handler = 'TestController::action';
         $route->middlewares = [];
 
