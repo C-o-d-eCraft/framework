@@ -51,6 +51,8 @@ class Resource
         ],
     ];
 
+    private array $actionsWithId = ['view', 'put', 'patch', 'delete'];
+
     public function __construct(
         public string $path,
         public string $controller,
@@ -68,7 +70,7 @@ class Resource
 
         foreach ($config as $action => $settings) {
             $method = $settings['method'];
-            $actionPath = $this->path;
+            $actionPath = $this->buildActionPath($action, $settings);
             $actionMethod = $settings['action'];
             $handler = "{$this->controller}::{$actionMethod}";
 
@@ -80,5 +82,23 @@ class Resource
                 $settings['middlewares'] ?? []
             );
         }
+    }
+
+    /**
+     * @param string $action
+     * @param array $settings
+     * @return string
+     */
+    private function buildActionPath(string $action, array $settings): string
+    {
+        if (isset($settings['path']) === true) {
+            return $settings['path'];
+        }
+
+        if (in_array($action, $this->actionsWithId) === true) {
+            return $this->path . '/{id}';
+        }
+
+        return $this->path;
     }
 }
