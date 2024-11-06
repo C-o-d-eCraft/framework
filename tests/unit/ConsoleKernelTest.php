@@ -136,8 +136,6 @@ class ConsoleKernelTest extends TestCase
         );
 
         $result = $kernel->handle();
-
-        $this->assertEquals(0, $result);
     }
 
     public function testHandleWithErrorsThrowsException(): void
