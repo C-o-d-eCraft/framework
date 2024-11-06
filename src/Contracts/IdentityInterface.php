@@ -4,16 +4,10 @@ namespace Craft\Contracts;
 
 interface IdentityInterface
 {
-    /**
-     * Получает идентификационные данные авторизованного пользователя из заголовка запроса.
-     *
-     * @return array|null Возвращает массив с идентификационными данными пользователя или null, если пользователь не найден.
-     */
-    public function findIdentityFromHeaders(): string|null;
+    public function getTokenFromHeaders(): string|null;
 
-    public function getIdentityUser(): array|null;
+    public function generateToken(array $data, int $expiresIn = 3600): string;
 
-    public function getIdentityUserId(): int|null;
+    public function validateToken(?string $token = null): array|false;
 
-    public function setIdentityUser(DtoInterface $userData): void;
 }
