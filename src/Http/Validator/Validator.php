@@ -20,6 +20,8 @@ class Validator
         'email' => 'Поле :attribute должно быть адресом электронной почты.',
         'boolean' => 'Поле :attribute должно быть истинным или ложным.',
         'date' => 'Поле :attribute должно быть действительной датой.',
+        'minLength' => 'Поле :attribute должно быть не менее :min символов.',
+        'maxLength' => 'Поле :attribute должно быть не более :max символов.',
     ];
 
     public function __construct(array $data)
@@ -27,6 +29,10 @@ class Validator
         $this->data = $data;
     }
 
+    /**
+     * @param array $rule
+     * @return void
+     */
     public function apply(array $rule): void
     {
         [$attributes, $ruleName, $params] = array_pad($rule, 3, []);
@@ -43,11 +49,20 @@ class Validator
             return;
         }
 
+        if (strpos($ruleName, '=') !== false) {
+            [$ruleName, $parameter] = explode('=', $ruleName, 2);
+            $params[] = $parameter;
+        }
+
         $ruleClass = $this->getRuleClass($ruleName);
 
         $this->validateAttributes($attributes, $ruleClass, $params);
     }
 
+    /**
+     * @param string $ruleName
+     * @return ValidationRuleInterface
+     */
     protected function getRuleClass(string $ruleName): ValidationRuleInterface
     {
         $rulesNamespace = 'Craft\\Http\\Validator\\Rules\\';
@@ -60,6 +75,12 @@ class Validator
         throw new InvalidArgumentException("Правило валидации {$ruleName} не существует.");
     }
 
+    /**
+     * @param array|string $attributes
+     * @param ValidationRuleInterface $ruleClass
+     * @param array $params
+     * @return void
+     */
     protected function validateAttributes(array|string $attributes, ValidationRuleInterface $ruleClass, array $params): void
     {
         if (is_array($attributes) === false) {
@@ -71,6 +92,12 @@ class Validator
         }
     }
 
+    /**
+     * @param string $attribute
+     * @param string $rule
+     * @param array $params
+     * @return void
+     */
     public function addError(string $attribute, string $rule, array $params = []): void
     {
         $message = $this->messages[$rule] ?? 'Ошибка валидации';
@@ -83,6 +110,9 @@ class Validator
         $this->errors[$attribute][] = $message;
     }
 
+    /**
+     * @return array
+     */
     public function getErrors(): array
     {
         return $this->errors;

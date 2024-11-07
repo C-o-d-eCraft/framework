@@ -10,8 +10,9 @@ class DebugTagGenerator implements DebugTagGeneratorInterface
     public function __construct(
         private DebugTagStorageInterface $tagStorage,
         private string $indexName,
-        private string $mode = 'web'
-    ) { }
+        private string $mode = DebugTagGeneratorTypes::MODE_TYPE_WEB->value
+    ) {
+    }
 
     /**
      * @param Application $app
@@ -19,7 +20,7 @@ class DebugTagGenerator implements DebugTagGeneratorInterface
      */
     public function init(): void
     {
-        if ($this->mode === 'cli') {
+        if ($this->mode === DebugTagGeneratorTypes::MODE_TYPE_CLI->value) {
             $this->refreshTag();
         }
 
@@ -77,7 +78,7 @@ class DebugTagGenerator implements DebugTagGeneratorInterface
      */
     public function refreshTag(): void
     {
-        if ($this->mode === 'web') {
+        if ($this->mode === DebugTagGeneratorTypes::MODE_TYPE_WEB->value) {
             throw new \RuntimeException('Невозможно обновить X_DEBUG_TAG в режиме web');
         }
 

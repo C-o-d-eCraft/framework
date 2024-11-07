@@ -65,7 +65,7 @@ class DetachPlugin implements PluginInterface, ObserverInterface
      */
     public function init(): void
     {
-        $this->eventDispatcher->attach(Events::BEFORE_RUN, $this);
+        $this->eventDispatcher->attach(Events::BEFORE_RUN->value, $this);
     }
 
     /**

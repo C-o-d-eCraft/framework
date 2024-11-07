@@ -8,7 +8,8 @@ use Craft\Contracts\ResponseInterface;
 use Craft\Contracts\RoutesCollectionInterface;
 use Craft\Contracts\UriInterface;
 use Craft\Http\Exceptions\NotFoundHttpException;
-use Craft\Http\Route\Route;
+use Craft\Http\Route\DTO\Route;
+use Craft\Http\Route\RouteParamsParser;
 use Craft\Http\Route\Router;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
@@ -16,13 +17,14 @@ use stdClass;
 
 class RouterTest extends TestCase
 {
-    private function createRouter($container, $routesCollection, $request)
+    private function createRouter($container, $routesCollection, $request, $response, $routeParamsParser)
     {
         return new Router(
             $container,
             $routesCollection,
             $request,
-            $this->createMock(ResponseInterface::class)
+            $response,
+            $routeParamsParser
         );
     }
 
@@ -31,6 +33,9 @@ class RouterTest extends TestCase
         $request = $this->createMock(RequestInterface::class);
         $request->method('getMethod')->willReturn('GET');
 
+        $routeParamsParser = $this->createMock(RouteParamsParser::class);
+        $routeParamsParser->method('buildRegexFromRoute')->willReturn('#^/test$#');
+
         $uri = $this->createMock(UriInterface::class);
         $uri->method('getPath')->willReturn('/test');
 
@@ -38,22 +43,24 @@ class RouterTest extends TestCase
 
         $route = $this->createMock(Route::class);
         $route->method = 'GET';
-        $route->route = '/test';
+        $route->path = '/test';
         $route->handler = 'TestController::action';
         $route->middlewares = [];
 
         $routesCollection = $this->createMock(RoutesCollectionInterface::class);
         $routesCollection->method('getRoutes')->willReturn([$route]);
 
-        $controller = $this->createMock(stdClass::class);
+        $controller = $this->getMockBuilder(stdClass::class)
+            ->addMethods(['action'])
+            ->getMock();
+        $controller->expects($this->once())->method('action')->willReturn($this->createMock(ResponseInterface::class));
 
         $container = $this->createMock(DIContainer::class);
         $container->method('make')->willReturn($controller);
 
         $response = $this->createMock(ResponseInterface::class);
-        $container->expects($this->once())->method('call')->willReturn($response);
 
-        $router = $this->createRouter($container, $routesCollection, $request);
+        $router = $this->createRouter($container, $routesCollection, $request, $response, $routeParamsParser);
 
         $router->dispatch();
     }
@@ -71,7 +78,13 @@ class RouterTest extends TestCase
         $routesCollection = $this->createMock(RoutesCollectionInterface::class);
         $routesCollection->method('getRoutes')->willReturn([]);
 
-        $router = $this->createRouter($this->createMock(DIContainer::class), $routesCollection, $request);
+        $router = $this->createRouter(
+            $this->createMock(DIContainer::class),
+            $routesCollection,
+            $request,
+            $this->createMock(ResponseInterface::class),
+            $this->createMock(RouteParamsParser::class)
+        );
 
         $this->expectException(NotFoundHttpException::class);
 

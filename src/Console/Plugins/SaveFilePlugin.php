@@ -23,9 +23,9 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
     private static string $description = 'Сохранить вывод команды в файл';
     
     public function __construct(
-        readonly private EventDispatcherInterface $eventDispatcher,
-        readonly private OutputInterface $output,
-        readonly private FileSystemInterface $fileSystem
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly OutputInterface          $output,
+        private readonly FileSystemInterface      $fileSystem
     ) {
     }
 
@@ -50,7 +50,7 @@ class SaveFilePlugin implements PluginInterface, ObserverInterface
      */
     public function init(): void
     {
-        $this->eventDispatcher->attach(Events::AFTER_EXECUTE, $this);
+        $this->eventDispatcher->attach(Events::AFTER_EXECUTE->value, $this);
     }
 
     /**

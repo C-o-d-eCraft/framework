@@ -8,9 +8,9 @@ use Craft\Contracts\ResponseInterface;
 use Craft\Contracts\RouterInterface;
 use Craft\Contracts\RoutesCollectionInterface;
 use Craft\Http\Exceptions\BadRequestHttpException;
-use Craft\Http\Exceptions\HttpException;
 use Craft\Http\Exceptions\NotFoundHttpException;
-use ReflectionException;
+use Craft\Http\Validator\Validator;
+use Craft\Http\Route\DTO\Route;
 
 class Router implements RouterInterface
 {
@@ -18,26 +18,25 @@ class Router implements RouterInterface
         private DIContainer               $container,
         private RoutesCollectionInterface $routesCollection,
         private RequestInterface          $request,
-        private ResponseInterface         $response
+        private ResponseInterface         $response,
+        private RouteParamsParser         $paramsParser,
     ) {
     }
 
     /**
      * @return ResponseInterface
-     * @throws HttpException
+     * @throws BadRequestHttpException
      * @throws NotFoundHttpException
-     * @throws ReflectionException
      */
     public function dispatch(): ResponseInterface
     {
         $method = $this->request->getMethod();
         $path = $this->request->getUri()->getPath();
-        $queryParams = $this->request->getUri()->getQueryParams();
 
         foreach ($this->routesCollection->getRoutes() as $route) {
             $params = [];
 
-            if ($this->handleRoute($route, $path, $method, $params, $queryParams)) {
+            if ($this->matchRoute($route, $path, $method, $params)) {
                 [$controllerClass, $action] = explode('::', $route->handler);
 
                 $handler = function (RequestInterface $request, ResponseInterface $response) use ($controllerClass, $action, $params) {
@@ -59,187 +58,84 @@ class Router implements RouterInterface
      * @param string $method
      * @param array $params
      * @return bool
+     * @throws BadRequestHttpException
      */
-    private function handleRoute(Route $route, string $path, string $method, array &$params = [], array $queryParams = []): bool
+    private function matchRoute(Route $route, string $path, string $method, array &$params): bool
     {
-        $routePattern = $this->buildRoutePattern($route->route);
-
-        if (preg_match($routePattern, $path, $matches) && $route->method === $method) {
-            $params = $this->extractParams($route->route, $matches);
-
-            if ($this->hasQueryParams($route->route) === true) {
-                $queryParamRules = $this->extractQueryParamRules($route->route);
-
-                $this->validateQueryParams($queryParams, $queryParamRules);
-
-                $params = array_merge($params, $queryParams);
-            }
-
-            return true;
+        if ($route->method !== $method) {
+            return false;
         }
 
-        return false;
+        $routePattern = $this->paramsParser->buildRegexFromRoute($route->path);
+
+        if ((bool)preg_match($routePattern, $path, $matches) === false) {
+            return false;
+        }
+
+        $params = $this->extractAndValidateParams($route->path, $matches);
+
+        if ($this->paramsParser->hasQueryParameters($route->path)) {
+            $queryParams = $this->request->getUri()->getQueryParams();
+            $params += $this->extractAndValidateParams($route->path, $queryParams, true);
+        }
+
+        return true;
     }
 
     /**
      * @param string $route
-     * @return string
-     */
-    private function buildRoutePattern(string $route): string
-    {
-        $routeWithoutQuery = explode('?', $route)[0];
-        $pattern = preg_replace_callback('/\{(\w+)(:[^}]+)?\}/', function ($matches) {
-            $paramPattern = $matches[2] ?? '';
-
-            return '(' . ($this->convertParamPattern($paramPattern) ?: '\w+') . ')';
-        }, $routeWithoutQuery);
-
-        return '#^' . $pattern . '$#';
-    }
-    
-    /**
-     * @param string $pattern
-     * @return string
-     */
-    private function convertParamPattern(string $pattern): string
-    {
-        $specifiers = explode('|', trim($pattern, ':'));
-
-        $regexParts = array_map(function ($specifier) {
-            return match ($specifier) {
-                'integer' => '\d+',
-                'required' => '.+',
-                default => '\w+',
-            };
-        }, $specifiers);
-
-        return implode('|', $regexParts);
-    }
-
-    /**
-     * @param string $route
-     * @param array $matches
+     * @param array $paramsData
+     * @param bool $isQuery
      * @return array
      * @throws BadRequestHttpException
      */
-    private function extractParams(string $route, array $matches): array
+    private function extractAndValidateParams(string $route, array $paramsData, bool $isQuery = false): array
     {
-        preg_match_all('/\{(\w+)(:[^}]+)?\}/', $route, $paramNames);
+        $parameters = $isQuery
+            ? $this->paramsParser->parseQueryParameters($route, $paramsData)
+            : $this->paramsParser->parseRouteParameters($route, $paramsData);
 
-        $params = [];
-        foreach ($paramNames[1] as $index => $name) {
-            $paramSpecifiers = $paramNames[2][$index] ?? '';
+        $this->validateParameters($parameters);
 
-            $value = $matches[$index + 1];
-
-            if ($this->isValueInvalid($value, $paramSpecifiers) === true) {
-                throw new BadRequestHttpException('Не корректные параметры поиска');
-            }
-
-            $params[$name] = $value;
-        }
-
-        return $params;
+        return array_map(fn($paramDTO) => $paramDTO->value, $parameters);
     }
 
     /**
-     * @param string $route
-     * @return bool
-     */
-    private function hasQueryParams(string $route): bool
-    {
-        return strpos($route, '?') !== false;
-    }
-
-    /**
-     * @param string $route
-     * @return array
-     */
-    private function extractQueryParamRules(string $route): array
-    {
-        $parts = explode('?', $route);
-        $queryParams = $parts[1] ?? '';
-        $rules = [];
-
-        foreach (explode('&', $queryParams) as $param) {
-            if (strpos($param, ':') !== false) {
-                [$name, $specifiers] = explode(':', $param);
-                $rules[$name] = $specifiers;
-            }
-        }
-
-        return $rules;
-    }
-
-    /**
-     * @param array $queryParams
-     * @param array $rules
+     * @param array $parameters
      * @return void
      * @throws BadRequestHttpException
      */
-    private function validateQueryParams(array $queryParams, array $rules): ResponseInterface
+    private function validateParameters(array $parameters): void
     {
-        foreach ($rules as $name => $specifiers) {
-            $value = $queryParams[$name] ?? null;
+        $validator = new Validator(array_column($parameters, 'value', 'name'));
 
-            if ($this->isValueInvalid($value, $specifiers) === true) {
-                throw new BadRequestHttpException('Не корректные параметры поиска');
+        foreach ($parameters as $parameter) {
+            foreach ($parameter->specifiers as $specifier) {
+                $validator->apply([$parameter->name, $specifier]);
             }
         }
 
-        return $this->response;
-    }
-
-    /**
-     * @param string $value
-     * @param string $paramSpecifiers
-     * @return bool
-     */
-    private function isValueInvalid(string $value, string $paramSpecifiers): bool
-    {
-        $specifiers = explode('|', trim($paramSpecifiers, ':'));
-
-        foreach ($specifiers as $specifier) {
-            if ($specifier === 'integer' && is_numeric($value) === false) {
-                return true;
-            }
-
-            if ($specifier === 'string' && is_string($value) === false) {
-                return true;
-            }
-
-            if ($specifier === 'required' && empty($value) === true) {
-                return true;
-            }
-
-            if (str_starts_with($specifier, 'minLength=') && strlen($value) < (int)str_replace('minLength=', '', $specifier)) {
-                return true;
-            }
-
-            if (str_starts_with($specifier, 'maxLength=') && strlen($value) > (int)str_replace('maxLength=', '', $specifier)) {
-                return true;
-            }
+        if ($errors = $validator->getErrors()) {
+            throw new BadRequestHttpException(
+                'Некорректные параметры маршрута: ' . json_encode($errors, JSON_UNESCAPED_UNICODE)
+            );
         }
-
-        return false;
     }
 
     /**
      * @param array $middlewares
-     *
+     * @param callable $handler
+     * @param array|null $params
      * @return ResponseInterface
-     * @throws ReflectionException
      */
     private function processMiddlewares(array $middlewares, callable $handler, ?array $params = null): ResponseInterface
     {
         $chain = array_reduce(
             array_reverse($middlewares),
-            function ($next, $middleware) use ($params){
-                return function (RequestInterface $request, ResponseInterface $response) use ($middleware, $next, $params) {
-                    $middlewareInstance = $this->container->make($middleware);
+            fn($next, $middleware) => function (RequestInterface $request, ResponseInterface $response) use ($middleware, $next, $params) {
+                $middlewareInstance = $this->container->make($middleware);
 
-                    return $middlewareInstance->process($request, $response, $next, $params);
-                };
+                return $middlewareInstance->process($request, $response, $next, $params);
             },
             $handler
         );

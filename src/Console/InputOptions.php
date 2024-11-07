@@ -56,10 +56,10 @@ class InputOptions implements InputOptionsInterface, ObserverInterface
 
         $optionsConfirm = $this->container->make(OptionsConfirm::class);
 
-        $this->eventDispatcher->attach(Events::OPTIONS_CONFIRM, $optionsConfirm);
-        $this->eventDispatcher->attach(Events::OPTION_CONFIRMED, $this->container->make(ConsoleKernelInterface::class));
+        $this->eventDispatcher->attach(Events::OPTIONS_CONFIRM->value, $optionsConfirm);
+        $this->eventDispatcher->attach(Events::OPTION_CONFIRMED->value, $this->container->make(ConsoleKernelInterface::class));
 
-        $this->eventDispatcher->trigger(Events::OPTIONS_CONFIRM, new EventMessage([
+        $this->eventDispatcher->trigger(Events::OPTIONS_CONFIRM->value, new EventMessage([
             'options' => $options,
             'commandMap' => $this->commandMap,
             'plugins' => $this->plugins,

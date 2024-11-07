@@ -2,15 +2,11 @@
 
 namespace Craft\Components\Logger\StateProcessor;
 
-class LogContextEvent
+enum LogContextEvent: string
 {
-    const ATTACH_CONTEXT = 'ATTACH_CONTEXT';
-
-    const DETACH_CONTEXT = 'DETACH_CONTEXT';
-
-    const FLUSH_CONTEXT = 'FLUSH_CONTEXT';
-
-    const ATTACH_EXTRAS = 'ATTACH_EXTRAS';
-
-    const FLUSH_EXTRAS = 'FLUSH_EXTRAS';
+    case ATTACH_CONTEXT = 'ATTACH_CONTEXT';
+    case DETACH_CONTEXT = 'DETACH_CONTEXT';
+    case FLUSH_CONTEXT = 'FLUSH_CONTEXT';
+    case ATTACH_EXTRAS = 'ATTACH_EXTRAS';
+    case FLUSH_EXTRAS = 'FLUSH_EXTRAS';
 }

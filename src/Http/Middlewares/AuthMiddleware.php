@@ -3,20 +3,22 @@
 namespace Craft\Http\Middlewares;
 
 use Craft\Contracts\AuthMiddlewareInterface;
+use Craft\Contracts\IdentityInterface;
 use Craft\Contracts\RequestInterface;
 use Craft\Contracts\ResponseInterface;
-use Craft\Http\Exceptions\NotAuthorizedHttpException;
+use Craft\Http\Exceptions\UnauthorizedHttpException;
 
-class AuthMiddleware implements AuthMiddlewareInterface
+readonly class AuthMiddleware implements AuthMiddlewareInterface
 {
-    public function __construct(private string $headerName = 'X-BASE-AUTH') { }
+    public function __construct(private IdentityInterface $identity) { }
 
+    /**
+     * @throws UnauthorizedHttpException
+     */
     public function process(RequestInterface $request, ResponseInterface $response, callable $next): ResponseInterface
     {
-        $authHeaderValue = $request->getHeaders()[$this->headerName] ?? null;
-
-        if ($authHeaderValue === null) {
-            throw new NotAuthorizedHttpException();
+        if (is_int($this->identity->getIdentityUserId()) === false) {
+            throw new UnauthorizedHttpException();
         }
 
         return $next($request, $response);

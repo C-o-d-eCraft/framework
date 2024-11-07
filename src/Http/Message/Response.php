@@ -5,7 +5,7 @@ namespace Craft\Http\Message;
 use Craft\Contracts\ResponseInterface;
 use Craft\Contracts\StreamInterface;
 
-class Response extends Message implements ResponseInterface
+class Response implements ResponseInterface
 {
     /**
      * @var int

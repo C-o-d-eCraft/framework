@@ -1,12 +1,11 @@
 <?php
 
-namespace Craft\Console\service;
+namespace Craft\Console\Service;
 
 use Craft\Contracts\UnixProcessServiceInterface;
 
 class UnixProcessService implements UnixProcessServiceInterface
 {
-
     /**
      * Клонирует текущий процесс, и возвращает PID дочернего.
      * В случае ошибки вернет -1
@@ -15,7 +14,7 @@ class UnixProcessService implements UnixProcessServiceInterface
      */
     public function fork(): int
     {
-      return  pcntl_fork();
+        return pcntl_fork();
     }
 
     /**
