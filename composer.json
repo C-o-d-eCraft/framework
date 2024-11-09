@@ -13,6 +13,11 @@
             "name": "Dmitriy Suvorov",
             "homepage": "https://github.com/suvor03",
             "role": "Developer"
+        },
+        {
+            "name": "Nikita Shmorgun",
+            "homepage": "https://github.com/nedelaet",
+            "role": "Developer"
         }
     ],
     "minimum-stability": "stable",
@@ -25,7 +30,8 @@
         "php": "^8.2",
         "ext-pdo": "*",
         "ext-pcntl": "*",
-        "ext-posix": "*"
+        "ext-posix": "*",
+        "firebase/php-jwt": "v6.10.1"
     },
     "require-dev": {
         "symfony/var-dumper": "^7.0",
