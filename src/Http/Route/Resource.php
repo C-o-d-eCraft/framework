@@ -85,6 +85,89 @@ class Resource
     }
 
     /**
+     * @param array $middlewares
+     * @return $this
+     */
+    public function addMiddlewaresForAllActions(array $middlewares): self
+    {
+        foreach ($this->defaultConfig as &$config) {
+            foreach ($middlewares as $middleware) {
+                $this->addNotExistsMiddleware($config['middlewares'], $middleware);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param array $middlewares
+     * @return self
+     */
+    public function addIndexMiddlewares(array $middlewares): self
+    {
+        return $this->addMiddlewareForAction('index', $middlewares);
+    }
+
+    /**
+     * @param array $middlewares
+     * @return self
+     */
+    public function addCreateMiddlewares(array $middlewares): self
+    {
+        return $this->addMiddlewareForAction('create', $middlewares);
+    }
+
+    /**
+     * @param array $middlewares
+     * @return self
+     */
+    public function addViewMiddlewares(array $middlewares): self
+    {
+        return $this->addMiddlewareForAction('view', $middlewares);
+    }
+
+    /**
+     * @param array $middlewares
+     * @return self
+     */
+    public function addPutMiddlewares(array $middlewares): self
+    {
+        return $this->addMiddlewareForAction('put', $middlewares);
+    }
+
+    /**
+     * @param array $middlewares
+     * @return self
+     */
+    public function addPatchMiddlewares(array $middlewares): self
+    {
+        return $this->addMiddlewareForAction('patch', $middlewares);
+    }
+
+    /**
+     * @param array $middlewares
+     * @return self
+     */
+    public function addDeleteMiddlewares(array $middlewares): self
+    {
+        return $this->addMiddlewareForAction('delete', $middlewares);
+    }
+
+    /**
+     * @param string $action
+     * @param array $middlewares
+     * @return self
+     */
+    private function addMiddlewareForAction(string $action, array $middlewares): self
+    {
+        foreach ($middlewares as $middleware) {
+            $this->addNotExistsMiddleware($this->defaultConfig[$action]['middlewares'], $middleware);
+        }
+
+        return $this;
+    }
+
+    /**
      * @param string $action
      * @param array $settings
      * @return string
@@ -100,5 +183,17 @@ class Resource
         }
 
         return $this->path;
+    }
+
+    /**
+     * @param array $middlewares
+     * @param string $middleware
+     * @return void
+     */
+    private function addNotExistsMiddleware(array &$middlewares, string $middleware): void
+    {
+        if (in_array($middleware, $middlewares, true) === false) {
+            $middlewares[] = $middleware;
+        }
     }
 }

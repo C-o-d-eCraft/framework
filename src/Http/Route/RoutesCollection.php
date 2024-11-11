@@ -103,9 +103,12 @@ class RoutesCollection implements RoutesCollectionInterface
      * @param array $config
      * @return void
      */
-    public function addResource(string $path, string $controller, array $config = []): void
+    public function addResource(string $path, string $controller, array $config = []): Resource
     {
-        (new Resource($path, $controller, $config))->build($this);
+        $resource = new Resource($path, $controller, $config);
+        $resource->build($this);
+
+        return $resource;
     }
 
     /**
