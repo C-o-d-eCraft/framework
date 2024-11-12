@@ -17,7 +17,7 @@ class FileLogger extends AbstractLogger
         parent::__construct($this->logStateProcessor);
 
         if (is_dir($logDir) === false) {
-            mkdir($logDir, 644, true);
+            mkdir($logDir, 0777, true);
         }
 
         $this->logFilePath = $this->determineLogFilePath();
