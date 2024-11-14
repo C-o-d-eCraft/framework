@@ -66,13 +66,15 @@ class DIContainer implements ContainerInterface
     /**
      * Регистрирует контракт как синглтон.
      *
-     * @param string $contract Имя контракта
+     * @param string|object $contract Имя контракта
      * @throws ReflectionException
      */
-    public function singleton(string $contract): void
+    public function singleton(string|object $contract): void
     {
-        if (isset($this->singletons[$contract]) === false) {
-            $this->singletons[$contract] = $this->build($contract);
+        $contractKey = is_object($contract) === true ? $contract::class : $contract;
+
+        if (empty($this->singletons[$contractKey]) === true) {
+            $this->singletons[$contractKey] = is_object($contract) === true ? $contract : $this->build($contract);
         }
     }
 
