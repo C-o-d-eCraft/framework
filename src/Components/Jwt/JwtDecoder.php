@@ -21,14 +21,14 @@ readonly class JwtDecoder
      * ExpiredException — если токен просрочен из-за указания exp (Expiration) времени.
      *
      * @param string $token Токен JWT
-     * @return array Данные из JWT токена
+     * @return string Идентификатор пользователя из JWT токена
      */
-    public function decode(string $token): array
+    public function decode(string $token): string
     {
         $decodedToken = JWT::decode(
             $token,
             new Key($this->config->getValue('secretKey'), $this->config->getValue('algorithm')));
 
-        return (array)$decodedToken->data;
+        return $decodedToken->sub;
     }
 }
