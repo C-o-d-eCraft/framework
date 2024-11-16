@@ -13,25 +13,18 @@ readonly class JwtGenerator
     /**
      * Генерация JWT токена
      *
-     * @param array $data Данные пользователя для включения в payload
+     * @param string $sub Идентификатор пользователя
      * @return string Сгенерированный JWT токен
      */
-    public function generateToken(array $data): string
+    public function generateToken(string $sub): string
     {
         $issuedAt = time();
         $expirationTime = $issuedAt + (int)$this->config->getValue('lifetime');
 
-        $userData = [
-            'email' => $data['email'],
-            'id' => $data['id'],
-            'name' => $data['name'],
-            'status' => $data['status'],
-        ];
-
         $payload = [
             'iat' => $issuedAt,
             'exp' => $expirationTime,
-            'data' => $userData,
+            'sub' => $sub,
         ];
 
         $encoder = new JwtEncoder($this->config);
