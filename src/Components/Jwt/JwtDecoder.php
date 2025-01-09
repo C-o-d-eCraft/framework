@@ -2,33 +2,34 @@
 
 namespace Craft\Components\Jwt;
 
-use Craft\Contracts\JwtConfigInterface;
 use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
+use Exception;
 
 readonly class JwtDecoder
 {
-    public function __construct(
-        private JwtConfigInterface $config,
-    )
-    {}
 
     /**
-     * Валидация и декодирование JWT токена
-     *
-     * SignatureInvalidException — выбрасывается при некорректной подписи.
-     * BeforeValidException — если токен недействителен из-за указания nbf (Not Before) времени.
-     * ExpiredException — если токен просрочен из-за указания exp (Expiration) времени.
+     * Извлекает payload из JWT токена без проверки подписи.
      *
      * @param string $token Токен JWT
-     * @return string Идентификатор пользователя из JWT токена
+     * @return array Декодированный payload из JWT токена
+     * @throws Exception Если токен некорректен
      */
-    public function decode(string $token): string
+    public function decode(string $token): array
     {
-        $decodedToken = JWT::decode(
-            $token,
-            new Key($this->config->getValue('secretKey'), $this->config->getValue('algorithm')));
+        $parts = explode('.', $token);
 
-        return $decodedToken->sub;
+        if (count($parts) !== 3) {
+            throw new Exception('Некорректный формат JWT токена');
+        }
+
+        $decodedPayload = JWT::jsonDecode(JWT::urlsafeB64Decode($parts[1]));
+
+        if (!is_object($decodedPayload)) {
+            throw new Exception('Не удалось декодировать payload');
+        }
+
+        return (array)$decodedPayload;
     }
+
 }
