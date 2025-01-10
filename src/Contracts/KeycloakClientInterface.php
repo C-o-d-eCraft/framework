@@ -2,9 +2,7 @@
 
 namespace Craft\Contracts;
 
-interface JwtConfigInterface
+interface KeycloakClientInterface
 {
     public function __construct(array $config);
-
-    public function getValue(string $name): string;
 }
