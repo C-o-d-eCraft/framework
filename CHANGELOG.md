@@ -5,6 +5,10 @@
 Формат основан на [стандарте формата CHANGELOG](https://keepachangelog.com/en/1.0.0/),
 и придерживается [правил версионирования](https://semver.org/spec/v2.0.0.html).
 
+## [ [1.0.1](https://github.com/C-o-d-eCraft/framework/releases/tag/1.0.1) ] - 12.01.2025
+- Реализовано:
+  - Поправил контракт для клиента keycloak
+
 ## [ [1.0.0](https://github.com/C-o-d-eCraft/framework/releases/tag/1.0.0) ] - 10.01.2025
 - Реализовано:
   - Добавлен контракт для кейклок клиента и компонент для работы с кейклок
