@@ -5,6 +5,10 @@
 Формат основан на [стандарте формата CHANGELOG](https://keepachangelog.com/en/1.0.0/),
 и придерживается [правил версионирования](https://semver.org/spec/v2.0.0.html).
 
+## [ [1.0.3](https://github.com/C-o-d-eCraft/framework/releases/tag/1.0.3) ] - 30.01.2025
+- Реализовано:
+  - Добавил компонент для работы с redis.
+
 ## [ [1.0.2](https://github.com/C-o-d-eCraft/framework/releases/tag/1.0.2) ] - 23.01.2025
 - Исправлено:
   - Поправил контракт для клиента keycloak
