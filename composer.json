@@ -2,7 +2,7 @@
     "name": "c-o-d-e-craft/framework",
     "description": "Компонентный фреймворк, предоставляющий возможность быстрой реализации веб-приложений",
     "license": "MIT",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "authors": [
         {
             "name": "Andrey Bogachevskiy",
@@ -33,11 +33,14 @@
         "ext-posix": "*",
         "firebase/php-jwt": "v6.10.1",
         "fschmtt/keycloak-rest-api-client-php": "v0.29.0",
-        "predis/predis": "v2.3.0"
+        "ext-redis": "*",
+        "symfony/cache": "^7.0"
     },
     "require-dev": {
         "symfony/var-dumper": "^7.0",
         "codeception/codeception": "^5.1.2",
-        "fschmtt/keycloak-rest-api-client-php": "v0.29.0"
+        "fschmtt/keycloak-rest-api-client-php": "v0.29.0",
+        "ext-redis": "*",
+        "symfony/cache": "^7.0"
     }
 }
