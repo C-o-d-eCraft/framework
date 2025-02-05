@@ -5,6 +5,14 @@
 Формат основан на [стандарте формата CHANGELOG](https://keepachangelog.com/en/1.0.0/),
 и придерживается [правил версионирования](https://semver.org/spec/v2.0.0.html).
 
+## [ [1.0.6](https://github.com/C-o-d-eCraft/framework/releases/tag/1.0.6) ] - 06.02.2025
+- Реализовано:
+  - Реализован компонент RedisFacade
+
+## [ [1.0.5](https://github.com/C-o-d-eCraft/framework/releases/tag/1.0.5) ] - 30.01.2025
+- Изменено:
+  - Добавил в зависимости redis
+
 ## [ [1.0.4](https://github.com/C-o-d-eCraft/framework/releases/tag/1.0.4) ] - 30.01.2025
 - Исправлено:
   - Поправил контракт для работы с redis.
