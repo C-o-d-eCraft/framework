@@ -36,7 +36,7 @@
         "ext-redis": "*",
         "symfony/cache": "^7.0",
         "enqueue/enqueue-bundle": "*",
-        "enqueue/rdkafka": "^0.10.16"
+        "enqueue/rdkafka": "*"
     },
     "require-dev": {
         "symfony/var-dumper": "^7.0",
@@ -45,6 +45,6 @@
         "ext-redis": "*",
         "symfony/cache": "^7.0",
         "enqueue/enqueue-bundle": "*",
-        "enqueue/rdkafka": "^0.10.16"
+        "enqueue/rdkafka": "*"
     }
 }
