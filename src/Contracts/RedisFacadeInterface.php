@@ -19,6 +19,12 @@ interface RedisFacadeInterface
     public function setItem(string $key, mixed $value, ?int $ttl = null): void;
 
     /**
+     * @param string $key
+     * @return void
+     */
+    public function deleteItem(string $key): void;
+
+    /**
      * @param string $channel
      * @param array $data
      * @return void
