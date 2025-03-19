@@ -60,6 +60,16 @@ class RedisFacade implements RedisFacadeInterface
     }
 
     /**
+     * @param string $key
+     * @return void
+     * @throws InvalidArgumentException
+     */
+    public function deleteItem(string $key): void
+    {
+        $this->cacheAdapter->deleteItem($key);
+    }
+
+    /**
      * @param string $channel
      * @param array $data
      * @return void
