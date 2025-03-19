@@ -5,6 +5,10 @@
 Формат основан на [стандарте формата CHANGELOG](https://keepachangelog.com/en/1.0.0/),
 и придерживается [правил версионирования](https://semver.org/spec/v2.0.0.html).
 
+## [ [2.0.0](https://github.com/C-o-d-eCraft/framework/releases/tag/2.0.0) ] - 20.03.2025
+- Изменено:
+  - Доработан компонент RedisFacade
+
 ## [ [1.0.7](https://github.com/C-o-d-eCraft/framework/releases/tag/1.0.7) ] - 09.02.2025
 - Реализовано:
   - Реализован компонент KafkaFacade
