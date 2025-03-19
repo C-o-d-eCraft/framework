@@ -2,7 +2,7 @@
     "name": "c-o-d-e-craft/framework",
     "description": "Компонентный фреймворк, предоставляющий возможность быстрой реализации веб-приложений",
     "license": "MIT",
-    "version": "1.0.7",
+    "version": "2.0.0",
     "authors": [
         {
             "name": "Andrey Bogachevskiy",
